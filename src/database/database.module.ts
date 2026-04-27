@@ -13,7 +13,24 @@ export const DRIZZLE = 'DRIZZLE';
       provide: DRIZZLE,
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const connectionString = `postgres://${configService.get('POSTGRES_USER')}:${configService.get('POSTGRES_PASSWORD')}@${configService.get('POSTGRES_HOST')}:${configService.get('POSTGRES_PORT')}/${configService.get('POSTGRES_DB')}`;
+        const databaseUrl = configService.get<string>('DATABASE_URL')?.trim();
+
+        const connectionString =
+          databaseUrl && databaseUrl.length > 0
+            ? databaseUrl
+            : (() => {
+                const host = configService.get<string>('POSTGRES_HOST')?.trim() || 'localhost';
+                const port = configService.get<string>('POSTGRES_PORT')?.trim() || '5432';
+                const db = configService.get<string>('POSTGRES_DB')?.trim() || 'backends_db';
+                const user = configService.get<string>('POSTGRES_USER')?.trim() || 'postgres';
+                const password =
+                  configService.get<string>('POSTGRES_PASSWORD')?.trim() || 'postgres';
+
+                const url = new URL(`postgres://${host}:${port}/${db}`);
+                url.username = user;
+                url.password = password;
+                return url.toString();
+              })();
 
         const client = postgres(connectionString);
         return drizzle(client, { schema });

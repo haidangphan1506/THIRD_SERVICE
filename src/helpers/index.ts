@@ -1,1 +1,1 @@
-export * from './query';
+export * from './hashingData.helper';

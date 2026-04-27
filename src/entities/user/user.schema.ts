@@ -11,8 +11,14 @@ export const getUsersQuerySchema = z.object({
     .optional(),
 });
 
+export const dataFieldSchema = z.object({
+  field: z.string({ message: 'Field must be string ...' }).nonempty(),
+  value: z.string({ message: 'Value must be string ...' }).nonempty(),
+});
+
 export const createUserSchema = z.object({
-  email: z.email(),
-  fullName: z.string().trim().min(2).max(100),
+  email: z.string().email(),
+  firstName: z.string().trim().min(2).max(100),
+  lastName: z.string().trim().min(2).max(100),
   password: z.string().min(6).max(100),
 });
