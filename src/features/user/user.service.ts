@@ -8,8 +8,8 @@ import {
   type UserDataFieldDto,
   type CreateUserDto,
   type GetUsersQueryDto,
-} from '../../entities/user';
-import { hashData } from 'src/helpers';
+} from '../../packages/entities/user';
+import { hashData } from '../../packages/helpers';
 
 @Injectable()
 export class UserService {
@@ -67,8 +67,7 @@ export class UserService {
       throw new BadRequestException(`Username already exists: ${email.split('@')[0]}`);
     }
 
-    const makeUuid = uuidv4 as unknown as () => string;
-    const id = makeUuid();
+    const id = uuidv4();
     const hashedPassword = await hashData(password);
 
     const user = await this.db

@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { ApiResponseOptions } from 'src/interfaces';
+import { ApiResponseOptions } from '@packages/interfaces';
 
 export const API_RESPONSE_KEY = 'api_response';
 

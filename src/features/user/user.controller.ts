@@ -7,9 +7,9 @@ import {
   type CreateUserDto,
   createUserSchema,
   type CreateUserResponseDto,
-} from '../../entities/user';
-import { ApiResponse } from '../../decorators';
-import { ZodValidationPipe } from '../../pipes';
+} from '../../packages/entities/user';
+import { ApiResponse } from '../../packages/decorators';
+import { ZodValidationPipe } from '../../packages/pipes';
 import { UserService } from './user.service';
 import { StatusCodes } from 'http-status-codes';
 type GetUsersResponse = ReturnType<UserService['getUsersService']>;

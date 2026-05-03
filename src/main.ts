@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ResponseInterceptor } from './interceptor/response.interceptor';
+import { ResponseInterceptor } from '@packages/interceptor/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
