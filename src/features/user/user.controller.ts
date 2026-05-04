@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
+import { StatusCodes } from 'http-status-codes';
 import {
   getUsersQuerySchema,
   type GetUsersQueryDto,
@@ -7,12 +8,11 @@ import {
   type CreateUserDto,
   createUserSchema,
   type CreateUserResponseDto,
-} from '../../packages/entities/user';
-import { ApiResponse } from '../../packages/decorators';
-import { ZodValidationPipe } from '../../packages/pipes';
+} from '@packages/entities/user';
+import { ApiResponse } from '@packages/decorators';
+import { ZodValidationPipe } from '@packages/pipes';
 import { UserService } from './user.service';
-import { StatusCodes } from 'http-status-codes';
-type GetUsersResponse = ReturnType<UserService['getUsersService']>;
+type GetUsersResponse = Awaited<ReturnType<UserService['getUsersService']>>;
 
 @Controller('users')
 export class UserController {
@@ -20,11 +20,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  getUsers(
+  async getUsers(
     @Query(new ZodValidationPipe<GetUsersQueryDto>(getUsersQuerySchema))
     query: GetUsersQueryDto,
-  ): GetUsersResponse {
-    return this.userService.getUsersService(query);
+  ): Promise<GetUsersResponse> {
+    return await this.userService.getUsersService(query);
   }
 
   @Get('/get-by-field')

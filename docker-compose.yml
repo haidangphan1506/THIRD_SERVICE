@@ -1,6 +1,8 @@
+# Docker Compose v2 and Podman Compose (`podman compose up -d`) use this file.
+# Host port defaults to 5433 so a local PostgreSQL on 5432 does not conflict (override with POSTGRES_PORT in .env).
 services:
   postgres:
-    image: postgres:16-alpine
+    image: docker.io/library/postgres:16-alpine
     container_name: backends-postgres
     restart: unless-stopped
     environment:
@@ -8,14 +10,25 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - '${POSTGRES_PORT:-5432}:5432'
+      - '${POSTGRES_PORT:-5433}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-backends_db}']
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-backends_db}',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    container_name: backends-redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6380}:6379'
 
 volumes:
   postgres_data:
