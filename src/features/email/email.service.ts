@@ -1,9 +1,6 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '../../mailer/mailer.service';
-import { RedisService } from '../../redis/redis.service';
-
-const PASSWORD_RESET_REDIS_PREFIX = 'password_reset:';
 
 export type SendForgotPasswordMailParams = {
   to: string;
@@ -18,15 +15,7 @@ export class EmailService {
   constructor(
     private readonly mailer: MailerService,
     private readonly configService: ConfigService,
-    private readonly redis: RedisService,
   ) {}
-
-  /**
-   * Lưu token reset (userId) trong Redis — ví dụ TTL 1 giờ; bước reset-password sẽ đọc lại.
-   */
-  async savePasswordResetToken(token: string, userId: string, ttlSeconds = 3600): Promise<void> {
-    await this.redis.set(`${PASSWORD_RESET_REDIS_PREFIX}${token}`, userId, ttlSeconds);
-  }
 
   /**
    * Gửi email chứa link reset (frontend ghép với `PASSWORD_RESET_URL_BASE`).
@@ -74,7 +63,9 @@ export class EmailService {
         text,
         html,
       });
-      this.logger.log(`Đã gửi email forgot-password tới ${params.to} — kiểm tra hộp thư & thư mục Spam.`);
+      this.logger.log(
+        `Đã gửi email forgot-password tới ${params.to} — kiểm tra hộp thư & thư mục Spam.`,
+      );
     } catch (err) {
       this.logger.error(
         `sendForgotPasswordMail failed for ${params.to}`,

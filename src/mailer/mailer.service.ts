@@ -63,7 +63,7 @@ export class MailerService implements OnModuleInit, OnModuleDestroy {
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: { user, pass },
-      }) as MailTransport;
+      });
       this.logger.log('Mailer: transport Gmail (nodemailer service: gmail)');
       return;
     }
@@ -71,7 +71,9 @@ export class MailerService implements OnModuleInit, OnModuleDestroy {
     const host = this.configService.get<string>('MAIL_HOST')?.trim();
     const portRaw = this.configService.get<string>('MAIL_PORT')?.trim();
     if (!host || !portRaw) {
-      this.logger.warn('MAIL_HOST / MAIL_PORT not set — MailerService.sendMail will fail until configured');
+      this.logger.warn(
+        'MAIL_HOST / MAIL_PORT not set — MailerService.sendMail will fail until configured',
+      );
       return;
     }
     const port = Number(portRaw);
@@ -88,7 +90,7 @@ export class MailerService implements OnModuleInit, OnModuleDestroy {
               pass,
             }
           : undefined,
-    }) as MailTransport;
+    });
   }
 
   async onModuleInit(): Promise<void> {
@@ -123,7 +125,9 @@ export class MailerService implements OnModuleInit, OnModuleDestroy {
       }
     }
     if (!from) {
-      throw new ServiceUnavailableException('MAIL_FROM is not set (với Gmail có thể để trống nếu đã set MAIL_USER)');
+      throw new ServiceUnavailableException(
+        'MAIL_FROM is not set (với Gmail có thể để trống nếu đã set MAIL_USER)',
+      );
     }
 
     const info = (await this.transporter.sendMail({

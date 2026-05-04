@@ -41,9 +41,13 @@ export default tseslint.config(
       'prettier/prettier': 'off',
     },
   },
-  // ioredis: một số môi trường IDE/projectService báo "type could not be resolved" → no-unsafe-* nhiễu; vẫn kiểm tra bằng tsc
+  // ioredis / nodemailer + bcrypt + @nestjs/jwt: một số môi trường IDE/projectService báo "type could not be resolved" → no-unsafe-* nhiễu; vẫn kiểm tra bằng tsc
   {
-    files: ['src/redis/redis.service.ts', 'src/mailer/mailer.service.ts'],
+    files: [
+      'src/redis/redis.service.ts',
+      'src/mailer/mailer.service.ts',
+      'src/features/auth/auth.service.ts',
+    ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
