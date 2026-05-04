@@ -27,6 +27,12 @@ export const dataFieldSchema = z.object({
 export const createUserSchema = z
   .object({
     email: z.string({ message: 'Email is required' }).min(1, { message: 'Email is required' }).email({ message: 'Invalid email address' }),
+    username: z
+      .string()
+      .trim()
+      .min(1, { message: 'Username must be at least 1 character' })
+      .max(100, { message: 'Username must be at most 100 characters' })
+      .optional(),
     firstName: z
       .string({ message: 'First name is required' })
       .trim()

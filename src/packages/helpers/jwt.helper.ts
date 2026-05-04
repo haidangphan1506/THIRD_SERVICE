@@ -1,4 +1,13 @@
-import type { JwtService } from '@nestjs/jwt';
+/**
+ * Narrow contract for signing — `JwtService` from `@nestjs/jwt` satisfies this structurally
+ * and avoids type-resolution noise from recommended-type-checked ESLint in some setups.
+ */
+export type JwtSignContract = {
+  signAsync(
+    payload: object,
+    options: { secret: string; expiresIn: number },
+  ): Promise<string>;
+};
 
 /**
  * TTL mặc định (giây). Ghi đè bằng env:
@@ -35,7 +44,7 @@ export type JwtTokensConfig = {
 };
 
 export async function signAccessToken(
-  jwtService: JwtService,
+  jwtService: JwtSignContract,
   payload: Pick<JwtAccessPayload, 'sub' | 'email'>,
   config: JwtTokensConfig,
 ): Promise<string> {
@@ -47,7 +56,7 @@ export async function signAccessToken(
 }
 
 export async function signRefreshToken(
-  jwtService: JwtService,
+  jwtService: JwtSignContract,
   payload: Pick<JwtRefreshPayload, 'sub' | 'email'>,
   config: JwtTokensConfig,
 ): Promise<string> {

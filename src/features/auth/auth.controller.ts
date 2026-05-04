@@ -4,11 +4,17 @@ import {
   forgotPasswordSchema,
   loginSchema,
   refreshTokenBodySchema,
+  type RegisterDto,
+  RegisterResponseDto,
+  registerSchema,
   type ForgotPasswordDto,
   type ForgotPasswordResponseDto,
   type LoginDto,
   type LoginResponseDto,
   type RefreshTokenBodyDto,
+  resetPasswordSchema,
+  type ResetPasswordDto,
+  ResetPasswordResponseDto,
 } from '@packages/entities/auth';
 import { ApiResponse } from '@packages/decorators';
 import { ZodValidationPipe } from '@packages/pipes';
@@ -17,6 +23,15 @@ import { AuthService } from './auth.service';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+  @Post('register')
+  @HttpCode(StatusCodes.OK)
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Login successful' })
+  async register(
+    @Body(new ZodValidationPipe<RegisterDto>(registerSchema))
+    registerDto: RegisterDto,
+  ): Promise<RegisterResponseDto> {
+    return this.authService.registerService(registerDto);
+  }
 
   @Post('login')
   @HttpCode(StatusCodes.OK)
@@ -46,12 +61,16 @@ export class AuthController {
     forgotPasswordDto: ForgotPasswordDto,
   ): Promise<ForgotPasswordResponseDto> {
     return this.authService.forgotPasswordService(forgotPasswordDto);
-  } 
+  }
 
-  @Post('logout')
+  @Post('/reset-password')
   @HttpCode(StatusCodes.OK)
-  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Logout successful' })
-  logout(): Record<string, never> {
-    return this.authService.logout();
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Reset password successful' })
+  resetPassword(
+    @Body(new ZodValidationPipe<ResetPasswordDto>(resetPasswordSchema))
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<ResetPasswordResponseDto> {
+    console.log(resetPasswordDto);
+    return this.authService.resetPasswordService(resetPasswordDto);
   }
 }

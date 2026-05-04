@@ -61,7 +61,12 @@ export class UserService {
       conditions.push(eq(users.isActive, isActive));
     }
 
-    const whereClause = conditions.length === 0 ? undefined : conditions.length === 1 ? conditions[0] : and(...conditions);
+    const whereClause =
+      conditions.length === 0
+        ? undefined
+        : conditions.length === 1
+          ? conditions[0]
+          : and(...conditions);
 
     const [totalRow] = await this.db.select({ total: count() }).from(users).where(whereClause);
     const total = Number(totalRow?.total ?? 0);
@@ -89,7 +94,8 @@ export class UserService {
       name: `${row.firstName} ${row.lastName}`.trim(),
       role: row.role ?? 'USER',
       status: row.isActive === true ? 'active' : 'inactive',
-      createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
+      createdAt:
+        row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
     }));
 
     return {
@@ -115,13 +121,16 @@ export class UserService {
 
     const field = userDataFieldDto.field as (typeof this.searchableFields)[number];
 
-    return await this.db.select().from(users).where(eq(users[field], userDataFieldDto.value)) as User[] | [];
+    return (await this.db.select().from(users).where(eq(users[field], userDataFieldDto.value))) as
+      | User[]
+      | [];
   }
 
   async createUserService(createUserDto: CreateUserDto): Promise<unknown> {
     this.logger.log(`Creating new user ...`);
 
-    const { email, firstName, lastName, password } = createUserDto;
+    const { email, firstName, lastName, password, username } = createUserDto;
+    const resolvedUsername = username?.trim() || email.split('@')[0];
 
     const isUserExistsByEmail = await this.getUserByField({ field: 'email', value: email });
     this.logger.log(`isUserExistsByEmail: ${JSON.stringify(isUserExistsByEmail)}`);
@@ -135,14 +144,14 @@ export class UserService {
 
     const isUserExistsByUsername = await this.getUserByField({
       field: 'username',
-      value: email.split('@')[0],
+      value: resolvedUsername,
     });
     if (
       !isUserExistsByUsername ||
       (Array.isArray(isUserExistsByUsername) && isUserExistsByUsername.length > 0)
     ) {
-      this.logger.warn(`Status: 400 - Username already exists: ${email.split('@')[0]}`);
-      throw new BadRequestException(`Username already exists: ${email.split('@')[0]}`);
+      this.logger.warn(`Status: 400 - Username already exists: ${resolvedUsername}`);
+      throw new BadRequestException(`Username already exists: ${resolvedUsername}`);
     }
 
     const id = randomUUID();
@@ -153,12 +162,22 @@ export class UserService {
       .values({
         id,
         email,
-        username: email.split('@')[0],
+        username: resolvedUsername,
         firstName,
         lastName,
         password: hashedPassword,
       })
       .returning();
     return user[0];
+  }
+
+  async updateUserPasswordService({ id, password }: { id: string; password: string }) {
+    const hashedPassword = await hashData(password);
+    const updatedUser = await this.db
+      .update(users)
+      .set({ password: hashedPassword })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser[0];
   }
 }

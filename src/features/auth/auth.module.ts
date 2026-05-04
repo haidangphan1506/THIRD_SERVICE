@@ -6,11 +6,13 @@ import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { getJwtModuleOptionsFromConfig } from '@packages/configs/jwt-sign.config';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
     UserModule,
     EmailModule,
+    RedisModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
