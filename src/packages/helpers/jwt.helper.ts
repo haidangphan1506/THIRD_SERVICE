@@ -1,0 +1,59 @@
+import type { JwtService } from '@nestjs/jwt';
+
+/**
+ * TTL mặc định (giây). Ghi đè bằng env:
+ * - `JWT_ACCESS_EXPIRES_SECONDS` (mặc định 3 giờ)
+ * - `JWT_REFRESH_EXPIRES_SECONDS` (mặc định 7 ngày)
+ *
+ * Secret: dùng UUID (v4) trong `.env` cho `JWT_ACCESS_SECRET` và `JWT_REFRESH_SECRET`
+ * (xem `.env.example`).
+ */
+export const DEFAULT_JWT_ACCESS_EXPIRES_SECONDS = 60 * 60 * 3; // 3h
+export const DEFAULT_JWT_REFRESH_EXPIRES_SECONDS = 60 * 60 * 24 * 7; // 7d
+
+export type JwtTokenTyp = 'access' | 'refresh';
+export type JwtAccessPayload = {
+  sub: string;
+  email: string;
+  typ: 'access';
+};
+
+export type JwtRefreshPayload = {
+  sub: string;
+  email: string;
+  typ: 'refresh';
+};
+
+export type JwtPayload = JwtAccessPayload | JwtRefreshPayload;
+
+/** Secrets + TTLs for access and refresh JWTs */
+export type JwtTokensConfig = {
+  accessSecret: string;
+  accessExpiresIn: number;
+  refreshSecret: string;
+  refreshExpiresIn: number;
+};
+
+export async function signAccessToken(
+  jwtService: JwtService,
+  payload: Pick<JwtAccessPayload, 'sub' | 'email'>,
+  config: JwtTokensConfig,
+): Promise<string> {
+  const body: JwtAccessPayload = { ...payload, typ: 'access' };
+  return jwtService.signAsync(body, {
+    secret: config.accessSecret,
+    expiresIn: config.accessExpiresIn,
+  });
+}
+
+export async function signRefreshToken(
+  jwtService: JwtService,
+  payload: Pick<JwtRefreshPayload, 'sub' | 'email'>,
+  config: JwtTokensConfig,
+): Promise<string> {
+  const body: JwtRefreshPayload = { ...payload, typ: 'refresh' };
+  return jwtService.signAsync(body, {
+    secret: config.refreshSecret,
+    expiresIn: config.refreshExpiresIn,
+  });
+}

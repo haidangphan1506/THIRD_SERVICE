@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
+import { and, count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { users } from '../../database/schema';
@@ -8,8 +8,9 @@ import {
   type UserDataFieldDto,
   type CreateUserDto,
   type GetUsersQueryDto,
-} from '../../packages/entities/user';
-import { hashData } from '../../packages/helpers';
+  User,
+} from '@packages/entities/user';
+import { hashData } from '@packages/helpers';
 
 @Injectable()
 export class UserService {
@@ -21,11 +22,88 @@ export class UserService {
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
-  getUsersService(query: GetUsersQueryDto) {
-    return query;
+  async getUsersService(query: GetUsersQueryDto): Promise<{
+    data: Array<{
+      id: string;
+      email: string;
+      name: string;
+      role: string;
+      status: string;
+      createdAt: string;
+    }>;
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const { page, limit, search, role, isActive } = query;
+    const offset = (page - 1) * limit;
+
+    const conditions: SQL[] = [];
+    if (search?.trim()) {
+      const pattern = `%${search.trim()}%`;
+      const searchCond = or(
+        ilike(users.email, pattern),
+        ilike(users.username, pattern),
+        ilike(users.firstName, pattern),
+        ilike(users.lastName, pattern),
+      );
+      if (searchCond) {
+        conditions.push(searchCond);
+      }
+    }
+    if (role !== undefined) {
+      conditions.push(eq(users.role, role));
+    }
+    if (isActive !== undefined) {
+      conditions.push(eq(users.isActive, isActive));
+    }
+
+    const whereClause = conditions.length === 0 ? undefined : conditions.length === 1 ? conditions[0] : and(...conditions);
+
+    const [totalRow] = await this.db.select({ total: count() }).from(users).where(whereClause);
+    const total = Number(totalRow?.total ?? 0);
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+
+    const rows = await this.db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(whereClause)
+      .orderBy(desc(users.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const data = rows.map((row) => ({
+      id: row.id,
+      email: row.email,
+      name: `${row.firstName} ${row.lastName}`.trim(),
+      role: row.role ?? 'USER',
+      status: row.isActive === true ? 'active' : 'inactive',
+      createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
+    }));
+
+    return {
+      data,
+      pagination: {
+        page,
+        pageSize: limit,
+        total,
+        totalPages,
+      },
+    };
   }
 
-  async getUserByField(userDataFieldDto: UserDataFieldDto): Promise<unknown> {
+  async getUserByField(userDataFieldDto: UserDataFieldDto): Promise<User[] | []> {
     if (
       !this.searchableFields.includes(
         userDataFieldDto.field as (typeof this.searchableFields)[number],
@@ -37,7 +115,7 @@ export class UserService {
 
     const field = userDataFieldDto.field as (typeof this.searchableFields)[number];
 
-    return await this.db.select().from(users).where(eq(users[field], userDataFieldDto.value));
+    return await this.db.select().from(users).where(eq(users[field], userDataFieldDto.value)) as User[] | [];
   }
 
   async createUserService(createUserDto: CreateUserDto): Promise<unknown> {
@@ -67,7 +145,7 @@ export class UserService {
       throw new BadRequestException(`Username already exists: ${email.split('@')[0]}`);
     }
 
-    const id = uuidv4();
+    const id = randomUUID();
     const hashedPassword = await hashData(password);
 
     const user = await this.db
@@ -81,7 +159,6 @@ export class UserService {
         password: hashedPassword,
       })
       .returning();
-    this.logger.log(`user created successfully: ${JSON.stringify(user[0]?.id)}`);
     return user[0];
   }
 }

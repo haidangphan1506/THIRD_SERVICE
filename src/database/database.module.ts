@@ -20,7 +20,7 @@ export const DRIZZLE = 'DRIZZLE';
             ? databaseUrl
             : (() => {
                 const host = configService.get<string>('POSTGRES_HOST')?.trim() || 'localhost';
-                const port = configService.get<string>('POSTGRES_PORT')?.trim() || '5432';
+                const port = configService.get<string>('POSTGRES_PORT')?.trim() || '5433';
                 const db = configService.get<string>('POSTGRES_DB')?.trim() || 'backends_db';
                 const user = configService.get<string>('POSTGRES_USER')?.trim() || 'postgres';
                 const password =

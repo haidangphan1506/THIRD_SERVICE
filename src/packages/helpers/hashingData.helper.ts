@@ -11,7 +11,7 @@ export async function hashData(data: string): Promise<string> {
     });
 }
 
-export async function verifyData(data: string, hash: string): Promise<boolean> {
+export async function compareData(data: string, hash: string): Promise<boolean> {
   return await bcrypt
     .compare(data, hash)
     .then((result: boolean) => result)
