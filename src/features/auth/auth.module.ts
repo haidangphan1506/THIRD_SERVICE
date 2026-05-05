@@ -6,7 +6,7 @@ import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { getJwtModuleOptionsFromConfig } from '@packages/configs/jwt-sign.config';
-import { RedisModule } from 'src/redis/redis.module';
+import { RedisModule } from 'src/features/redis/redis.module';
 
 @Module({
   imports: [

@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 
 /** Access-token payload shape (matches access JWTs from `signAccessToken`). */
 export type JwtGuardUser = {
-  sub: string;
+  id: string;
   email: string;
   typ: 'access';
 };
@@ -34,7 +34,7 @@ function parseAccessPayload(decoded: unknown): JwtGuardUser {
   if (o.typ !== 'access' || typeof o.sub !== 'string' || typeof o.email !== 'string') {
     throw new UnauthorizedException('Unauthorized ...');
   }
-  return { sub: o.sub, email: o.email, typ: 'access' };
+  return { id: o.sub, email: o.email, typ: 'access' };
 }
 
 @Injectable()
