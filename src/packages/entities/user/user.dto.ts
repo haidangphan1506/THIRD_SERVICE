@@ -16,8 +16,8 @@ export type User = {
   password: string;
   avatar: string | null;
   phone: string | null;
-  isActive: boolean | null; // vì có default nhưng không notNull
-  role: 'USER' | 'ADMIN'; // tùy enum của bạn
+  isActive: boolean | null;
+  role: "USER" | "ADMIN" | "MODERATOR" | null;
   createdAt: Date;
   updatedAt: Date;
 };

@@ -16,7 +16,7 @@ import {
   type ResetPasswordDto,
   ResetPasswordResponseDto,
 } from '@packages/entities/auth';
-import { ApiResponse } from '@packages/decorators';
+import { ApiResponse, Public } from '@packages/decorators';
 import { ZodValidationPipe } from '@packages/pipes';
 import { AuthService } from './auth.service';
 
@@ -33,6 +33,7 @@ export class AuthController {
     return this.authService.registerService(registerDto);
   }
 
+  @Public()
   @Post('login')
   @HttpCode(StatusCodes.OK)
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Login successful' })

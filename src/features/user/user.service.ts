@@ -109,6 +109,11 @@ export class UserService {
     };
   }
 
+  async getDetailUserService({ id }: { id: string }): Promise<User | null> {
+    const [user] = await this.db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
   async getUserByField(userDataFieldDto: UserDataFieldDto): Promise<User[] | []> {
     if (
       !this.searchableFields.includes(
@@ -121,9 +126,8 @@ export class UserService {
 
     const field = userDataFieldDto.field as (typeof this.searchableFields)[number];
 
-    return (await this.db.select().from(users).where(eq(users[field], userDataFieldDto.value))) as
-      | User[]
-      | [];
+    const user = await this.db.select().from(users).where(eq(users[field], userDataFieldDto.value));
+    return user;
   }
 
   async createUserService(createUserDto: CreateUserDto): Promise<unknown> {
@@ -179,5 +183,17 @@ export class UserService {
       .where(eq(users.id, id))
       .returning();
     return updatedUser[0];
+  }
+
+  async updateUserService({ id, data }: { id: string; data: Record<string, string> }) {
+    const user = await this.getUserByField({
+      field: 'id',
+      value: id,
+    });
+    if (Array.isArray(user) && !user.length) {
+      throw new BadRequestException('User not found ...');
+    }
+
+    await this.db.update(users).set(data).where(eq(users.id, id));
   }
 }
