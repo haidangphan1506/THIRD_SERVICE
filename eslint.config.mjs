@@ -46,7 +46,8 @@ export default tseslint.config(
     files: [
       'src/redis/redis.service.ts',
       'src/mailer/mailer.service.ts',
-      'src/features/auth/auth.service.ts',
+      'src/packages/strategy/jwt-user.strategy.ts',
+      // 'src/features/auth/auth.service.ts',
     ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',

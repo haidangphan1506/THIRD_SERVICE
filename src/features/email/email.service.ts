@@ -1,6 +1,6 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MailerService } from '../../mailer/mailer.service';
+import { MailerService } from '../transaction/mailer/mailer.service';
 
 export type SendForgotPasswordMailParams = {
   to: string;

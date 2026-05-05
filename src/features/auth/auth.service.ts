@@ -24,7 +24,7 @@ import { UserService } from '../user/user.service';
 import { getJwtTokensConfig } from '@packages/configs/jwt-sign.config';
 import type { User } from '@packages/entities/user';
 import { randomUUID } from 'node:crypto';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from 'src/features/redis/redis.service';
 
 function parseRefreshTokenPayload(value: unknown): JwtRefreshPayload {
   if (typeof value !== 'object' || value === null) {
@@ -98,7 +98,7 @@ export class AuthService {
     }
 
     const user = rows[0];
-    const isPasswordOk = (await compareData(loginDto.password, user.password)) as boolean;
+    const isPasswordOk = await compareData(loginDto.password, user.password);
     if (!isPasswordOk) {
       throw new BadRequestException('Invalid password ...');
     }
@@ -111,7 +111,7 @@ export class AuthService {
 
     await this.redis.set(
       `${this.ACCESS_TOKEN_REDIS_PREFIX}:${user.id}`,
-      refreshToken as string,
+      refreshToken,
       604800,
     );
 
@@ -156,6 +156,19 @@ export class AuthService {
     if (!userId) {
       throw new BadRequestException('Invalid reset password token ...');
     }
+
+    const user : User[] = await this.userService.getUserByField({
+      field: 'id',
+      value: userId,
+    });
+    if (!Array.isArray(user) || user.length === 0) {
+      throw new BadRequestException('User not found ...');
+    }
+
+    if(user[0].isActive === false) {
+      throw new BadRequestException('User is not active ...');
+    }
+
     const updatedUser = await this.userService.updateUserPasswordService({
       id: userId,
       password,
