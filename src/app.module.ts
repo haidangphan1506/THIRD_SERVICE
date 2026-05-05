@@ -10,6 +10,9 @@ import { EmailModule } from './features/email/email.module';
 import { TransactionModule } from './features/transaction/transaction.module';
 import { UserModule } from './features/user/user.module';
 import { WalletModule } from './features/wallet/wallet.module';
+import { JwtAuthGuard } from '@packages/guards';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -24,8 +27,18 @@ import { WalletModule } from './features/wallet/wallet.module';
     WalletModule,
     TransactionModule,
     EmailModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
