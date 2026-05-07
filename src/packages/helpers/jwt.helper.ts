@@ -21,10 +21,15 @@ export const DEFAULT_JWT_ACCESS_EXPIRES_SECONDS = 60 * 60 * 3; // 3h
 export const DEFAULT_JWT_REFRESH_EXPIRES_SECONDS = 60 * 60 * 24 * 7; // 7d
 
 export type JwtTokenTyp = 'access' | 'refresh';
+
+/** Matches DB `user_role` enum — embedded on access JWTs for route guards. */
+export type JwtUserRole = 'USER' | 'ADMIN' | 'MODERATOR';
+
 export type JwtAccessPayload = {
   sub: string;
   email: string;
   typ: 'access';
+  role: JwtUserRole;
 };
 
 export type JwtRefreshPayload = {
@@ -45,7 +50,7 @@ export type JwtTokensConfig = {
 
 export async function signAccessToken(
   jwtService: JwtSignContract,
-  payload: Pick<JwtAccessPayload, 'sub' | 'email'>,
+  payload: Pick<JwtAccessPayload, 'sub' | 'email' | 'role'>,
   config: JwtTokensConfig,
 ): Promise<string> {
   const body: JwtAccessPayload = { ...payload, typ: 'access' };

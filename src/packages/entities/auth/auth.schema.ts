@@ -26,7 +26,38 @@ export const loginSchema = z.object({
   password: z
     .string({ message: 'Password is required' })
     .min(6, { message: 'Password must be at least 6 characters long' })
-    .max(100, { message: 'Password must be less than 100 characters long' }),
+    .max(100, { message: 'Password must be less than 100 characters long' })
+    .superRefine((password, ctx) => {
+      if (!/[a-z]/.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must include at least one lowercase letter (a-z)',
+          
+        });
+      }
+      if (!/[A-Z]/.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must include at least one uppercase letter (A-Z)',
+          
+        });
+      }
+      if (!/\d/.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must include at least one digit (0-9)',
+          
+        });
+      }
+      if (!/[^A-Za-z0-9]/.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Password must include at least one special character (any symbol that is not a letter or digit)',
+          
+        });
+      }
+    })
 });
 
 export const refreshTokenBodySchema = z.object({

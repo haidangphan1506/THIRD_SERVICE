@@ -3,14 +3,12 @@ import {
   ExecutionContext,
   HttpException,
   Injectable,
-  Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable()
 export class ErrorInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(ErrorInterceptor.name);
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     return next.handle().pipe(
