@@ -10,6 +10,7 @@ import { EmailModule } from './features/email/email.module';
 import { TransactionModule } from './features/transaction/transaction.module';
 import { UserModule } from './features/user/user.module';
 import { WalletModule } from './features/wallet/wallet.module';
+import { CategoryModule } from './features/category/category.module';
 import { JwtAuthGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -23,6 +24,7 @@ import { JwtModule } from '@nestjs/jwt';
     MailerModule,
     RedisModule,
     UserModule,
+    CategoryModule,
     AuthModule,
     WalletModule,
     TransactionModule,
