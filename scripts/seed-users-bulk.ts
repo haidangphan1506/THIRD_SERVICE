@@ -70,8 +70,8 @@ async function main(): Promise<void> {
 
   const toCreate: { email: string; username: string }[] = [];
   for (let i = 0; i < emails.length; i++) {
-    const email = emails[i]!;
-    const username = usernames[i]!;
+    const email = emails[i];
+    const username = usernames[i];
     if (
       !existingEmails.has(email.toLowerCase()) &&
       !existingUsernames.has(username.toLowerCase())

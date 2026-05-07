@@ -6,11 +6,14 @@ import { IS_PUBLIC_KEY } from '@packages/decorators';
 import type { Request } from 'express';
 import { Observable } from 'rxjs';
 
+import type { JwtUserRole } from '@packages/helpers';
+
 /** Access-token payload shape (matches access JWTs from `signAccessToken`). */
 export type JwtGuardUser = {
   id: string;
   email: string;
   typ: 'access';
+  role: JwtUserRole;
 };
 
 type RequestWithUser = Request & { user?: JwtGuardUser };
@@ -26,6 +29,15 @@ function bearerToken(authorization: string | undefined): string | undefined {
   return value;
 }
 
+const JWT_ROLES: readonly JwtUserRole[] = ['USER', 'ADMIN', 'MODERATOR'];
+
+function parseJwtUserRole(value: unknown): JwtUserRole {
+  if (typeof value === 'string' && (JWT_ROLES as readonly string[]).includes(value)) {
+    return value as JwtUserRole;
+  }
+  return 'USER';
+}
+
 function parseAccessPayload(decoded: unknown): JwtGuardUser {
   if (typeof decoded !== 'object' || decoded === null) {
     throw new UnauthorizedException('Unauthorized ...');
@@ -34,7 +46,7 @@ function parseAccessPayload(decoded: unknown): JwtGuardUser {
   if (o.typ !== 'access' || typeof o.sub !== 'string' || typeof o.email !== 'string') {
     throw new UnauthorizedException('Unauthorized ...');
   }
-  return { id: o.sub, email: o.email, typ: 'access' };
+  return { id: o.sub, email: o.email, typ: 'access', role: parseJwtUserRole(o.role) };
 }
 
 @Injectable()

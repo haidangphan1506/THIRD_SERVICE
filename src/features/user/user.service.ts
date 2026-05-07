@@ -196,4 +196,29 @@ export class UserService {
 
     await this.db.update(users).set(data).where(eq(users.id, id));
   }
+
+  async updateStatusUserService({ id }: { id: string }) {
+    const user = await this.getUserByField({
+      field: 'id',
+      value: id,
+    });
+    if (Array.isArray(user) && !user.length) {
+      throw new BadRequestException('User not found ...');
+    }
+
+    const updatedUser = await this.db.update(users).set({ isActive: !user[0].isActive }).where(eq(users.id, id)).returning();
+    return updatedUser[0];
+  }
+
+  async deleteUserByAdminService({ id }: { id: string }) {
+    const user = await this.getUserByField({
+      field: 'id',
+      value: id,
+    });
+    if (Array.isArray(user) && !user.length) {
+      throw new BadRequestException('User not found ...');
+    }
+    await this.db.delete(users).where(eq(users.id, id));
+    return { id: id };
+  }
 }

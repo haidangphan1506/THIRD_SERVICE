@@ -103,10 +103,10 @@ export class AuthService {
       throw new BadRequestException('Invalid password ...');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
-      signRefreshToken(this.jwtService, payload, this.jwtTokensConfig),
+      signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
     ]);
 
     await this.redis.set(
@@ -222,10 +222,11 @@ export class AuthService {
     }
 
     const user = rows[0];
-    const next = { sub: user.id, email: user.email };
+    const accessPayload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const refreshPayload = { sub: user.id, email: user.email };
     const [accessToken, refreshToken] = await Promise.all([
-      signAccessToken(this.jwtService, next, this.jwtTokensConfig),
-      signRefreshToken(this.jwtService, next, this.jwtTokensConfig),
+      signAccessToken(this.jwtService, accessPayload, this.jwtTokensConfig),
+      signRefreshToken(this.jwtService, refreshPayload, this.jwtTokensConfig),
     ]);
 
     return {

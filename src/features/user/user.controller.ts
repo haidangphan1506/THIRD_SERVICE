@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { StatusCodes } from 'http-status-codes';
 import {
   getUsersQuerySchema,
@@ -10,6 +10,7 @@ import {
   type CreateUserResponseDto,
 } from '@packages/entities/user';
 import { ApiResponse, CurrentUser } from '@packages/decorators';
+import { JwtAuthGuard } from '@packages/guards';
 import { ZodValidationPipe } from '@packages/pipes';
 import { UserService } from './user.service';
 type GetUsersResponse = Awaited<ReturnType<UserService['getUsersService']>>;
@@ -59,5 +60,26 @@ export class UserController {
     @Body() updateUserDto: Record<string, string>,
   ) {
     return await this.userService.updateUserService({ id: user.id, data: updateUserDto });
+  }
+
+  @Put('/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Update user successfully ...' })
+  async updateUserByAdminController(@Param('id') id: string, @Body() updateUserDto: Record<string, string>) {
+    return await this.userService.updateUserService({ id: id, data: updateUserDto });
+  }
+
+  @Put('/:id/status')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Update user status successfully ...' })
+  async updateStatusUserController(@Param('id') id: string) {
+    return await this.userService.updateStatusUserService({ id: id });
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Delete user successfully ...' })
+  async deleteUserByAdminController(@Param('id') id: string) {
+    return await this.userService.deleteUserByAdminService({ id: id });
   }
 }

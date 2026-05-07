@@ -17,6 +17,7 @@ export class ZodValidationPipe<TOutput = unknown> implements PipeTransform<unkno
     const result = this.schema.safeParse(normalizedValue);
 
     if (!result.success) {
+      console.log("result.error.issues: ", result.error.issues);
       const errors = this.firstErrorPerField(result.error.issues);
 
       throw new UnprocessableEntityException({
@@ -50,6 +51,7 @@ export class ZodValidationPipe<TOutput = unknown> implements PipeTransform<unkno
         code: issue.code,
       });
     }
+    
     return out;
   }
 
