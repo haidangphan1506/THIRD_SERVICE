@@ -8,10 +8,12 @@ import {
   pgEnum,
   uniqueIndex,
   type AnyPgColumn,
+  numeric,
 } from 'drizzle-orm/pg-core';
 
 export const userRoleEnum = pgEnum('user_role', ['USER', 'ADMIN', 'MODERATOR']);
 export const categoryTypeEnum = pgEnum('category_type', ['INCOME', 'EXPENSE']);
+export const walletTypeEnum = pgEnum('wallet_type', ['CASH', 'BANK', 'E_WALLET', 'CREDIT']);
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -43,4 +45,30 @@ export const categories = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [uniqueIndex('categories_name_type_parent_unique').on(table.name, table.type, table.parentId)],
+);
+
+
+export const wallets = pgTable(
+  'wallets',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, {
+        onDelete: 'cascade',
+      }),
+    name: varchar('name', { length: 100 }).notNull(),
+    type: walletTypeEnum('type').notNull().default('CASH'),
+    currency: varchar('currency', { length: 3 }).notNull().default('VND'),
+    categoriesId: uuid('categories_id').array().notNull().default([]),
+    balance: numeric('balance', { precision: 14, scale: 2 }).notNull().default('0'),
+    note: text('note'),
+    isDefault: boolean('is_default').notNull().default(false),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('wallets_user_name_unique').on(table.userId, table.name),
+  ],
 );

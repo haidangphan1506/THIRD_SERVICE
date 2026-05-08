@@ -13,7 +13,8 @@ export class CategoryService {
       field: 'name',
       value: createCategoryDto.name,
     });
-    if (isCategoryExists) {
+    
+    if (Array.isArray(isCategoryExists) && isCategoryExists.length > 0) {
       throw new BadRequestException('Category already exists ...');
     }
     const category = await this.category.createCategory(createCategoryDto);
