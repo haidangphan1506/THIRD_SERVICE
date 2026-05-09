@@ -14,6 +14,12 @@ import {
 export const userRoleEnum = pgEnum('user_role', ['USER', 'ADMIN', 'MODERATOR']);
 export const categoryTypeEnum = pgEnum('category_type', ['INCOME', 'EXPENSE']);
 export const walletTypeEnum = pgEnum('wallet_type', ['CASH', 'BANK', 'E_WALLET', 'CREDIT']);
+export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
+export const transactionStatusEnum = pgEnum('transaction_status', [
+  'PENDING',
+  'COMPLETED',
+  'CANCELLED',
+]);
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -44,9 +50,10 @@ export const categories = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [uniqueIndex('categories_name_type_parent_unique').on(table.name, table.type, table.parentId)],
+  (table) => [
+    uniqueIndex('categories_name_type_parent_unique').on(table.name, table.type, table.parentId),
+  ],
 );
-
 
 export const wallets = pgTable(
   'wallets',
@@ -68,7 +75,37 @@ export const wallets = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
+  (table) => [uniqueIndex('wallets_user_name_unique').on(table.userId, table.name)],
+);
+
+export const transactions = pgTable(
+  'transactions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: varchar('name', { length: 100 }).notNull(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, {
+        onDelete: 'cascade',
+      }),
+    walletId: uuid('wallet_id')
+      .notNull()
+      .references(() => wallets.id, {
+        onDelete: 'cascade',
+      }),
+    categoryId: uuid('category_id')
+      .notNull()
+      .references(() => categories.id, {
+        onDelete: 'cascade',
+      }),
+    amount: numeric('amount', { precision: 14, scale: 2 }).notNull(),
+    note: text('note'),
+    type: transactionTypeEnum('type').notNull(),
+    status: transactionStatusEnum('status').notNull().default('COMPLETED'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
   (table) => [
-    uniqueIndex('wallets_user_name_unique').on(table.userId, table.name),
+    uniqueIndex('transactions_wallet_id_category_id_unique').on(table.walletId, table.categoryId),
   ],
 );

@@ -1,16 +1,22 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { and, count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { users } from '../../database/schema';
+import { categories, transactions, users, wallets } from '../../database/schema';
 import {
-  type UserDataFieldDto,
   type CreateUserDto,
   type GetUsersQueryDto,
+  type UserDataFieldDto,
   User,
 } from '@packages/entities/user';
 import { hashData } from '@packages/helpers';
+
+/** Khớp `getUserDetailQuerySchema` — tách riêng để tránh inference lỗi với `z.preprocess`. */
+export type GetDetailUserQuery = {
+  include: Array<'wallets' | 'transactions' | 'categories'>;
+  transactionLimit: number;
+};
 
 @Injectable()
 export class UserService {
@@ -30,6 +36,9 @@ export class UserService {
       role: string;
       status: string;
       createdAt: string;
+      walletCount: number;
+      transactionCount: number;
+      categoryCount: number;
     }>;
     pagination: {
       page: number;
@@ -88,6 +97,72 @@ export class UserService {
       .limit(limit)
       .offset(offset);
 
+    const ids = rows.map((r) => r.id);
+
+    const walletMap = new Map<string, number>();
+    const transactionMap = new Map<string, number>();
+    const categoryCountMap = new Map<string, number>();
+
+    if (ids.length > 0) {
+      const walletAgg = await this.db
+        .select({ userId: wallets.userId, n: count() })
+        .from(wallets)
+        .where(inArray(wallets.userId, ids))
+        .groupBy(wallets.userId);
+      for (const w of walletAgg) {
+        walletMap.set(w.userId, Number(w.n));
+      }
+
+      const txAgg = await this.db
+        .select({ userId: transactions.userId, n: count() })
+        .from(transactions)
+        .where(inArray(transactions.userId, ids))
+        .groupBy(transactions.userId);
+      for (const t of txAgg) {
+        transactionMap.set(t.userId, Number(t.n));
+      }
+
+      const txCatRows = await this.db
+        .select({
+          userId: transactions.userId,
+          categoryId: transactions.categoryId,
+        })
+        .from(transactions)
+        .where(inArray(transactions.userId, ids));
+
+      const walletCatRows = await this.db
+        .select({
+          userId: wallets.userId,
+          categoriesId: wallets.categoriesId,
+        })
+        .from(wallets)
+        .where(inArray(wallets.userId, ids));
+
+      const categoryIdsByUser = new Map<string, Set<string>>();
+      for (const id of ids) {
+        categoryIdsByUser.set(id, new Set());
+      }
+      for (const r of txCatRows) {
+        if (r.categoryId) {
+          categoryIdsByUser.get(r.userId)?.add(String(r.categoryId));
+        }
+      }
+      for (const r of walletCatRows) {
+        const set = categoryIdsByUser.get(r.userId);
+        if (!set) {
+          continue;
+        }
+        for (const cid of r.categoriesId ?? []) {
+          if (cid) {
+            set.add(String(cid));
+          }
+        }
+      }
+      for (const [uid, set] of categoryIdsByUser) {
+        categoryCountMap.set(uid, set.size);
+      }
+    }
+
     const data = rows.map((row) => ({
       id: row.id,
       email: row.email,
@@ -96,6 +171,9 @@ export class UserService {
       status: row.isActive === true ? 'active' : 'inactive',
       createdAt:
         row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
+      walletCount: walletMap.get(row.id) ?? 0,
+      transactionCount: transactionMap.get(row.id) ?? 0,
+      categoryCount: categoryCountMap.get(row.id) ?? 0,
     }));
 
     return {
@@ -109,9 +187,175 @@ export class UserService {
     };
   }
 
-  async getDetailUserService({ id }: { id: string }): Promise<User | null> {
+  async getDetailUserService({
+    id,
+    query,
+  }: {
+    id: string;
+    query?: GetDetailUserQuery;
+  }): Promise<
+    | (User & {
+        wallets?: Array<Record<string, unknown>>;
+        transactions?: Array<Record<string, unknown>>;
+        categories?: Array<Record<string, unknown>>;
+      })
+    | null
+  > {
     const [user] = await this.db.select().from(users).where(eq(users.id, id));
-    return user;
+    if (!user) {
+      return null;
+    }
+
+    const include = new Set(query?.include ?? []);
+    if (include.size === 0) {
+      return user;
+    }
+
+    const transactionLimit = query?.transactionLimit ?? 50;
+    const payload: User & {
+      wallets?: Array<Record<string, unknown>>;
+      transactions?: Array<Record<string, unknown>>;
+      categories?: Array<Record<string, unknown>>;
+    } = { ...user };
+
+    if (include.has('wallets')) {
+      const walletRows = await this.db.select().from(wallets).where(eq(wallets.userId, id));
+      payload.wallets = walletRows.map((w) => ({
+        ...w,
+        balance: w.balance != null ? String(w.balance) : '0',
+        createdAt: w.createdAt instanceof Date ? w.createdAt.toISOString() : String(w.createdAt),
+        updatedAt: w.updatedAt instanceof Date ? w.updatedAt.toISOString() : String(w.updatedAt),
+      }));
+    }
+
+    if (include.has('transactions')) {
+      const txRows = await this.db
+        .select({
+          id: transactions.id,
+          name: transactions.name,
+          userId: transactions.userId,
+          walletId: transactions.walletId,
+          categoryId: transactions.categoryId,
+          amount: transactions.amount,
+          note: transactions.note,
+          type: transactions.type,
+          status: transactions.status,
+          createdAt: transactions.createdAt,
+          updatedAt: transactions.updatedAt,
+          categoryName: categories.name,
+          categoryType: categories.type,
+          walletName: wallets.name,
+        })
+        .from(transactions)
+        .innerJoin(categories, eq(transactions.categoryId, categories.id))
+        .innerJoin(wallets, eq(transactions.walletId, wallets.id))
+        .where(eq(transactions.userId, id))
+        .orderBy(desc(transactions.createdAt))
+        .limit(transactionLimit);
+
+      payload.transactions = txRows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        userId: row.userId,
+        walletId: row.walletId,
+        categoryId: row.categoryId,
+        amount: row.amount != null ? String(row.amount) : '0',
+        note: row.note,
+        type: row.type,
+        status: row.status,
+        createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
+        updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
+        category: {
+          id: row.categoryId,
+          name: row.categoryName,
+          type: row.categoryType,
+        },
+        wallet: {
+          id: row.walletId,
+          name: row.walletName,
+        },
+      }));
+    }
+
+    if (include.has('categories')) {
+      const fromTransactions = await this.db
+        .selectDistinct({
+          id: categories.id,
+          name: categories.name,
+          type: categories.type,
+          parentId: categories.parentId,
+          icon: categories.icon,
+          color: categories.color,
+          createdAt: categories.createdAt,
+          updatedAt: categories.updatedAt,
+        })
+        .from(transactions)
+        .innerJoin(categories, eq(transactions.categoryId, categories.id))
+        .where(eq(transactions.userId, id));
+
+      const txCategoryIds = new Set(fromTransactions.map((c) => String(c.id)));
+
+      const walletCategoryIdRows = await this.db
+        .select({ categoriesId: wallets.categoriesId })
+        .from(wallets)
+        .where(eq(wallets.userId, id));
+
+      const walletOnlyCategoryIds = new Set<string>();
+      for (const row of walletCategoryIdRows) {
+        for (const cid of row.categoriesId ?? []) {
+          if (!cid) {
+            continue;
+          }
+          const sid = String(cid);
+          if (!txCategoryIds.has(sid)) {
+            walletOnlyCategoryIds.add(sid);
+          }
+        }
+      }
+
+      const fromWalletRefs =
+        walletOnlyCategoryIds.size > 0
+          ? await this.db
+              .selectDistinct({
+                id: categories.id,
+                name: categories.name,
+                type: categories.type,
+                parentId: categories.parentId,
+                icon: categories.icon,
+                color: categories.color,
+                createdAt: categories.createdAt,
+                updatedAt: categories.updatedAt,
+              })
+              .from(categories)
+              .where(inArray(categories.id, [...walletOnlyCategoryIds]))
+          : [];
+
+      type CatRow = (typeof fromTransactions)[number];
+      const byId = new Map<string, Record<string, unknown>>();
+      const pushCat = (c: CatRow) => {
+        byId.set(String(c.id), {
+          id: c.id,
+          name: c.name,
+          type: c.type,
+          parentId: c.parentId,
+          icon: c.icon,
+          color: c.color,
+          createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : String(c.createdAt),
+          updatedAt: c.updatedAt instanceof Date ? c.updatedAt.toISOString() : String(c.updatedAt),
+        });
+      };
+      for (const c of fromTransactions) {
+        pushCat(c);
+      }
+      for (const c of fromWalletRefs) {
+        if (!byId.has(String(c.id))) {
+          pushCat(c);
+        }
+      }
+      payload.categories = [...byId.values()];
+    }
+
+    return payload;
   }
 
   async getUserByField(userDataFieldDto: UserDataFieldDto): Promise<User[] | []> {
