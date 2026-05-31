@@ -1,5 +1,32 @@
 import { z } from 'zod';
 
+const userDetailIncludeValues = ['wallets', 'transactions', 'categories'] as const;
+
+/** Query `GET /users/detail-user` — ví dụ `?include=wallets,transactions&transactionLimit=30` */
+export const getUserDetailQuerySchema = z.preprocess((val) => {
+  if (!val || typeof val !== 'object' || Array.isArray(val)) {
+    return val;
+  }
+  const o = val as Record<string, unknown>;
+  const rawInc = o.include;
+  const parts = Array.isArray(rawInc)
+    ? rawInc.map(String)
+    : typeof rawInc === 'string'
+      ? rawInc.split(',')
+      : [];
+  const allowedSet = new Set<string>(userDetailIncludeValues);
+  const include = parts
+    .map((s) => s.trim().toLowerCase())
+    .filter((s): s is (typeof userDetailIncludeValues)[number] => allowedSet.has(s));
+  return {
+    ...o,
+    include,
+  };
+}, z.object({
+  include: z.array(z.enum(userDetailIncludeValues)).default([]),
+  transactionLimit: z.coerce.number().int().min(1).max(200).default(50),
+}));
+
 export const getUsersQuerySchema = z.preprocess((val) => {
   if (val && typeof val === 'object' && !Array.isArray(val)) {
     const o = val as Record<string, unknown>;

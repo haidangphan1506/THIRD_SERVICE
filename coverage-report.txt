@@ -1,0 +1,129 @@
+﻿bun test v1.3.14 (0d9b296a)
+bun : 
+At line:1 char:1
++ bun test --coverage test/ 2>&1 | Out-File -FilePath coverage-report.t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+test\features\auth\auth.controller.spec.ts:
+(todo) AuthController > should be implemented
+
+test\features\auth\auth.service.spec.ts:
+(todo) AuthService > should be implemented
+
+test\features\category\category.controller.spec.ts:
+(todo) CategoryController > should be implemented
+
+test\features\category\category.repository.spec.ts:
+(todo) CategoryRepository > should be implemented
+
+test\features\category\category.service.spec.ts:
+(todo) CategoryService > should be implemented
+
+test\features\email\email.controller.spec.ts:
+(todo) EmailController > should be implemented
+
+test\features\email\email.service.spec.ts:
+(todo) EmailService > should be implemented
+
+test\features\redis\redis.controller.spec.ts:
+(todo) RedisController > should be implemented
+
+test\features\redis\redis.service.spec.ts:
+(todo) RedisService > should be implemented
+
+test\features\transaction\transaction.controller.spec.ts:
+(todo) TransactionController > should be implemented
+
+test\features\transaction\transaction.repository.spec.ts:
+(todo) TransactionRepository > should be implemented
+
+test\features\transaction\transaction.service.spec.ts:
+(todo) TransactionService > should be implemented
+
+test\features\user\user.controller.spec.ts:
+(todo) UserController > should be implemented
+
+test\features\user\user.service.spec.ts:
+(todo) UserService > should be implemented
+
+test\features\wallet\wallet.controller.spec.ts:
+(todo) WalletController > should be implemented
+
+test\features\wallet\wallet.repository.spec.ts:
+(todo) WalletRepository > should be implemented
+
+test\features\wallet\wallet.service.spec.ts:
+(todo) WalletService > should be implemented
+
+test\packages\filters\http-exception.filter.spec.ts:
+(todo) HttpExceptionFilter > should be implemented
+
+test\packages\guards\admin-role.guard.spec.ts:
+(todo) AdminRoleGuard > should be implemented
+
+test\packages\guards\jwt-auth.guard.spec.ts:
+(todo) JwtAuthGuard > should be implemented
+
+test\packages\helpers\hashingData.helper.spec.ts:
+(todo) HashingDataHelper > should be implemented
+
+test\packages\helpers\jwt.helper.spec.ts:
+(todo) JwtHelper > should be implemented
+
+test\packages\helpers\queryList.helper.spec.ts:
+(todo) QueryListHelper > should be implemented
+
+test\packages\interceptor\error.interceptor.spec.ts:
+(todo) ErrorInterceptor > should be implemented
+
+test\packages\interceptor\logger.interceptor.spec.ts:
+(todo) LoggerInterceptor > should be implemented
+
+test\packages\interceptor\response.interceptor.spec.ts:
+(todo) ResponseInterceptor > should be implemented
+
+test\packages\pipes\zod-validation.pipe.spec.ts:
+(todo) ZodValidationPipe > should be implemented
+
+test\packages\strategy\jwt-user.strategy.spec.ts:
+(todo) JwtUserStrategy > should be implemented
+----------------------------------------------------------|---------|---------|-------------------
+File                                                      | % Funcs | % Lines | Uncovered Line #s
+----------------------------------------------------------|---------|---------|-------------------
+All files                                                 |  100.00 |  100.00 |
+ test\features\auth\auth.controller.spec.ts               |  100.00 |  100.00 | 
+ test\features\auth\auth.service.spec.ts                  |  100.00 |  100.00 | 
+ test\features\category\category.controller.spec.ts       |  100.00 |  100.00 | 
+ test\features\category\category.repository.spec.ts       |  100.00 |  100.00 | 
+ test\features\category\category.service.spec.ts          |  100.00 |  100.00 | 
+ test\features\email\email.controller.spec.ts             |  100.00 |  100.00 | 
+ test\features\email\email.service.spec.ts                |  100.00 |  100.00 | 
+ test\features\redis\redis.controller.spec.ts             |  100.00 |  100.00 | 
+ test\features\redis\redis.service.spec.ts                |  100.00 |  100.00 | 
+ test\features\transaction\transaction.controller.spec.ts |  100.00 |  100.00 | 
+ test\features\transaction\transaction.repository.spec.ts |  100.00 |  100.00 | 
+ test\features\transaction\transaction.service.spec.ts    |  100.00 |  100.00 | 
+ test\features\user\user.controller.spec.ts               |  100.00 |  100.00 | 
+ test\features\user\user.service.spec.ts                  |  100.00 |  100.00 | 
+ test\features\wallet\wallet.controller.spec.ts           |  100.00 |  100.00 | 
+ test\features\wallet\wallet.repository.spec.ts           |  100.00 |  100.00 | 
+ test\features\wallet\wallet.service.spec.ts              |  100.00 |  100.00 | 
+ test\packages\filters\http-exception.filter.spec.ts      |  100.00 |  100.00 | 
+ test\packages\guards\admin-role.guard.spec.ts            |  100.00 |  100.00 | 
+ test\packages\guards\jwt-auth.guard.spec.ts              |  100.00 |  100.00 | 
+ test\packages\helpers\hashingData.helper.spec.ts         |  100.00 |  100.00 | 
+ test\packages\helpers\jwt.helper.spec.ts                 |  100.00 |  100.00 | 
+ test\packages\helpers\queryList.helper.spec.ts           |  100.00 |  100.00 | 
+ test\packages\interceptor\error.interceptor.spec.ts      |  100.00 |  100.00 | 
+ test\packages\interceptor\logger.interceptor.spec.ts     |  100.00 |  100.00 | 
+ test\packages\interceptor\response.interceptor.spec.ts   |  100.00 |  100.00 | 
+ test\packages\pipes\zod-validation.pipe.spec.ts          |  100.00 |  100.00 | 
+ test\packages\strategy\jwt-user.strategy.spec.ts         |  100.00 |  100.00 | 
+----------------------------------------------------------|---------|---------|-------------------
+
+ 0 pass
+ 28 todo
+ 0 fail
+Ran 28 tests across 28 files. [43.00ms]

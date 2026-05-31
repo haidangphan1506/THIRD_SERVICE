@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './features/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-import { MailerModule } from './features/transaction/mailer/mailer.module';
+import { MailerModule } from './features/email/mailer/mailer.module';
 import { RedisModule } from './features/redis/redis.module';
 import { EmailModule } from './features/email/email.module';
 import { TransactionModule } from './features/transaction/transaction.module';

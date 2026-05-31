@@ -1,18 +1,19 @@
 import { Body, Controller, Delete, Get, Logger, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { StatusCodes } from 'http-status-codes';
 import {
+  getUserDetailQuerySchema,
   getUsersQuerySchema,
+  type CreateUserDto,
+  type CreateUserResponseDto,
+  createUserSchema,
+  dataFieldSchema,
   type GetUsersQueryDto,
   type UserDataFieldDto,
-  dataFieldSchema,
-  type CreateUserDto,
-  createUserSchema,
-  type CreateUserResponseDto,
 } from '@packages/entities/user';
 import { ApiResponse, CurrentUser } from '@packages/decorators';
 import { JwtAuthGuard } from '@packages/guards';
 import { ZodValidationPipe } from '@packages/pipes';
-import { UserService } from './user.service';
+import { type GetDetailUserQuery, UserService } from './user.service';
 type GetUsersResponse = Awaited<ReturnType<UserService['getUsersService']>>;
 
 @Controller('users')
@@ -30,9 +31,13 @@ export class UserController {
 
   @Get('/detail-user')
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Get detail user successfully ...' })
-  async getDetailUserController(@CurrentUser() user: Record<string, string>) {
+  async getDetailUserController(
+    @CurrentUser() user: Record<string, string>,
+    @Query(new ZodValidationPipe<GetDetailUserQuery>(getUserDetailQuerySchema))
+    detailQuery: GetDetailUserQuery,
+  ) {
     this.logger.log('Data user :', user);
-    return await this.userService.getDetailUserService({ id: user.id });
+    return await this.userService.getDetailUserService({ id: user.id, query: detailQuery });
   }
 
   @Get('/get-by-field')

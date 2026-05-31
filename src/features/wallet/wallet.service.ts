@@ -5,7 +5,8 @@ import { type InferSelectModel } from 'drizzle-orm';
 import { wallets } from 'src/database/schema';
 import { UserService } from '../user/user.service';
 
-const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export const UUID_V4_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type WalletListResponse = {
   data: InferSelectModel<typeof wallets>[];
   pagination: {

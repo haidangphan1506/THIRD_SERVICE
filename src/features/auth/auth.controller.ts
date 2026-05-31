@@ -44,6 +44,7 @@ export class AuthController {
     return this.authService.loginService(loginDto);
   }
 
+  @Public()
   @Post('refresh')
   @HttpCode(StatusCodes.OK)
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Token refreshed' })

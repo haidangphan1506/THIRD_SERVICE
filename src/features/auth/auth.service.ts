@@ -25,6 +25,8 @@ import { getJwtTokensConfig } from '@packages/configs/jwt-sign.config';
 import type { User } from '@packages/entities/user';
 import { randomUUID } from 'node:crypto';
 import { RedisService } from 'src/features/redis/redis.service';
+import { UUID_V4_REGEX } from '../wallet/wallet.service';
+import { CurrentUser } from '@packages/decorators';
 
 function parseRefreshTokenPayload(value: unknown): JwtRefreshPayload {
   if (typeof value !== 'object' || value === null) {
@@ -45,6 +47,7 @@ export class AuthService {
   private readonly jwtTokensConfig: JwtTokensConfig;
   private readonly ACCESS_TOKEN_REDIS_PREFIX = 'access_token_';
   private readonly PASSWORD_RESET_REDIS_PREFIX = 'password_reset_';
+  private readonly BLACK_LIST_TOKEN_REDIS_PREFIX = 'black_list_token_';
   constructor(
     private readonly userService: UserService,
     private readonly redis: RedisService,
@@ -109,11 +112,7 @@ export class AuthService {
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
     ]);
 
-    await this.redis.set(
-      `${this.ACCESS_TOKEN_REDIS_PREFIX}:${user.id}`,
-      refreshToken,
-      604800,
-    );
+    await this.redis.set(`${this.ACCESS_TOKEN_REDIS_PREFIX}:${user.id}`, refreshToken, 604800);
 
     return {
       accessToken,
@@ -157,7 +156,7 @@ export class AuthService {
       throw new BadRequestException('Invalid reset password token ...');
     }
 
-    const user : User[] = await this.userService.getUserByField({
+    const user: User[] = await this.userService.getUserByField({
       field: 'id',
       value: userId,
     });
@@ -165,7 +164,7 @@ export class AuthService {
       throw new BadRequestException('User not found ...');
     }
 
-    if(user[0].isActive === false) {
+    if (user[0].isActive === false) {
       throw new BadRequestException('User is not active ...');
     }
 
@@ -236,5 +235,16 @@ export class AuthService {
     };
   }
 
-  logout() {}
+  async logoutService(@CurrentUser() user: Record<string, string>) {
+    if (!user.id || !UUID_V4_REGEX.test(user?.id ?? '')) {
+      throw new BadRequestException('Invalid user ID ...');
+    }
+    const blackListToken = await this.redis.get(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`);
+    if (blackListToken) {
+      // TODO: Write log vào file audit và send notification đến admin and user ...
+      throw new BadRequestException('User already logged out ...');
+    }
+    await this.redis.set(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`, user.id, 604800);
+    return { ok: true };
+  }
 }
