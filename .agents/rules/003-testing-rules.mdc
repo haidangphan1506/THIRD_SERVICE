@@ -1,0 +1,91 @@
+---
+description: Testing conventions with Jest
+globs: ['src/**/*.spec.ts', 'src/**/*.test.ts', 'test/**/*.ts']
+---
+
+# Testing Rules
+
+## Test Organization
+
+- Unit tests: co-located with source files as `*.spec.ts`
+- E2E tests: placed in `test/` directory with `*.e2e-spec.ts`
+- Test utilities: placed in `test/packages/` directory
+
+## Unit Test Patterns
+
+```typescript
+describe('{ClassName}', () => {
+  let service: {Name}Service;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        {Name}Service,
+        { provide: '{Name}Repository', useValue: mockRepository },
+      ],
+    }).compile();
+
+    service = module.get({Name}Service);
+  });
+
+  describe('create', () => {
+    it('should create a new record', async () => {
+      const dto: CreateDto = { /* ... */ };
+      const result = await service.create(dto);
+      expect(result).toBeDefined();
+      expect(result.id).toBeDefined();
+    });
+  });
+});
+```
+
+## Mocking Rules
+
+- Mock external dependencies (DB, Redis, email) in unit tests
+- Use `jest.fn()` or `jest.spyOn()` for mocking
+- Never call real databases in unit tests
+- Reset all mocks in `afterEach` or `beforeEach`
+
+## Coverage Requirements
+
+- Minimum coverage thresholds (configured in jest config)
+  - Branches: 80%
+  - Functions: 85%
+  - Lines: 85%
+  - Statements: 85%
+- Focus on service layer testing
+- Controller tests should validate decorators and pipes
+
+## E2E Test Patterns
+
+```typescript
+describe('{Feature} (e2e)', () => {
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    const moduleFixture = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  describe('POST /{path}', () => {
+    it('should return 201 on success', () => {
+      return request(app.getHttpServer())
+        .post('/{path}')
+        .send({
+          /* dto */
+        })
+        .expect(201);
+    });
+  });
+});
+```
+
+## Test Naming Convention
+
+- Describe blocks: `describe('methodName', () => { ... })`
+- It blocks: `it('should [expected behavior] when [condition]', () => { ... })`
+- Use `given/when/then` comments for complex test cases

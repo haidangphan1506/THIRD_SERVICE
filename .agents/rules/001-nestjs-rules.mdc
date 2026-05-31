@@ -1,0 +1,118 @@
+---
+description: NestJS specific architecture and patterns
+globs: ['src/features/**/*.ts', 'src/**/*.module.ts']
+---
+
+# NestJS Architecture Rules
+
+## Module Structure
+
+Each feature module **MUST** follow this file structure:
+
+```
+src/features/{name}/
+├── {name}.module.ts        # Module: imports, providers, controllers
+├── {name}.controller.ts    # Controller: route handlers, validation
+├── {name}.service.ts       # Service: business logic
+└── {name}.repository.ts    # Repository: DB queries (optional)
+```
+
+## Module Registration
+
+- Feature modules are imported in `app.module.ts`
+- Use `@Global()` ONLY for truly global modules (database, redis)
+- Never use `@Global()` for feature modules
+- Always export services if they're used by other modules
+
+## Controller Patterns
+
+```typescript
+@Controller('{path}')
+@ApiTags('{Feature Name}')
+export class {Name}Controller {
+  constructor(private readonly {name}Service: {Name}Service) {}
+
+  @Post()
+  @HttpCode(201)
+  @ApiResponse({ status: 201, description: 'Created successfully' })
+  async create(@Body(new ZodValidationPipe({schema})) createDto: CreateDto) {
+    return this.{name}Service.create(createDto);
+  }
+
+  @Get()
+  @HttpCode(200)
+  @ApiResponse({ status: 200, description: 'List retrieved' })
+  async findAll(@Query() query: ListQueryDto) {
+    return this.{name}Service.findAll(query);
+  }
+
+  @Get(':id')
+  @HttpCode(200)
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.{name}Service.findById(id);
+  }
+
+  @Patch(':id')
+  @HttpCode(200)
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe({schema})) updateDto: UpdateDto,
+  ) {
+    return this.{name}Service.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(200)
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.{name}Service.delete(id);
+  }
+}
+```
+
+## Service Patterns
+
+- Services handle business logic only
+- Do NOT directly import Drizzle/DB in services - use repositories
+- Throw `BadRequestException` or `NotFoundException` for error cases
+- Return data directly (ResponseInterceptor wraps response)
+- Use `@Injectable()` decorator
+
+```typescript
+@Injectable()
+export class {Name}Service {
+  constructor(
+    private readonly {name}Repository: {Name}Repository,
+  ) {}
+
+  async create(dto: CreateDto): Promise<{Name}Interface> {
+    // Business logic here
+    return this.{name}Repository.create(dto);
+  }
+}
+```
+
+## Repository Patterns
+
+- Repository classes handle all DB interactions
+- Inject `DRIZZLE` token for database access
+- Use TypeScript types from DTOs for return types
+- Keep queries simple and focused
+
+```typescript
+@Injectable()
+export class {Name}Repository {
+  constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
+
+  async create(dto: CreateDto): Promise<{Name}Interface> {
+    const [result] = await this.db.insert(schema.{table}).values(dto).returning();
+    return result;
+  }
+}
+```
+
+## Dependency Injection Rules
+
+- Constructor injection ONLY (no `@Inject()` on properties)
+- Use `private readonly` for all injected dependencies
+- Interface injection via custom providers when needed
+- Never use `new Service()` - always use DI
