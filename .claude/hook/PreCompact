@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Runs before context compaction — save state if needed
+set -euo pipefail
+
+# No-op by default. Add git stash or state saves here.

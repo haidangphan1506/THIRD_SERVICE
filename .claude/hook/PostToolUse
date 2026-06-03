@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Runs after each tool use
+set -euo pipefail
+
+# Check if lint errors were introduced after file edits
+if git diff --name-only -- '*.ts' 2>/dev/null | grep -q .; then
+  echo "Tip: Run 'bun run lint:check' to verify changes"
+fi
