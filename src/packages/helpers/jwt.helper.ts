@@ -3,10 +3,7 @@
  * and avoids type-resolution noise from recommended-type-checked ESLint in some setups.
  */
 export type JwtSignContract = {
-  signAsync(
-    payload: object,
-    options: { secret: string; expiresIn: number },
-  ): Promise<string>;
+  signAsync: (payload: object, options: { secret: string; expiresIn: number }) => Promise<string>;
 };
 
 /**

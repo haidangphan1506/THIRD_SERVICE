@@ -1,4 +1,4 @@
-import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request, Response } from 'express';
 import { map, Observable } from 'rxjs';
@@ -7,7 +7,6 @@ import { type ApiResponseInterface, type ApiResponseOptions } from '../interface
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponseInterface<T>> {
-  private readonly logger = new Logger(ResponseInterceptor.name);
   constructor(private readonly reflector: Reflector) {}
 
   intercept(context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponseInterface<T>> {
@@ -23,7 +22,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponseInt
     return next.handle().pipe(
       map((data): ApiResponseInterface<T> => {
         return {
-          statusCode: response.statusCode,
+          statusCode: response.statusCode ?? 200,
           message,
           data,
           timestamp: new Date(),
