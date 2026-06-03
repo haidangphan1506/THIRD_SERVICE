@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Runs when a new Claude session starts
+set -euo pipefail
+
+echo "=== Project: backends (My Finance Tracker) ==="
+echo "Read .claude/memory/ for context"
+echo "Commands: bun run start:dev | bun run test | bun run lint:check"
