@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"jwt.helper\" src/packages/helpers/index.ts)",
+      "Bash(grep -rn \"JwtUserStrategy\" src/packages/strategy/index.ts)",
+      "Bash(bun run *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); Object.entries\\(p.scripts\\).filter\\(\\([k]\\)=>k.includes\\('test'\\)\\).forEach\\(\\([k,v]\\)=>console.log\\(k,'=>',v\\)\\)\")",
+      "Bash(bun test *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({jest: p.jest, devDeps: {jest: p.devDependencies['jest'], 'ts-jest': p.devDependencies['ts-jest']}}, null, 2\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/ts-jest/package.json'\\); console.log\\('ts-jest version:', p.version, '\\\\npeerDeps:', JSON.stringify\\(p.peerDependencies,null,2\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const p=require\\('./node_modules/unrs-resolver/package.json'\\); console.log\\('version:', p.version, '\\\\noptDeps:', JSON.stringify\\(p.optionalDependencies,null,2\\)\\)\")",
+      "PowerShell(New-Item *)"
+    ]
+  }
+}

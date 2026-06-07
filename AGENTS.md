@@ -19,9 +19,10 @@ bun run start:dev       # Dev server on :8888 with --watch
 |---|---|
 | `bun run lint` / `bun run lint:check` | Flat ESLint config (`eslint.config.mjs`) with `projectService: true` (type-checked). Slow on first run. |
 | `bun run format` / `bun run format:check` | Prettier only. **ESLint has `prettier/prettier: off`** — run format separately from lint. |
-| `bun run test:cov` | Uses `c8` + Bun test, *not* Jest. |
-| `bun run test` | **Jest** (unit tests). `bun run test:unit` uses Bun test runner instead. |
-| `bun run test:e2e` | Jest with `test/jest-e2e.json` config. |
+| `bun run test` | **Bun test** (all `*.spec.ts` in `src/` and `test/`). |
+| `bun run test:unit` | Bun test limited to `test/` dir. |
+| `bun run test:e2e` | Jest with `test/jest-e2e.json` config (only if Node is available — Bun cannot run Jest 29). |
+| `bun run test:cov` | Bun test with `--coverage` (`c8`-backed). |
 | `bun run db:push` | Push schema directly (dev only — skips migration review). |
 | `bun run db:seed:user` / `bun run db:seed:users-bulk` | Bun scripts, not Drizzle. |
 
@@ -56,9 +57,10 @@ Only `@packages/*` is aliased. Do not create new aliases.
 
 ## Testing quirks
 
-- **Two test runners coexist**: Jest (`bun run test`) and Bun test (`bun run test:unit`). Write new unit tests as `*.spec.ts` (Jest). E2E tests are `*.e2e-spec.ts` (Jest + Supertest).
-- Unit tests in `src/` (co-located with source). E2E tests in `test/`.
+- **Two test runners coexist**: Jest (`bun run test:e2e`) and Bun test (everything else). Write new unit tests as `*.spec.ts` (Bun test). E2E tests are `*.e2e-spec.ts` (Jest + Supertest).
+- Unit tests live in `test/` (co-located with source stubs also in `src/`). E2E tests in `test/`.
 - No DB fixtures or test containers exist — E2E tests currently only test the health endpoint.
+- **Jest 29 cannot run under Bun** (readonly `Error.prepareStackTrace`). Only the `test:e2e` script still uses Jest — requires Node.js.
 
 ## ESLint & TypeScript quirks
 
