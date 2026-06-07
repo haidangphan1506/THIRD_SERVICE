@@ -1,15 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtUserStrategy } from '@packages/strategy';
 
-jest.mock('passport-jwt', () => ({
-  Strategy: class MockJwtStrategy {
-    constructor(_opts: any, _verify: any) {}
-  },
-  ExtractJwt: {
-    fromAuthHeaderAsBearerToken: jest.fn().mockReturnValue(jest.fn()),
-  },
-}));
-
 describe('JwtUserStrategy', () => {
   let mockConfigService: {
     get: jest.Mock;
@@ -25,9 +16,10 @@ describe('JwtUserStrategy', () => {
     it('should get jwt secret from config', () => {
       mockConfigService.get.mockReturnValue('secret');
 
-      new JwtUserStrategy(mockConfigService as unknown);
+      const strategy = new JwtUserStrategy(mockConfigService as unknown as ConfigService);
 
       expect(mockConfigService.get).toHaveBeenCalledWith('JWT_ACCESS_SECRET');
+      expect(strategy).toBe('secret');
     });
 
     it('should use fallback secret when config is undefined', () => {
@@ -46,6 +38,8 @@ describe('JwtUserStrategy', () => {
       const payload = {
         sub: '1',
         email: 'test@gmail.com',
+        typ: 'access' as const,
+        role: 'USER' as const,
       };
 
       expect(strategy.validate(payload)).toEqual(payload);
