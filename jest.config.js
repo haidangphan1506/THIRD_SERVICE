@@ -29,5 +29,6 @@ module.exports = {
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@packages/(.*)$': '<rootDir>/src/packages/$1',
+    '^src/(.*)$': '<rootDir>/src/$1',
   },
 };
