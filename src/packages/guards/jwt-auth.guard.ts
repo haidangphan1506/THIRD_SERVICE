@@ -32,6 +32,7 @@ function bearerToken(authorization: string | undefined): string | undefined {
 const JWT_ROLES: readonly JwtUserRole[] = ['USER', 'ADMIN', 'MODERATOR'];
 
 function parseJwtUserRole(value: unknown): JwtUserRole {
+  if (typeof value != 'string') throw new UnauthorizedException('Check role user failed ...');
   if (typeof value === 'string' && (JWT_ROLES as readonly string[]).includes(value)) {
     return value as JwtUserRole;
   }
@@ -68,6 +69,7 @@ export class JwtAuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const token = bearerToken(request.headers.authorization);
+
     if (!token) {
       throw new UnauthorizedException('Unauthorized ...');
     }

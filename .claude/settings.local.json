@@ -10,7 +10,8 @@
       "Bash(node -e \"const p=require\\('./node_modules/ts-jest/package.json'\\); console.log\\('ts-jest version:', p.version, '\\\\npeerDeps:', JSON.stringify\\(p.peerDependencies,null,2\\)\\)\")",
       "Bash(node -e ' *)",
       "Bash(node -e \"const p=require\\('./node_modules/unrs-resolver/package.json'\\); console.log\\('version:', p.version, '\\\\noptDeps:', JSON.stringify\\(p.optionalDependencies,null,2\\)\\)\")",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.jest,null,2\\)\\)\")"
     ]
   }
 }
