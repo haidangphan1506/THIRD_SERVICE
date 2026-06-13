@@ -1,23 +1,33 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
   type CreateCategoryDto,
   createCategorySchema,
+  type GetCategoriesQueryDto,
+  getCategoriesQuerySchema,
   type UpdateCategoryDto,
   updateCategorySchema,
 } from '@packages/entities/category';
 import { ZodValidationPipe } from '@packages/pipes';
 import { CategoryService } from './category.service';
 
-@Controller('category')
+@Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  async createCategory(
+  createCategory(
     @Body(new ZodValidationPipe<CreateCategoryDto>(createCategorySchema))
     createCategoryDto: CreateCategoryDto,
   ) {
     return this.categoryService.createCategoryService(createCategoryDto);
+  }
+
+  @Get()
+  getCategories(
+    @Query(new ZodValidationPipe<GetCategoriesQueryDto>(getCategoriesQuerySchema))
+    query: GetCategoriesQueryDto,
+  ) {
+    return this.categoryService.getCategoriesService(query);
   }
 
   @Get('/:id')

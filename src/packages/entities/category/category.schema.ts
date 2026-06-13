@@ -3,7 +3,13 @@ import { z } from 'zod';
 export const CategoryTypeEnum = z.enum(['INCOME', 'EXPENSE']);
 
 export const createCategorySchema = z.object({
-  name: z.string({ message: 'Name must be a string' }).min(1, 'Name is required').max(100, 'Name too long'),
+  userId: z
+    .string({ message: 'UserId mút be string ...' })
+    .uuid({ message: 'UserId must be uuid ...' }),
+  name: z
+    .string({ message: 'Name must be a string' })
+    .min(1, 'Name is required')
+    .max(100, 'Name too long'),
   type: CategoryTypeEnum,
   parent_id: z
     .string({ message: 'parent_id must be a string' })
@@ -18,3 +24,19 @@ export const createCategorySchema = z.object({
     .optional(),
 });
 
+export const getCategoriesQuerySchema = z.preprocess(
+  (val) => {
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      const o = val as Record<string, unknown>;
+      if (o.pageSize != null && o.limit == null) {
+        return { ...o, limit: o.pageSize };
+      }
+    }
+    return val;
+  },
+  z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    search: z.string().trim().min(1).optional(),
+  }),
+);

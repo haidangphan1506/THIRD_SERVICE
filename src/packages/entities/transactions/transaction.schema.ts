@@ -23,3 +23,19 @@ export const createTransactionSchema = z.object({
     .default('COMPLETED')
     .optional(),
 });
+
+// Partial schema for PUT /transactions/:id (userId is taken from the JWT, never the body)
+export const updateTransactionSchema = createTransactionSchema.partial().omit({ userId: true });
+
+// Query schema for GET /transactions (filters + pagination). Values arrive as strings.
+export const getTransactionsQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
+  search: z.string().trim().min(1).optional(),
+  walletId: z.string().uuid({ message: 'Wallet ID is invalid' }).optional(),
+  categoryId: z.string().uuid({ message: 'Category ID is invalid' }).optional(),
+  type: z.enum(['INCOME', 'EXPENSE']).optional(),
+  status: z.enum(['PENDING', 'COMPLETED', 'CANCELLED']).optional(),
+  from: z.coerce.date().optional(),
+  to: z.coerce.date().optional(),
+});

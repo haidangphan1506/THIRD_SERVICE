@@ -11,6 +11,7 @@ import { TransactionModule } from './features/transaction/transaction.module';
 import { UserModule } from './features/user/user.module';
 import { WalletModule } from './features/wallet/wallet.module';
 import { CategoryModule } from './features/category/category.module';
+import { ReportModule } from './features/report/report.module';
 import { JwtAuthGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -29,6 +30,7 @@ import { JwtModule } from '@nestjs/jwt';
     WalletModule,
     TransactionModule,
     EmailModule,
+    ReportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },

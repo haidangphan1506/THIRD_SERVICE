@@ -43,6 +43,13 @@
       "when": 1778336435355,
       "tag": "0005_swift_sleepwalker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781328779954,
+      "tag": "0006_outstanding_leopardon",
+      "breakpoints": true
     }
   ]
 }
