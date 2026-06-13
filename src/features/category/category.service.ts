@@ -1,5 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { UpdateCategoryDto, type CreateCategoryDto } from '@packages/entities/category';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  GetCategoriesQueryDto,
+  UpdateCategoryDto,
+  type CreateCategoryDto,
+} from '@packages/entities/category';
 import { CategoryRepository } from './category.repository';
 
 @Injectable()
@@ -9,38 +13,37 @@ export class CategoryService {
 
   async createCategoryService(createCategoryDto: CreateCategoryDto) {
     this.logger.log('Creating category...');
-    const isCategoryExists = await this.category.getCategory({
+
+    const duplicate = await this.category.getCategory({
       field: 'name',
       value: createCategoryDto.name,
     });
-    
-    if (Array.isArray(isCategoryExists) && isCategoryExists.length > 0) {
-      throw new BadRequestException('Category already exists ...');
+    if (duplicate && duplicate.length > 0) {
+      const conflict = (duplicate as Array<{ type: string; parentId: string | null }>).find(
+        (c) =>
+          c.type === createCategoryDto.type &&
+          (c.parentId ?? null) === (createCategoryDto.parent_id ?? null),
+      );
+      if (conflict) {
+        throw new BadRequestException(
+          `Category "${createCategoryDto.name}" of type ${createCategoryDto.type} already exists.`,
+        );
+      }
     }
-    const category = await this.category.createCategory(createCategoryDto);
-    return category || null;
+
+    const created = await this.category.createCategory(createCategoryDto);
+    return created;
   }
 
-  async getCategoriesService({
-    search,
-    searchableColumns,
-    filters,
-    filterColumns,
-  }: {
-    search?: string;
-    searchableColumns?: Record<string, any>;
-    filters?: Record<string, any>;
-    filterColumns?: Record<string, any>;
-  }) {
-    this.logger.log('Getting categories...');
-    return this.category.getCategories({ search, searchableColumns, filters, filterColumns });
+  async getCategoriesService(query: GetCategoriesQueryDto) {
+    return this.category.getCategories(query);
   }
 
   async getCategoryService({ field, value }: { field: string; value: string }) {
     this.logger.log('Getting category...');
-    const category = await this.category.getCategory({ field, value });
-
-    return category || null;
+    const result = await this.category.getCategory({ field, value });
+    const category = Array.isArray(result) ? result[0] : result;
+    return category ?? null;
   }
 
   async updateCategoryService({
@@ -52,24 +55,23 @@ export class CategoryService {
   }) {
     this.logger.log('Updating category...');
 
-    const isCategoryExists = await this.category.getCategory({
-      field: 'id',
-      value: id,
-    });
-    if (isCategoryExists) {
-      throw new BadRequestException('Category already exists ...');
+    const existing = await this.category.getCategory({ field: 'id', value: id });
+    const found = Array.isArray(existing) ? existing[0] : existing;
+    if (!found) {
+      throw new NotFoundException(`Category ${id} not found.`);
     }
+
     const category = await this.category.updateCategory({ id, updateCategoryDto });
-    return category || null;
+    return Array.isArray(category) ? category[0] : category;
   }
 
   async deleteCategoryService({ id }: { id: string }) {
     this.logger.log('Deleting category...');
-    const isCategoryExists = await this.category.getCategory({ field: 'id', value: id });
-    if (!isCategoryExists) {
-      throw new BadRequestException('Category not found ...');
+    const existing = await this.category.getCategory({ field: 'id', value: id });
+    const found = Array.isArray(existing) ? existing[0] : existing;
+    if (!found) {
+      throw new NotFoundException(`Category ${id} not found.`);
     }
-    const isCategoryDeleted = await this.category.deleteCategory({ id });
-    return isCategoryDeleted ? true : false;
+    return this.category.deleteCategory({ id });
   }
 }

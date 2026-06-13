@@ -73,7 +73,7 @@ export class AuthService {
       username &&
       (await this.userService.getUserByField({
         field: 'username',
-        value: username,
+        value: username?.trim(),
       }));
     if (Array.isArray(checkUserWithUsername) && checkUserWithUsername.length > 0) {
       throw new BadRequestException('Username already exists ...');
@@ -236,7 +236,7 @@ export class AuthService {
   }
 
   async logoutService(@CurrentUser() user: Record<string, string>) {
-    if (!user.id || !UUID_V4_REGEX.test(user?.id ?? '')) {
+    if (!user.id || !UUID_V4_REGEX.test(user.id)) {
       throw new BadRequestException('Invalid user ID ...');
     }
     const blackListToken = await this.redis.get(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`);

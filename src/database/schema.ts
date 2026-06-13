@@ -7,6 +7,7 @@ import {
   boolean,
   pgEnum,
   uniqueIndex,
+  index,
   type AnyPgColumn,
   numeric,
 } from 'drizzle-orm/pg-core';
@@ -106,6 +107,9 @@ export const transactions = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('transactions_wallet_id_category_id_unique').on(table.walletId, table.categoryId),
+    index('transactions_user_id_idx').on(table.userId),
+    index('transactions_wallet_id_idx').on(table.walletId),
+    index('transactions_category_id_idx').on(table.categoryId),
+    index('transactions_created_at_idx').on(table.createdAt),
   ],
 );
