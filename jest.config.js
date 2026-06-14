@@ -24,8 +24,10 @@ module.exports = {
       },
     ],
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s'],
+  testPathIgnorePatterns: ['/node_modules/', '/src/packages/interfaces/', '/test/packages/interfaces/'],
+  collectCoverageFrom: ['src/**/*.(t|j)s', '!src/**/interface.ts', '!src/packages/interfaces/**'],
   coverageDirectory: './coverage',
+  coverageProvider: 'v8',
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@packages/(.*)$': '<rootDir>/src/packages/$1',
