@@ -1,38 +1,83 @@
 import { z } from 'zod';
 
+export const AUTH_MESSAGES = {
+  // email
+  EMAIL_REQUIRED: 'Email is required',
+  EMAIL_INVALID: 'Invalid email address',
+  // username
+  USERNAME_REQUIRED: 'Username is required',
+  // password
+  PASSWORD_REQUIRED: 'Password is required',
+  PASSWORD_MIN: 'Password must be at least 6 characters long',
+  PASSWORD_MAX: 'Password must be less than 25 characters long',
+  PASSWORD_LOWERCASE: 'Password must include at least one lowercase letter (a-z)',
+  PASSWORD_UPPERCASE: 'Password must include at least one uppercase letter (A-Z)',
+  PASSWORD_DIGIT: 'Password must include at least one digit (0-9)',
+  PASSWORD_SPECIAL:
+    'Password must include at least one special character (any symbol that is not a letter or digit)',
+  // firstName
+  FIRST_NAME_REQUIRED: 'First name is required',
+  FIRST_NAME_MAX: 'First name must be less than 25 characters long',
+  // lastName
+  LAST_NAME_REQUIRED: 'Last name is required',
+  LAST_NAME_MAX: 'Last name must be less than 25 characters long',
+  // refreshToken
+  REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
+  // resetPassword
+  RESET_TOKEN_REQUIRED: 'Reset password token is required',
+  RESET_TOKEN_INVALID: 'Invalid reset password token',
+  CONFIRM_PASSWORD_REQUIRED: 'Confirm password is required',
+  CONFIRM_PASSWORD_MIN: 'Confirm password must be at least 6 characters long',
+  CONFIRM_PASSWORD_MAX: 'Confirm password must be less than 25 characters long',
+  CONFIRM_PASSWORD_MISMATCH: 'Confirm password must be the same as password',
+} as const;
+
 export const emailFieldSchema = z
-  .string({ message: 'Email is required' })
-  .email({ message: 'Invalid email address' });
+  .string({ message: AUTH_MESSAGES.EMAIL_REQUIRED })
+  .email({ message: AUTH_MESSAGES.EMAIL_INVALID });
+
+export const passwordFieldSchema = z
+  .string({ message: AUTH_MESSAGES.PASSWORD_REQUIRED })
+  .min(6, { message: AUTH_MESSAGES.PASSWORD_MIN })
+  .max(25, { message: AUTH_MESSAGES.PASSWORD_MAX })
+  .superRefine((password, ctx) => {
+    if (!/[a-z]/.test(password)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: AUTH_MESSAGES.PASSWORD_LOWERCASE });
+    }
+    if (!/[A-Z]/.test(password)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: AUTH_MESSAGES.PASSWORD_UPPERCASE });
+    }
+    if (!/\d/.test(password)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: AUTH_MESSAGES.PASSWORD_DIGIT });
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: AUTH_MESSAGES.PASSWORD_SPECIAL });
+    }
+  });
 
 export const registerSchema = z.object({
   email: emailFieldSchema,
-  username: z.string({ message: 'Username is required' }).optional(),
-  password: z
-    .string({ message: 'Password is required' })
-    .min(6, { message: 'Password must be at least 6 characters long' })
-    .max(100, { message: 'Password must be less than 100 characters long' }),
+  username: z.string({ message: AUTH_MESSAGES.USERNAME_REQUIRED }).optional(),
+  password: passwordFieldSchema,
   firstName: z
-    .string({ message: 'First name is required' })
-    .min(1, { message: 'First name is required' })
-    .max(100, { message: 'First name must be less than 100 characters long' }),
+    .string({ message: AUTH_MESSAGES.FIRST_NAME_REQUIRED })
+    .min(1, { message: AUTH_MESSAGES.FIRST_NAME_REQUIRED })
+    .max(25, { message: AUTH_MESSAGES.FIRST_NAME_MAX }),
   lastName: z
-    .string({ message: 'Last name is required' })
-    .min(1, { message: 'Last name is required' })
-    .max(100, { message: 'Last name must be less than 100 characters long' }),
+    .string({ message: AUTH_MESSAGES.LAST_NAME_REQUIRED })
+    .min(1, { message: AUTH_MESSAGES.LAST_NAME_REQUIRED })
+    .max(25, { message: AUTH_MESSAGES.LAST_NAME_MAX }),
 });
 
 export const loginSchema = z.object({
   email: emailFieldSchema,
-  password: z
-    .string({ message: 'Password is required' })
-    .min(6, { message: 'Password must be at least 6 characters long' })
-    .max(100, { message: 'Password must be less than 100 characters long' }),
+  password: passwordFieldSchema,
 });
 
 export const refreshTokenBodySchema = z.object({
   refreshToken: z
-    .string({ message: 'Refresh token is required' })
-    .min(1, { message: 'Refresh token is required' }),
+    .string({ message: AUTH_MESSAGES.REFRESH_TOKEN_REQUIRED })
+    .min(1, { message: AUTH_MESSAGES.REFRESH_TOKEN_REQUIRED }),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -42,53 +87,19 @@ export const forgotPasswordSchema = z.object({
 const resetPasswordBodySchema = z
   .object({
     jti: z
-      .string({ message: 'Reset password token is required' })
-      .uuid({ message: 'Invalid reset password token' }),
-    password: z
-      .string({ message: 'Password is required' })
-      .min(6, { message: 'Password must be at least 6 characters long' })
-      .max(100, { message: 'Password must be less than 100 characters long' })
-      .superRefine((password, ctx) => {
-        if (!/[a-z]/.test(password)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Password must include at least one lowercase letter (a-z)',
-            path: ['password'],
-          });
-        }
-        if (!/[A-Z]/.test(password)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Password must include at least one uppercase letter (A-Z)',
-            path: ['password'],
-          });
-        }
-        if (!/\d/.test(password)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Password must include at least one digit (0-9)',
-            path: ['password'],
-          });
-        }
-        if (!/[^A-Za-z0-9]/.test(password)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message:
-              'Password must include at least one special character (any symbol that is not a letter or digit)',
-            path: ['password'],
-          });
-        }
-      }),
+      .string({ message: AUTH_MESSAGES.RESET_TOKEN_REQUIRED })
+      .uuid({ message: AUTH_MESSAGES.RESET_TOKEN_INVALID }),
+    password: passwordFieldSchema,
     confirmPassword: z
-      .string({ message: 'Confirm password is required' })
-      .min(6, { message: 'Confirm password must be at least 6 characters long' })
-      .max(100, { message: 'Confirm password must be less than 100 characters long' }),
+      .string({ message: AUTH_MESSAGES.CONFIRM_PASSWORD_REQUIRED })
+      .min(6, { message: AUTH_MESSAGES.CONFIRM_PASSWORD_MIN })
+      .max(25, { message: AUTH_MESSAGES.CONFIRM_PASSWORD_MAX }),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Confirm password must be the same as password',
+        message: AUTH_MESSAGES.CONFIRM_PASSWORD_MISMATCH,
         path: ['confirmPassword'],
       });
     }

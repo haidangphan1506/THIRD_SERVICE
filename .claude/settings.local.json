@@ -41,7 +41,10 @@
       "PowerShell($c = Get-Content \"D:\\\\backends\\\\.boot.log\" -Raw; $c -split \"`n\" | Select-String -Pattern \"Presence|presence|Gateway|WebSocket|admin/users|Nest application|Mapped\" | Select-Object -First 40 | ForEach-Object { $_.Line })",
       "Bash(bunx tsc *)",
       "Write(d:/my-finance-tracker/**)",
-      "Edit(d:/my-finance-tracker/**)"
+      "Edit(d:/my-finance-tracker/**)",
+      "Bash(grep -v \"^$\")",
+      "Bash(node node_modules/.bin/jest --testPathPattern=\"category.schema.spec\")",
+      "Bash(~/.bun/bin/bun run *)"
     ]
   }
 }

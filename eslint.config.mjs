@@ -15,6 +15,8 @@ export default tseslint.config(
       '*.config.js',
       '*.config.cjs',
       '**/*.test.ts',
+      'src/packages/interfaces/**',
+      'test/packages/interfaces/**',
     ],
   },
   eslint.configs.recommended,

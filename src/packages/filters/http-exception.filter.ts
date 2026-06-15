@@ -13,11 +13,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus?.() || HttpStatus.INTERNAL_SERVER_ERROR;
 
     // handle response from exception
-    const exceptionResponse = exception.getResponse();
+    const exceptionResponse = exception.getResponse?.() ?? null;
 
     let message = 'Internal server error';
 
-    if (typeof exceptionResponse === 'string') {
+    if (exceptionResponse === null) {
+      message = exception.message || message;
+    } else if (typeof exceptionResponse === 'string') {
       message = exceptionResponse;
     } else if (typeof exceptionResponse === 'object') {
       const res = exceptionResponse as unknown;
@@ -30,14 +32,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
     }
 
-    //handle error from response
-    const errors = exceptionResponse as { errors: unknown[] };
+    const errors = (exceptionResponse as { errors: unknown[] } | null)?.errors;
 
     response.status(status).json({
       success: false,
       statusCode: status,
       message,
-      errors: errors.errors,
+      errors,
       path: request.url,
       trace: exception.stack,
       timestamp: new Date().toISOString(),
