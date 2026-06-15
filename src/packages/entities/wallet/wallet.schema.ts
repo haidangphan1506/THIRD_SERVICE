@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
 export const createWalletSchema = z.object({
-  userId: z.uuid({ message: 'User ID must be a valid UUID' }),
+  userId: z
+    .string({ message: 'User Id must be string ...' })
+    .min(1, { message: 'User Id must be string ...' })
+    .uuid({ message: 'User ID must be a valid UUID' }),
   name: z
     .string({ message: 'Name wallet must be a string' })
     .min(1, 'Name is required')
-    .max(100, 'Name too long'),
+    .max(25, 'Name too long'),
   type: z
     .enum(['CASH', 'BANK', 'E_WALLET', 'CREDIT'], {
       message: 'Type wallet must be a valid type',
@@ -23,8 +26,9 @@ export const createWalletSchema = z.object({
     .default([]),
   balance: z.coerce
     .number({ message: 'Balance must be a number' })
-    .min(0, 'Balance must be greater than 0'),
-  note: z.string({ message: 'Note must be a string' }).optional(),
-  isDefault: z.boolean({ message: 'Is default must be a boolean' }).optional(),
-  isActive: z.boolean({ message: 'Is active must be a boolean' }).optional(),
+    .min(0, 'Balance must be greater than 0')
+    .default(0),
+  note: z.string({ message: 'Note must be a string' }).optional().default(''),
+  isDefault: z.boolean({ message: 'Is default must be a boolean' }).optional().default(true),
+  isActive: z.boolean({ message: 'Is active must be a boolean' }).optional().default(true),
 });
