@@ -44,7 +44,12 @@
       "Edit(d:/my-finance-tracker/**)",
       "Bash(grep -v \"^$\")",
       "Bash(node node_modules/.bin/jest --testPathPattern=\"category.schema.spec\")",
-      "Bash(~/.bun/bin/bun run *)"
+      "Bash(~/.bun/bin/bun run *)",
+      "Bash(xargs -I{} echo {})",
+      "Bash(./node_modules/.bin/jest --coverage --collectCoverageFrom='src/packages/configs/jwt-sign.config.ts' test/packages/configs/jwt-sign.config.spec.ts)",
+      "Bash(./node_modules/.bin/eslint \"test/packages/configs/jwt-sign.config.spec.ts\")",
+      "Bash(./node_modules/.bin/prettier --check \"test/packages/configs/jwt-sign.config.spec.ts\")",
+      "Bash(./node_modules/.bin/prettier --write \"test/packages/configs/jwt-sign.config.spec.ts\")"
     ]
   }
 }

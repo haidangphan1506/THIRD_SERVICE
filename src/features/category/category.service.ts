@@ -12,8 +12,6 @@ export class CategoryService {
   constructor(private readonly category: CategoryRepository) {}
 
   async createCategoryService(createCategoryDto: CreateCategoryDto) {
-    this.logger.log('Creating category...');
-
     const duplicate = await this.category.getCategory({
       field: 'name',
       value: createCategoryDto.name,
@@ -25,9 +23,7 @@ export class CategoryService {
           (c.parentId ?? null) === (createCategoryDto.parent_id ?? null),
       );
       if (conflict) {
-        throw new BadRequestException(
-          `Category "${createCategoryDto.name}" of type ${createCategoryDto.type} already exists.`,
-        );
+        throw new BadRequestException(`Category already exists...`);
       }
     }
 
@@ -40,7 +36,6 @@ export class CategoryService {
   }
 
   async getCategoryService({ field, value }: { field: string; value: string }) {
-    this.logger.log('Getting category...');
     const result = await this.category.getCategory({ field, value });
     const category = Array.isArray(result) ? result[0] : result;
     return category ?? null;
