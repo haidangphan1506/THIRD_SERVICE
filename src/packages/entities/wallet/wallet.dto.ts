@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createWalletSchema } from './wallet.schema';
+import { createWalletSchema, getWalletsQuerySchema } from './wallet.schema';
 
 export type CreateWalletDto = {
   userId: string;
@@ -15,3 +15,5 @@ export type CreateWalletDto = {
 
 export const updateWalletSchema = createWalletSchema.partial();
 export type UpdateWalletDto = z.infer<typeof updateWalletSchema>;
+
+export type GetWalleDtotQueryDto = z.infer<typeof getWalletsQuerySchema>;

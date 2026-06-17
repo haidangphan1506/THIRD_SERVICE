@@ -32,3 +32,20 @@ export const createWalletSchema = z.object({
   isDefault: z.boolean({ message: 'Is default must be a boolean' }).optional().default(true),
   isActive: z.boolean({ message: 'Is active must be a boolean' }).optional().default(true),
 });
+
+export const getWalletsQuerySchema = z.preprocess(
+  (val) => {
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      const o = val as Record<string, unknown>;
+      if (o.pageSize != null && o.limit == null) {
+        return { ...o, limit: o.pageSize };
+      }
+    }
+    return val;
+  },
+  z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    search: z.string().trim().min(1).optional(),
+  }),
+);
