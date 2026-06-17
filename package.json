@@ -27,6 +27,7 @@
     "db:studio": "drizzle-kit studio",
     "db:seed:user": "bun scripts/seed-user.ts",
     "db:seed:users-bulk": "bun scripts/seed-users-bulk.ts",
+    "db:seed:categories": "bun scripts/seed-categories.ts",
     "compose:up": "docker compose up -d",
     "compose:down": "docker compose down",
     "podman:up": "podman compose up -d",
