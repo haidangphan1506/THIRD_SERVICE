@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { createWalletSchema, getWalletsQuerySchema } from './wallet.schema';
 
 export type CreateWalletDto = {
-  userId: string;
   name: string;
   type: 'CASH' | 'BANK' | 'E_WALLET' | 'CREDIT';
   currency: string;

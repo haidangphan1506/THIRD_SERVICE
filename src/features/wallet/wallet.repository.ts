@@ -1,16 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE } from 'src/database/database.module';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { CreateWalletDto } from '@packages/entities';
+import { CreateWalletDto, UpdateWalletDto } from '@packages/entities';
 import { wallets } from 'src/database/schema';
 import { buildListWhereClause } from '@packages/helpers';
-import { count } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 
 @Injectable()
 export class WalletRepository {
   constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
-  async create(createWalletDto: CreateWalletDto) {
-    const { userId, name, type, currency, categoriesId, balance, note, isDefault, isActive } =
+  async findByField(userId: string, field: 'id' | 'name', value: string) {
+    return await this.db
+      .select()
+      .from(wallets)
+      .where(and(eq(wallets.userId, userId), eq(wallets[field], value)));
+  }
+
+  async create(userId: string, createWalletDto: CreateWalletDto) {
+    const { name, type, currency, categoriesId, balance, note, isDefault, isActive } =
       createWalletDto;
     const [wallet] = await this.db
       .insert(wallets)
@@ -72,5 +79,24 @@ export class WalletRepository {
         totalPages: Math.ceil(total / limitNumber),
       },
     };
+  }
+
+  async updateWalet({ id, updateWalletDto }: { id: string; updateWalletDto: UpdateWalletDto }) {
+    const { balance, ...rest } = updateWalletDto;
+    const wallet = await this.db
+      .update(wallets)
+      .set({
+        ...rest,
+        ...(balance !== undefined && { balance: balance.toString() }),
+      })
+      .where(eq(wallets.id, id))
+      .returning();
+
+    return wallet || null;
+  }
+
+  async deleteWallet({ id }: { id: string }) {
+    const wallet = await this.db.delete(wallets).where(eq(wallets.id, id)).returning();
+    return wallet.length > 0;
   }
 }

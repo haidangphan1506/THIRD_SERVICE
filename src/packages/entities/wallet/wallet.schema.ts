@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
 export const createWalletSchema = z.object({
-  userId: z
-    .string({ message: 'User Id must be string ...' })
-    .min(1, { message: 'User Id must be string ...' })
-    .uuid({ message: 'User ID must be a valid UUID' }),
   name: z
     .string({ message: 'Name wallet must be a string' })
     .min(1, 'Name is required')
