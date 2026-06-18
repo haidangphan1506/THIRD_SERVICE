@@ -2,7 +2,6 @@ import { createWalletSchema } from '@packages/entities/wallet/wallet.schema';
 
 describe('wallet schema ...', () => {
   const baseValidation = {
-    userId: '36837a9f-f7f2-41a0-b6f5-9d88fe938066',
     name: 'ABC',
     type: 'CASH',
     currency: 'VND',
@@ -14,29 +13,6 @@ describe('wallet schema ...', () => {
   };
 
   type TC<T = unknown> = { case: string; value: T; isValid: boolean; message: string | null };
-
-  // ─── userId ──────────────────────────────────────────────────────────────────
-  describe('userId ...', () => {
-    test.each<TC>([
-      { value: undefined, case: 'missing', isValid: false, message: 'User Id must be string ...' },
-      { value: null, case: 'null', isValid: false, message: 'User Id must be string ...' },
-      { value: true, case: 'boolean', isValid: false, message: 'User Id must be string ...' },
-      { value: 123, case: 'number', isValid: false, message: 'User Id must be string ...' },
-      {
-        value: '123asc',
-        case: 'invalid UUID',
-        isValid: false,
-        message: 'User ID must be a valid UUID',
-      },
-      { value: baseValidation.userId, case: 'valid UUID', isValid: true, message: null },
-    ])('$case => $message', ({ value, message, isValid }) => {
-      const result = createWalletSchema.safeParse({ ...baseValidation, userId: value });
-      expect(result.success).toBe(isValid);
-      if (!isValid) {
-        expect(result.error?.issues.map((i) => i.message)).toContain(message);
-      }
-    });
-  });
 
   // ─── name ─────────────────────────────────────────────────────────────────────
   describe('name ...', () => {
@@ -282,7 +258,6 @@ describe('wallet schema ...', () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data).toMatchObject({
-        userId: baseValidation.userId,
         name: baseValidation.name,
         type: 'CASH',
         currency: 'VND',
