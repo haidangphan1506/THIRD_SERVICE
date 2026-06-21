@@ -64,6 +64,7 @@ export class AuthController {
     return this.authService.refreshTokens(body);
   }
 
+  @Public()
   @Post('forgot-password')
   @HttpCode(StatusCodes.OK)
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Forgot password successful' })
