@@ -78,7 +78,10 @@
       "PowerShell(py -3.12 --version)",
       "PowerShell(py -0)",
       "PowerShell(Get-Command python -All)",
-      "Bash(grep -n \"headroom\" \"C:\\\\Users\\\\HAIDANGPHAN\\\\.claude.json\" 2>/dev/null | head -20)"
+      "Bash(grep -n \"headroom\" \"C:\\\\Users\\\\HAIDANGPHAN\\\\.claude.json\" 2>/dev/null | head -20)",
+      "Bash(mkdir -p \"d:/my-finance-tracker/app/\\(auth\\)/oauth/callback\")",
+      "Bash(sleep 6; tail -n 80 /tmp/backend.log)",
+      "Bash(curl -sS -i \"http://localhost:8888/auth/google\")"
     ]
   }
 }
