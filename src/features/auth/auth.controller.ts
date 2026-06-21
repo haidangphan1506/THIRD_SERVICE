@@ -1,5 +1,8 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
 import { StatusCodes } from 'http-status-codes';
+import type { Request, Response } from 'express';
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -18,11 +21,17 @@ import {
 } from '@packages/entities/auth';
 import { ApiResponse, Public } from '@packages/decorators';
 import { ZodValidationPipe } from '@packages/pipes';
+import type { GoogleProfile } from '@packages/strategy';
 import { AuthService } from './auth.service';
+
+type RequestWithGoogleProfile = Request & { user: GoogleProfile };
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
   @Post('register')
   @HttpCode(StatusCodes.OK)
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Login successful' })
@@ -74,5 +83,31 @@ export class AuthController {
   ): Promise<ResetPasswordResponseDto> {
     console.log(resetPasswordDto);
     return this.authService.resetPasswordService(resetPasswordDto);
+  }
+
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleAuth(): void {
+    // Guard redirects to Google's consent screen; no body to return.
+  }
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthCallback(
+    @Req() req: RequestWithGoogleProfile,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { accessToken, refreshToken } = await this.authService.googleLoginService(req.user);
+
+    const redirectBase =
+      this.configService.get<string>('GOOGLE_OAUTH_REDIRECT_URL') ??
+      'http://localhost:3000/oauth/callback';
+    const redirectUrl = new URL(redirectBase);
+    redirectUrl.searchParams.set('accessToken', accessToken);
+    redirectUrl.searchParams.set('refreshToken', refreshToken);
+
+    res.redirect(redirectUrl.toString());
   }
 }

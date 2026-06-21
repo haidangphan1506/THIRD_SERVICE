@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { getJwtModuleOptionsFromConfig } from '@packages/configs/jwt-sign.config';
 import { RedisModule } from 'src/features/redis/redis.module';
+import { GoogleStrategy } from '@packages/strategy';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { RedisModule } from 'src/features/redis/redis.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, GoogleStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

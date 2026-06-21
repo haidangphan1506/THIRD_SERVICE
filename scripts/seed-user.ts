@@ -31,10 +31,10 @@ function resolveDatabaseUrl(): string {
 }
 
 async function main(): Promise<void> {
-  const email = process.env.SEED_EMAIL?.trim();
-  const password = process.env.SEED_PASSWORD ?? '';
-  const firstName = process.env.SEED_FIRST_NAME?.trim() || 'User';
-  const lastName = process.env.SEED_LAST_NAME?.trim() || 'Account';
+  const email = 'dang04223@gmail.com';
+  const password = 'Haidangphan123@';
+  const firstName =  'Phan Đăng';
+  const lastName = 'Hải';
 
   if (!email || password.length < 6) {
     console.error('Set SEED_EMAIL and SEED_PASSWORD (min 6 characters).');

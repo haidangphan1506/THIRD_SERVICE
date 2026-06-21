@@ -27,6 +27,7 @@ import { randomUUID } from 'node:crypto';
 import { RedisService } from 'src/features/redis/redis.service';
 import { UUID_V4_REGEX } from '../wallet/wallet.service';
 import { CurrentUser } from '@packages/decorators';
+import type { GoogleProfile } from '@packages/strategy';
 
 function parseRefreshTokenPayload(value: unknown): JwtRefreshPayload {
   if (typeof value !== 'object' || value === null) {
@@ -104,6 +105,37 @@ export class AuthService {
     const isPasswordOk = await compareData(loginDto.password, user.password);
     if (!isPasswordOk) {
       throw new BadRequestException('Invalid password ...');
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const [accessToken, refreshToken] = await Promise.all([
+      signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
+      signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
+    ]);
+
+    await this.redis.set(`${this.ACCESS_TOKEN_REDIS_PREFIX}:${user.id}`, refreshToken, 604800);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: { id: user.id, email: user.email },
+    };
+  }
+
+  async googleLoginService(profile: GoogleProfile): Promise<LoginResponseDto> {
+    const rows = (await this.userService.getUserByField({
+      field: 'email',
+      value: profile.email,
+    })) as User[];
+
+    let user = rows[0];
+    if (!user) {
+      user = (await this.userService.createUserService({
+        email: profile.email,
+        password: randomUUID(),
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      })) as User;
     }
 
     const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
