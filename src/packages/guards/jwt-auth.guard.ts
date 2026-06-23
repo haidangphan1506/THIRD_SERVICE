@@ -29,14 +29,14 @@ function bearerToken(authorization: string | undefined): string | undefined {
   return value;
 }
 
-const JWT_ROLES: readonly JwtUserRole[] = ['USER', 'ADMIN', 'MODERATOR'];
+const JWT_ROLES: readonly JwtUserRole[] = ['STUDENT', 'ADMIN', 'TUTOR','PARENT'];
 
 function parseJwtUserRole(value: unknown): JwtUserRole {
   if (typeof value != 'string') throw new UnauthorizedException('Check role user failed ...');
   if (typeof value === 'string' && (JWT_ROLES as readonly string[]).includes(value)) {
     return value as JwtUserRole;
   }
-  return 'USER';
+  return 'STUDENT';
 }
 
 function parseAccessPayload(decoded: unknown): JwtGuardUser {

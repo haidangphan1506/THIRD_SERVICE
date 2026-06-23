@@ -6,7 +6,8 @@ Throw standard NestJS exceptions — they are caught by the global `ErrorInterce
 
 | Exception | When to use |
 |-----------|-------------|
-| `BadRequestException` | Validation errors, duplicate resources, invalid input |
+| `BadRequestException` | Validation errors, duplicate resources, invalid input, unsupported query fields |
+| `ConflictException` | Duplicate resource (e.g., wallet name, email, username) |
 | `UnauthorizedException` | Missing/invalid JWT, expired token, wrong token type |
 | `UnprocessableEntityException` | Zod validation failure (auto-thrown by `ZodValidationPipe`) |
 | `ServiceUnavailableException` | Downstream service unavailable (e.g., SMTP in production) |
@@ -14,6 +15,18 @@ Throw standard NestJS exceptions — they are caught by the global `ErrorInterce
 ```ts
 throw new BadRequestException('Email already exists ...');
 throw new UnauthorizedException('Invalid or expired refresh token');
+```
+
+## UUID assertion pattern
+
+Always validate UUID format before DB lookup to avoid confusing errors:
+
+```ts
+export const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+if (!id || !UUID_V4_REGEX.test(id)) {
+  throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
+}
 ```
 
 ## ZodValidationPipe

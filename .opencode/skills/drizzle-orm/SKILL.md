@@ -12,7 +12,7 @@ Single schema file: `src/database/schema.ts`. All tables, enums, and relations d
 ```ts
 import { pgTable, uuid, text, varchar, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['USER', 'ADMIN', 'MODERATOR']);
+export const userRoleEnum = pgEnum('user_role', ['STUDENT', 'ADMIN', 'TUTOR', 'PARENT']);
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -95,7 +95,7 @@ Import: `import { buildListWhereClause } from '@packages/helpers';`
 
 Defined as `pgEnum` in schema. Values referenced as string literals in TypeScript:
 ```ts
-export const userRoleEnum = pgEnum('user_role', ['USER', 'ADMIN', 'MODERATOR']);
+export const userRoleEnum = pgEnum('user_role', ['STUDENT', 'ADMIN', 'TUTOR', 'PARENT']);
 // Usage: users.role = 'ADMIN'
 ```
 

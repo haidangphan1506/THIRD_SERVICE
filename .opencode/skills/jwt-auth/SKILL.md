@@ -20,7 +20,7 @@ type JwtAccessPayload = {
   sub: string;    // user id
   email: string;
   typ: 'access';
-  role: 'USER' | 'ADMIN' | 'MODERATOR';
+  role: 'STUDENT' | 'ADMIN' | 'TUTOR' | 'PARENT';
 };
 ```
 

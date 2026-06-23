@@ -42,5 +42,28 @@ Controller → Service → (optional Repository) → Drizzle ORM → PostgreSQL
 ```
 
 - Controller handles HTTP (routes, validation, decorators)
-- Service handles business logic and orchestration
+- Service handles business logic, orchestration, and cross-resource validation
 - Repository handles raw DB queries
+
+## Service assertion pattern
+
+Services validate cross-resource constraints before DB operations:
+
+```ts
+private async assertUserExists(userId: string) {
+  if (!userId || !UUID_V4_REGEX.test(userId)) {
+    throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
+  }
+  const userData = await this.userService.getUserByField({ field: 'id', value: userId });
+  if (!userData || (Array.isArray(userData) && userData.length === 0)) {
+    throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+  }
+}
+
+private async assertWalletOwnedByUser(userId: string, walletId: string) {
+  const wallet = await this.walletService.getWalletByFieldService({ userId, field: 'id', value: walletId });
+  if (!wallet || (Array.isArray(wallet) && wallet.length === 0)) {
+    throw new NotFoundException(ERROR_MESSAGES.WALLET_NOT_EXISTS);
+  }
+}
+```

@@ -23,13 +23,17 @@ description: Quick reference for all developer commands.
 Run format separately — ESLint does NOT check Prettier.
 
 ## Testing
-| Command | Runner | What |
-|---------|--------|------|
-| `bun run test` | Jest | Unit tests (`src/**/*.spec.ts`) |
-| `bun run test:unit` | Bun test | Bun runner on `test/` (confusing name) |
-| `bun run test:e2e` | Jest | E2E tests (`test/*.e2e-spec.ts`) |
-| `bun run test:cov` | c8 + Bun test | Coverage report |
-| `bun run test:ci` | c8 + Bun test | Coverage with lcov |
+All test commands use Jest (not Bun test):
+
+| Command | What |
+|---------|------|
+| `bun run test` | Jest unit tests (`src/**/*.spec.ts`) |
+| `bun run test:watch` | Jest in watch mode |
+| `bun run test:e2e` | Jest E2E tests (`test/*.e2e-spec.ts`) |
+| `bun run test:cov` | Jest with coverage report |
+| `bun run test:ci` | Jest with coverage + lcov |
+
+E2E tests require Node.js — Jest 29 does not run under Bun.
 
 ## Database
 | Command | What |

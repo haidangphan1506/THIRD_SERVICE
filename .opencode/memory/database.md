@@ -13,7 +13,7 @@ description: Database schema, tables, enums, and migration workflow.
 
 | Table | PK | Key columns |
 |-------|----|-------------|
-| `users` | `uuid` | email (unique), username (unique), password, role (enum), isActive |
+| `users` | `uuid` | email (unique), username (unique), password, firstName, lastName, role (enum), isActive |
 | `categories` | `uuid` | name, type (INCOME/EXPENSE), parentId (self-ref FK), icon, color |
 | `wallets` | `uuid` | userId (FK→users), name, type, currency, balance, isDefault |
 | `transactions` | `uuid` | userId (FK), walletId (FK), categoryId (FK), amount, type, status |
@@ -22,7 +22,7 @@ description: Database schema, tables, enums, and migration workflow.
 
 | Enum | Values |
 |------|--------|
-| `user_role` | USER, ADMIN, MODERATOR |
+| `user_role` | STUDENT, ADMIN, TUTOR, PARENT |
 | `category_type` | INCOME, EXPENSE |
 | `wallet_type` | CASH, BANK, E_WALLET, CREDIT |
 | `transaction_type` | INCOME, EXPENSE |

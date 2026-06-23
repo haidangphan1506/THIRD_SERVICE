@@ -12,7 +12,7 @@ import {
   numeric,
 } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['USER', 'ADMIN', 'MODERATOR']);
+export const userRoleEnum = pgEnum('user_role', ['STUDENT', 'ADMIN', 'TUTOR','PARENT']);
 export const categoryTypeEnum = pgEnum('category_type', ['INCOME', 'EXPENSE']);
 export const walletTypeEnum = pgEnum('wallet_type', ['CASH', 'BANK', 'E_WALLET', 'CREDIT']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
@@ -32,7 +32,7 @@ export const users = pgTable('users', {
   avatar: text('avatar'),
   phone: varchar('phone', { length: 20 }),
   isActive: boolean('is_active').default(true),
-  role: userRoleEnum('role').default('USER'),
+  role: userRoleEnum('role').default('STUDENT'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

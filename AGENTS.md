@@ -90,3 +90,12 @@ bun run db:migrate    # Apply to DB
 ```
 
 Migrations land in `drizzle/`. Drizzle config in `drizzle.config.ts` duplicates the URL resolution logic from `DatabaseModule`.
+
+## Skills (`.opencode/skills/`)
+
+| Skill | When to use |
+|---|---|
+| `drizzle-orm` | Drizzle queries, schema changes, migrations, seeding |
+| `jwt-auth` | Auth flows, JWT tokens, guards, forgot/reset password |
+| `wallet-transaction` | Wallet & transaction CRUD, balance math, DTO/schema |
+| `presence` | Real-time Socket.io presence module (online/offline tracking via Redis) |
