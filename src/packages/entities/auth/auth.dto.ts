@@ -2,6 +2,7 @@ import type { z } from 'zod';
 import {
   forgotPasswordSchema,
   loginSchema,
+  loginByUserCodeSchema,
   refreshTokenBodySchema,
   registerSchema,
   resetPasswordSchema,
@@ -9,6 +10,7 @@ import {
 
 export type RegisterDto = z.infer<typeof registerSchema>;
 export type LoginDto = z.infer<typeof loginSchema>;
+export type LoginByUserCodeDto = z.infer<typeof loginByUserCodeSchema>;
 export type RefreshTokenBodyDto = z.infer<typeof refreshTokenBodySchema>;
 export type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
@@ -18,6 +20,8 @@ export type LoginResponseDto = {
   user: {
     id: string;
     email: string;
+    userCode: string | null;
+    username: string;
   };
 };
 

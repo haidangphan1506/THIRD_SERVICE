@@ -20,7 +20,7 @@ export const DEFAULT_JWT_REFRESH_EXPIRES_SECONDS = 60 * 60 * 24 * 7; // 7d
 export type JwtTokenTyp = 'access' | 'refresh';
 
 /** Matches DB `user_role` enum — embedded on access JWTs for route guards. */
-export type JwtUserRole = 'USER' | 'ADMIN' | 'MODERATOR';
+export type JwtUserRole = 'USER' | 'ADMIN' | 'MODERATOR' | 'TUTOR';
 
 export type JwtAccessPayload = {
   sub: string;

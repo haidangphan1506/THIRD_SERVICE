@@ -9,6 +9,7 @@ export type CreateUserDto = z.infer<typeof createUserSchema>;
 // ?params: init type not init from schemas
 export type User = {
   id: string;
+  userCode: string | null;
   email: string;
   username: string;
   firstName: string;
@@ -17,7 +18,7 @@ export type User = {
   avatar: string | null;
   phone: string | null;
   isActive: boolean | null;
-  role: "USER" | "ADMIN" | "MODERATOR" | null;
+  role: "USER" | "ADMIN" | "MODERATOR" | "TUTOR" | null;
   createdAt: Date;
   updatedAt: Date;
 };

@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
@@ -12,6 +12,10 @@ import {
 } from '@packages/entities/user';
 import { hashData } from '@packages/helpers';
 
+function generateUserCode(): string {
+  return randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
+}
+
 /** Khớp `getUserDetailQuerySchema` — tách riêng để tránh inference lỗi với `z.preprocess`. */
 export type GetDetailUserQuery = {
   include: Array<'wallets' | 'transactions' | 'categories'>;
@@ -21,7 +25,7 @@ export type GetDetailUserQuery = {
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-  private readonly searchableFields = ['id', 'email', 'username', 'phone'] as const;
+  private readonly searchableFields = ['id', 'email', 'username', 'phone', 'userCode'] as const;
 
   constructor(
     @Inject(DRIZZLE)
@@ -409,16 +413,28 @@ export class UserService {
 
     const id = randomUUID();
     const hashedPassword = await hashData(password);
+    const role = createUserDto.role ?? 'USER';
+    let userCode: string | undefined;
+    if (role === 'TUTOR') {
+      userCode = generateUserCode();
+      for (let i = 0; i < 5; i++) {
+        const existing = await this.db.select().from(users).where(eq(users.userCode, userCode)).limit(1);
+        if (existing.length === 0) break;
+        userCode = generateUserCode();
+      }
+    }
 
     const user = await this.db
       .insert(users)
       .values({
         id,
+        ...(userCode ? { userCode } : {}),
         email,
         username: resolvedUsername,
         firstName,
         lastName,
         password: hashedPassword,
+        role,
       })
       .returning();
     return user[0];
