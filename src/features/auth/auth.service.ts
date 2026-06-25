@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import type {
   ForgotPasswordDto,
   ForgotPasswordResponseDto,
+  LoginByUserCodeDto,
   LoginDto,
   LoginResponseDto,
   RefreshTokenBodyDto,
@@ -86,6 +87,7 @@ export class AuthService {
       password,
       firstName,
       lastName,
+      role: 'USER',
     });
 
     return user as RegisterResponseDto;
@@ -118,7 +120,38 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
+    };
+  }
+
+  async loginByUserCodeService(dto: LoginByUserCodeDto): Promise<LoginResponseDto> {
+    const rows = (await this.userService.getUserByField({
+      field: 'userCode',
+      value: dto.userCode,
+    })) as User[];
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      throw new BadRequestException('User not found ...');
+    }
+
+    const user = rows[0];
+    const isPasswordOk = await compareData(dto.password, user.password);
+    if (!isPasswordOk) {
+      throw new BadRequestException('Invalid password ...');
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const [accessToken, refreshToken] = await Promise.all([
+      signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
+      signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
+    ]);
+
+    await this.redis.set(`${this.ACCESS_TOKEN_REDIS_PREFIX}:${user.id}`, refreshToken, 604800);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
     };
   }
 
@@ -135,6 +168,7 @@ export class AuthService {
         password: randomUUID(),
         firstName: profile.firstName,
         lastName: profile.lastName,
+        role: 'USER',
       })) as User;
     }
 
@@ -149,7 +183,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
     };
   }
 
@@ -263,7 +297,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
     };
   }
 

@@ -68,12 +68,13 @@ export const createUserSchema = z
     lastName: z
       .string({ message: 'Last name is required' })
       .trim()
-      .min(2, { message: 'Last name must be at least 2 characters' })
-      .max(100, { message: 'Last name must be at most 100 characters' }),
+      .min(2, { message: 'First name must be at least 2 characters' })
+      .max(100, { message: 'First name must be at most 100 characters' }),
     password: z
       .string({ message: 'Password is required' })
       .min(8, { message: 'Password must be at least 8 characters' })
       .max(14, { message: 'Password must be at most 14 characters' }),
+    role: z.enum(['USER', 'ADMIN', 'MODERATOR', 'TUTOR']).optional().default('USER'),
   })
   .superRefine((data, ctx) => {
     const { password } = data;

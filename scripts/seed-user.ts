@@ -4,13 +4,17 @@
  * Optional: SEED_FIRST_NAME, SEED_LAST_NAME (default User / Account)
  */
 import 'dotenv/config';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { eq, ilike } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../src/database/schema';
 import { users } from '../src/database/schema';
 import { hashData } from '../src/packages/helpers/hashingData.helper';
+
+function generateUserCode(): string {
+  return randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
+}
 
 function resolveDatabaseUrl(): string {
   const databaseUrl = process.env.DATABASE_URL?.trim();
@@ -69,13 +73,16 @@ async function main(): Promise<void> {
 
   const hashedPassword = await hashData(password);
   const id = randomUUID();
+  const userCode = generateUserCode();
   await db.insert(users).values({
     id,
+    userCode,
     email,
     username,
     firstName,
     lastName,
     password: hashedPassword,
+    role: 'TUTOR',
   });
 
   console.log('Created user:', email, '(username:', username + ')');

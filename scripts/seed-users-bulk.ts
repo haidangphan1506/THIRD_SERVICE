@@ -7,7 +7,7 @@
  *   SEED_EMAIL_DOMAIN=example.test (default example.test) → user001@example.test
  */
 import 'dotenv/config';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { inArray, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
@@ -31,6 +31,10 @@ function resolveDatabaseUrl(): string {
   url.username = user;
   url.password = password;
   return url.toString();
+}
+
+function generateUserCode(): string {
+  return randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
 }
 
 function padIndex(n: number, width: number): string {
@@ -93,6 +97,7 @@ async function main(): Promise<void> {
   for (const row of toCreate) {
     await db.insert(users).values({
       id: randomUUID(),
+      userCode: generateUserCode(),
       email: row.email,
       username: row.username,
       firstName,
