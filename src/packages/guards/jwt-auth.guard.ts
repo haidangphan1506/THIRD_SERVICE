@@ -29,7 +29,7 @@ function bearerToken(authorization: string | undefined): string | undefined {
   return value;
 }
 
-const JWT_ROLES: readonly JwtUserRole[] = ['USER', 'ADMIN', 'MODERATOR'];
+const JWT_ROLES: readonly JwtUserRole[] = ['USER', 'ADMIN', 'MODERATOR', 'TUTOR'];
 
 function parseJwtUserRole(value: unknown): JwtUserRole {
   if (typeof value != 'string') throw new UnauthorizedException('Check role user failed ...');

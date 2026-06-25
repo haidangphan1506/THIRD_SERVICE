@@ -6,12 +6,14 @@ import type { Request, Response } from 'express';
 import {
   forgotPasswordSchema,
   loginSchema,
+  loginByUserCodeSchema,
   refreshTokenBodySchema,
   type RegisterDto,
   RegisterResponseDto,
   registerSchema,
   type ForgotPasswordDto,
   type ForgotPasswordResponseDto,
+  type LoginByUserCodeDto,
   type LoginDto,
   type LoginResponseDto,
   type RefreshTokenBodyDto,
@@ -51,6 +53,17 @@ export class AuthController {
     loginDto: LoginDto,
   ): Promise<LoginResponseDto> {
     return this.authService.loginService(loginDto);
+  }
+
+  @Public()
+  @Post('login/user-code')
+  @HttpCode(StatusCodes.OK)
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Login successful' })
+  async loginByUserCode(
+    @Body(new ZodValidationPipe<LoginByUserCodeDto>(loginByUserCodeSchema))
+    dto: LoginByUserCodeDto,
+  ): Promise<LoginResponseDto> {
+    return this.authService.loginByUserCodeService(dto);
   }
 
   @Public()

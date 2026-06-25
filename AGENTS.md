@@ -90,3 +90,19 @@ bun run db:migrate    # Apply to DB
 ```
 
 Migrations land in `drizzle/`. Drizzle config in `drizzle.config.ts` duplicates the URL resolution logic from `DatabaseModule`.
+
+## Subagent delegation
+
+Auto-delegate to specialized subagents based on task:
+
+| Task type | Subagent | How |
+|---|---|---|
+| New feature (full CRUD module, DB table → tests) | `feature-builder` | `/feature` or `@feature-builder` |
+| Security audit (auth, injection, secrets, data exposure) | `security-review` | `/security-review` or `@security-review` |
+| Code review (style, types, lint, conventions) | `code-reviewer` | `/review` or `@code-reviewer` |
+| Debug / fix bugs | `fixbug` | `@fixbug` |
+| Write / fix tests | `test` | `/test` or `@test` |
+
+- For complex multi-step work, spawn the appropriate subagent via Task tool instead of doing inline.
+- Security review is read-only — delegate before deployment or after large changes.
+- Feature builder generates all layers at once — prefer it over piecemeal edits for new modules.
