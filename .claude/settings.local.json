@@ -98,8 +98,12 @@
       "Bash(pg_isready -h localhost -p 5433)",
       "Bash(bun install *)",
       "Bash(grep -n 'typeof students\\\\.$inferSelect\\\\|InferSelectModel' /home/haidang/Documents/backends/src/features/student/student.repository.ts)",
+<<<<<<< HEAD
       "Bash(~/.bun/bin/bun x *)",
       "Bash(sed -i '39s/^    \\\\.replace/      .replace/' /home/haidang/Documents/backends/src/features/user/user.service.ts)"
+=======
+      "Bash(~/.bun/bin/bun x *)"
+>>>>>>> 80fd0d8890f9274cb0ce8ebb2f81bebe31b65d58
     ]
   }
 }
