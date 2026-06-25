@@ -78,7 +78,9 @@ describe('Auth Controller ...', () => {
     test('1.2. should throw error when service throws', async () => {
       authServiceMock.registerService.mockRejectedValue(new Error('Username already exists ...'));
 
-      await expect(authController.register(registerDto)).rejects.toThrow('Username already exists ...');
+      await expect(authController.register(registerDto)).rejects.toThrow(
+        'Username already exists ...',
+      );
     });
   });
 
@@ -168,7 +170,9 @@ describe('Auth Controller ...', () => {
     test('4.2. should throw error when email is not found', async () => {
       authServiceMock.forgotPasswordService.mockRejectedValue(new Error('Email not found'));
 
-      await expect(authController.forgotPassword(forgotPasswordDto)).rejects.toThrow('Email not found');
+      await expect(authController.forgotPassword(forgotPasswordDto)).rejects.toThrow(
+        'Email not found',
+      );
     });
   });
 
@@ -195,7 +199,9 @@ describe('Auth Controller ...', () => {
     test('5.2. should throw error when reset token is invalid', async () => {
       authServiceMock.resetPasswordService.mockRejectedValue(new Error('Invalid reset token'));
 
-      await expect(authController.resetPassword(resetPasswordDto)).rejects.toThrow('Invalid reset token');
+      await expect(authController.resetPassword(resetPasswordDto)).rejects.toThrow(
+        'Invalid reset token',
+      );
     });
   });
 });

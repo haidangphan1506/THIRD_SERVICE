@@ -80,6 +80,7 @@ export const loginByUserCodeSchema = z.object({
     .min(1, { message: 'User code is required' })
     .max(6, { message: 'User code must be at most 6 characters' }),
   password: passwordFieldSchema,
+  role: z.enum(['PARENT', 'STUDENT']),
 });
 
 export const refreshTokenBodySchema = z.object({

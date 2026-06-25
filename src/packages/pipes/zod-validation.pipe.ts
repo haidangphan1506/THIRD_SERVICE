@@ -50,7 +50,7 @@ export class ZodValidationPipe<TOutput = unknown> implements PipeTransform<unkno
         code: issue.code,
       });
     }
-    
+
     return out;
   }
 

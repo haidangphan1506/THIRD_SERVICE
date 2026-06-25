@@ -12,6 +12,12 @@ import { UserModule } from './features/user/user.module';
 import { WalletModule } from './features/wallet/wallet.module';
 import { CategoryModule } from './features/category/category.module';
 import { ReportModule } from './features/report/report.module';
+import { ClassModule } from './features/class/class.module';
+import { StudentModule } from './features/student/student.module';
+import { SessionModule } from './features/session/session.module';
+import { CurriculumModule } from './features/curriculum/curriculum.module';
+import { TuitionModule } from './features/tuition/tuition.module';
+import { NotificationModule } from './features/notification/notification.module';
 import { JwtAuthGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -31,6 +37,12 @@ import { JwtModule } from '@nestjs/jwt';
     TransactionModule,
     EmailModule,
     ReportModule,
+    ClassModule,
+    StudentModule,
+    SessionModule,
+    CurriculumModule,
+    TuitionModule,
+    NotificationModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },

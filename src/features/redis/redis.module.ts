@@ -4,7 +4,7 @@ import { RedisController } from './redis.controller';
 
 @Global()
 @Module({
-  controllers: [RedisController], 
+  controllers: [RedisController],
   providers: [RedisService],
   exports: [RedisService],
 })

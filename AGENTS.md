@@ -9,6 +9,12 @@ bun run db:migrate      # Apply pending migrations
 bun run start:dev       # Dev server on :8888 with --watch
 ```
 
+**First-time setup** (or after dropping DB):
+
+```bash
+bun scripts/recreate-db.ts   # Drop → push schema → seed 3 accounts
+```
+
 - **Runtime**: Bun (`bun run <script>`). Install deps with `npm install` (lockfile is npm's).
 - **No branch/PR conventions** — just commit directly.
 - **No CI pipeline** exists yet.
@@ -90,6 +96,8 @@ bun run db:migrate    # Apply to DB
 ```
 
 Migrations land in `drizzle/`. Drizzle config in `drizzle.config.ts` duplicates the URL resolution logic from `DatabaseModule`.
+
+**Note**: `drizzle-kit push` requires `--force` in non-interactive shells (CI, scripts) to skip the TTY confirmation prompt.
 
 ## Subagent delegation
 

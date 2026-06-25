@@ -87,7 +87,7 @@ export class AuthService {
       password,
       firstName,
       lastName,
-      role: 'USER',
+      role: 'STUDENT',
     });
 
     return user as RegisterResponseDto;
@@ -109,7 +109,7 @@ export class AuthService {
       throw new BadRequestException('Invalid password ...');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -130,17 +130,16 @@ export class AuthService {
       value: dto.userCode,
     })) as User[];
 
-    if (!Array.isArray(rows) || rows.length === 0) {
+    const user = rows.find((u) => u.role === dto.role);
+    if (!user) {
       throw new BadRequestException('User not found ...');
     }
-
-    const user = rows[0];
     const isPasswordOk = await compareData(dto.password, user.password);
     if (!isPasswordOk) {
       throw new BadRequestException('Invalid password ...');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -168,11 +167,11 @@ export class AuthService {
         password: randomUUID(),
         firstName: profile.firstName,
         lastName: profile.lastName,
-        role: 'USER',
+        role: 'STUDENT',
       })) as User;
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -287,7 +286,7 @@ export class AuthService {
     }
 
     const user = rows[0];
-    const accessPayload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const accessPayload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
     const refreshPayload = { sub: user.id, email: user.email };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, accessPayload, this.jwtTokensConfig),

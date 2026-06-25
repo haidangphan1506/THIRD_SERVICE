@@ -18,7 +18,7 @@ export type User = {
   avatar: string | null;
   phone: string | null;
   isActive: boolean | null;
-  role: "USER" | "ADMIN" | "MODERATOR" | "TUTOR" | null;
+  role: 'ADMIN' | 'TUTOR' | 'PARENT' | 'STUDENT' | null;
   createdAt: Date;
   updatedAt: Date;
 };

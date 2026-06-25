@@ -1,4 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from '@packages/interceptor/response.interceptor';
 import { ErrorInterceptor, LoggerInterceptor } from '@packages/interceptor';
@@ -10,6 +11,38 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
   app.useGlobalInterceptors(new ErrorInterceptor(), new LoggerInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  const config = new DocumentBuilder()
+    .setTitle('Backends API')
+    .setDescription('API documentation for the Backends financial management system')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter JWT access token',
+      },
+      'access-token',
+    )
+    .addTag('Auth')
+    .addTag('Classes')
+    .addTag('Students')
+    .addTag('Sessions')
+    .addTag('Curriculum')
+    .addTag('Tuitions')
+    .addTag('Notifications')
+    .addTag('Categories')
+    .addTag('Wallets')
+    .addTag('Transactions')
+    .addTag('Reports')
+    .addTag('Users')
+    .addTag('Health')
+    .addTag('Redis')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document);
+
   await app.listen(process.env.PORT ?? 8888);
 }
 void bootstrap();

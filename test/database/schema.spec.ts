@@ -13,7 +13,7 @@ import {
 
 describe('Database Schema — Enums', () => {
   it('userRoleEnum has correct values', () => {
-    expect(userRoleEnum.enumValues).toEqual(['USER', 'ADMIN', 'MODERATOR']);
+    expect(userRoleEnum.enumValues).toEqual(['ADMIN', 'TUTOR', 'PARENT', 'STUDENT']);
   });
 
   it('categoryTypeEnum has correct values', () => {
@@ -154,7 +154,9 @@ describe('Database Schema — wallets table', () => {
 
   it('userId FK references users.id with onDelete cascade', () => {
     const { foreignKeys } = getTableConfig(wallets);
-    const fk = foreignKeys.find((f) => f.reference().columns.some((c: any) => c.name === 'user_id'));
+    const fk = foreignKeys.find((f) =>
+      f.reference().columns.some((c: any) => c.name === 'user_id'),
+    );
     expect(fk).toBeDefined();
     const ref = fk!.reference();
     expect(ref.foreignTable).toBe(users);
@@ -208,7 +210,9 @@ describe('Database Schema — transactions table', () => {
 
   it('userId FK references users.id with onDelete cascade', () => {
     const { foreignKeys } = getTableConfig(transactions);
-    const fk = foreignKeys.find((f) => f.reference().columns.some((c: any) => c.name === 'user_id'));
+    const fk = foreignKeys.find((f) =>
+      f.reference().columns.some((c: any) => c.name === 'user_id'),
+    );
     expect(fk).toBeDefined();
     const ref = fk!.reference();
     expect(ref.foreignTable).toBe(users);
@@ -218,7 +222,9 @@ describe('Database Schema — transactions table', () => {
 
   it('walletId FK references wallets.id with onDelete cascade', () => {
     const { foreignKeys } = getTableConfig(transactions);
-    const fk = foreignKeys.find((f) => f.reference().columns.some((c: any) => c.name === 'wallet_id'));
+    const fk = foreignKeys.find((f) =>
+      f.reference().columns.some((c: any) => c.name === 'wallet_id'),
+    );
     expect(fk).toBeDefined();
     const ref = fk!.reference();
     expect(ref.foreignTable).toBe(wallets);
@@ -228,7 +234,9 @@ describe('Database Schema — transactions table', () => {
 
   it('categoryId FK references categories.id with onDelete cascade', () => {
     const { foreignKeys } = getTableConfig(transactions);
-    const fk = foreignKeys.find((f) => f.reference().columns.some((c: any) => c.name === 'category_id'));
+    const fk = foreignKeys.find((f) =>
+      f.reference().columns.some((c: any) => c.name === 'category_id'),
+    );
     expect(fk).toBeDefined();
     const ref = fk!.reference();
     expect(ref.foreignTable).toBe(categories);

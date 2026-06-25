@@ -1,20 +1,15 @@
 /**
- * One-off user seed. Usage:
- *   SEED_EMAIL=you@example.com SEED_PASSWORD='your-pass' bun scripts/seed-user.ts
- * Optional: SEED_FIRST_NAME, SEED_LAST_NAME (default User / Account)
+ * Seed 3 fixed accounts: admin, student, parent.
+ * Usage: bun scripts/seed-user.ts
  */
 import 'dotenv/config';
-import { randomBytes, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { eq, ilike } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../src/database/schema';
 import { users } from '../src/database/schema';
 import { hashData } from '../src/packages/helpers/hashingData.helper';
-
-function generateUserCode(): string {
-  return randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
-}
 
 function resolveDatabaseUrl(): string {
   const databaseUrl = process.env.DATABASE_URL?.trim();
@@ -34,58 +29,82 @@ function resolveDatabaseUrl(): string {
   return url.toString();
 }
 
+const SEED_ACCOUNTS = [
+  {
+    email: 'admin@finance.dev',
+    username: 'admin',
+    firstName: 'Admin',
+    lastName: 'Account',
+    password: 'Admin@123456',
+    role: 'ADMIN' as const,
+  },
+  {
+    email: 'student@finance.dev',
+    username: 'student',
+    firstName: 'Student',
+    lastName: 'Account',
+    password: 'Student@123456',
+    role: 'STUDENT' as const,
+  },
+  {
+    email: 'parent@finance.dev',
+    username: 'parent',
+    firstName: 'Parent',
+    lastName: 'Account',
+    password: 'Parent@123456',
+    role: 'PARENT' as const,
+  },
+] satisfies Array<{
+  email: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  role: 'ADMIN' | 'STUDENT' | 'PARENT';
+}>;
+
 async function main(): Promise<void> {
-  const email = 'dang04223@gmail.com';
-  const password = 'Haidangphan123@';
-  const firstName =  'Phan Đăng';
-  const lastName = 'Hải';
-
-  if (!email || password.length < 6) {
-    console.error('Set SEED_EMAIL and SEED_PASSWORD (min 6 characters).');
-    process.exit(1);
-  }
-
   const url = resolveDatabaseUrl();
   const client = postgres(url);
   const db = drizzle(client, { schema });
 
-  const existing = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(ilike(users.email, email))
-    .limit(1);
-  if (existing.length > 0) {
-    console.log('User already exists:', email);
-    await client.end({ timeout: 5 });
-    return;
+  for (const account of SEED_ACCOUNTS) {
+    const existing = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(ilike(users.email, account.email))
+      .limit(1);
+
+    if (existing.length > 0) {
+      console.log(`Skipped (already exists): ${account.email}`);
+      continue;
+    }
+
+    const usernameTaken = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.username, account.username))
+      .limit(1);
+
+    if (usernameTaken.length > 0) {
+      console.error(`Username already taken: ${account.username}`);
+      continue;
+    }
+
+    const hashedPassword = await hashData(account.password);
+    await db.insert(users).values({
+      id: randomUUID(),
+      email: account.email,
+      username: account.username,
+      firstName: account.firstName,
+      lastName: account.lastName,
+      password: hashedPassword,
+      role: account.role,
+    });
+
+    console.log(`Created [${account.role}]: ${account.email} (username: ${account.username})`);
   }
 
-  const username = email.split('@')[0] ?? 'user';
-  const usernameTaken = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.username, username))
-    .limit(1);
-  if (usernameTaken.length > 0) {
-    console.error('Username already taken:', username);
-    process.exit(1);
-  }
-
-  const hashedPassword = await hashData(password);
-  const id = randomUUID();
-  const userCode = generateUserCode();
-  await db.insert(users).values({
-    id,
-    userCode,
-    email,
-    username,
-    firstName,
-    lastName,
-    password: hashedPassword,
-    role: 'TUTOR',
-  });
-
-  console.log('Created user:', email, '(username:', username + ')');
   await client.end({ timeout: 5 });
 }
 

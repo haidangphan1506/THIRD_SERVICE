@@ -17,7 +17,9 @@ jest.mock('@nestjs/jwt', () => ({
 }));
 
 jest.mock('@packages/configs/jwt-sign.config', () => ({
-  getJwtModuleOptionsFromConfig: jest.fn().mockReturnValue({ secret: 'test-secret', signOptions: {} }),
+  getJwtModuleOptionsFromConfig: jest
+    .fn()
+    .mockReturnValue({ secret: 'test-secret', signOptions: {} }),
 }));
 
 describe('Auth Module ...', () => {
