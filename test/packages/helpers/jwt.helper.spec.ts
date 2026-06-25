@@ -27,7 +27,7 @@ describe('JwtHelper ...', () => {
       const payload = {
         sub: '1',
         email: 'test@gmail.com',
-        role: 'USER' as const,
+        role: 'STUDENT' as const,
       };
       const result = await signAccessToken(mockJwtSignContact, payload, config);
       expect(result).toBe('accesstoken');
@@ -48,7 +48,7 @@ describe('JwtHelper ...', () => {
       const payload = {
         sub: '1',
         email: 'test@gmail.com',
-        role: 'USER' as const,
+        role: 'STUDENT' as const,
       };
 
       await expect(signAccessToken(mockJwtSignContact, payload, config)).rejects.toBe('failed');
@@ -59,7 +59,7 @@ describe('JwtHelper ...', () => {
       const payload = {
         sub: '1',
         email: 'test@gmail.com',
-        role: 'USER' as const,
+        role: 'STUDENT' as const,
       };
       const result = await signAccessToken(mockJwtSignContact, payload, config);
 
@@ -68,7 +68,7 @@ describe('JwtHelper ...', () => {
       expect(payload).toEqual({
         sub: '1',
         email: 'test@gmail.com',
-        role: 'USER',
+        role: 'STUDENT',
       });
     });
   });

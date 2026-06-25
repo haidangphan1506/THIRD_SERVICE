@@ -27,9 +27,9 @@ describe('transaction balance math', () => {
 
   describe('createDeltas', () => {
     it('applies the signed effect on the wallet', () => {
-      expect(createDeltas({ walletId: W1, type: 'EXPENSE', amount: 50, status: 'COMPLETED' })).toEqual([
-        { walletId: W1, delta: -50 },
-      ]);
+      expect(
+        createDeltas({ walletId: W1, type: 'EXPENSE', amount: 50, status: 'COMPLETED' }),
+      ).toEqual([{ walletId: W1, delta: -50 }]);
     });
 
     it('returns no delta for a pending transaction', () => {

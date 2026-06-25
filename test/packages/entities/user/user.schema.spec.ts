@@ -37,7 +37,9 @@ describe('getUserDetailQuerySchema', () => {
     });
 
     test('unknown values in include are filtered out', () => {
-      const result = getUserDetailQuerySchema.safeParse({ include: 'wallets,unknown,transactions' });
+      const result = getUserDetailQuerySchema.safeParse({
+        include: 'wallets,unknown,transactions',
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.include).toEqual(['wallets', 'transactions']);
@@ -53,7 +55,9 @@ describe('getUserDetailQuerySchema', () => {
     });
 
     test('all three valid values are accepted', () => {
-      const result = getUserDetailQuerySchema.safeParse({ include: 'wallets,transactions,categories' });
+      const result = getUserDetailQuerySchema.safeParse({
+        include: 'wallets,transactions,categories',
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.include).toEqual(['wallets', 'transactions', 'categories']);
@@ -191,7 +195,7 @@ describe('getUsersQuerySchema', () => {
   });
 
   describe('role', () => {
-    test.each(['USER', 'ADMIN', 'MODERATOR'])('%s is accepted', (role) => {
+    test.each(['ADMIN', 'TUTOR', 'PARENT', 'STUDENT'])('%s is accepted', (role) => {
       const result = getUsersQuerySchema.safeParse({ role });
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.role).toBe(role);
@@ -246,14 +250,54 @@ describe('dataFieldSchema', () => {
   type TC = { label: string; input: Record<string, unknown>; path: string; msg: string };
 
   test.each<TC>([
-    { label: 'missing field',    input: { value: valid.value },           path: 'field', msg: 'Field must be string ...' },
-    { label: 'empty field',      input: { ...valid, field: '' },           path: 'field', msg: 'Too small: expected string to have >=1 characters' },
-    { label: 'field is number',  input: { ...valid, field: 123 },          path: 'field', msg: 'Field must be string ...' },
-    { label: 'field is boolean', input: { ...valid, field: true },         path: 'field', msg: 'Field must be string ...' },
-    { label: 'missing value',    input: { field: valid.field },            path: 'value', msg: 'Value must be string ...' },
-    { label: 'empty value',      input: { ...valid, value: '' },           path: 'value', msg: 'Too small: expected string to have >=1 characters' },
-    { label: 'value is number',  input: { ...valid, value: 456 },          path: 'value', msg: 'Value must be string ...' },
-    { label: 'value is boolean', input: { ...valid, value: false },        path: 'value', msg: 'Value must be string ...' },
+    {
+      label: 'missing field',
+      input: { value: valid.value },
+      path: 'field',
+      msg: 'Field must be string ...',
+    },
+    {
+      label: 'empty field',
+      input: { ...valid, field: '' },
+      path: 'field',
+      msg: 'Too small: expected string to have >=1 characters',
+    },
+    {
+      label: 'field is number',
+      input: { ...valid, field: 123 },
+      path: 'field',
+      msg: 'Field must be string ...',
+    },
+    {
+      label: 'field is boolean',
+      input: { ...valid, field: true },
+      path: 'field',
+      msg: 'Field must be string ...',
+    },
+    {
+      label: 'missing value',
+      input: { field: valid.field },
+      path: 'value',
+      msg: 'Value must be string ...',
+    },
+    {
+      label: 'empty value',
+      input: { ...valid, value: '' },
+      path: 'value',
+      msg: 'Too small: expected string to have >=1 characters',
+    },
+    {
+      label: 'value is number',
+      input: { ...valid, value: 456 },
+      path: 'value',
+      msg: 'Value must be string ...',
+    },
+    {
+      label: 'value is boolean',
+      input: { ...valid, value: false },
+      path: 'value',
+      msg: 'Value must be string ...',
+    },
   ])('$label → $msg', ({ input, path, msg }) => {
     const result = dataFieldSchema.safeParse(input);
     expect(result.success).toBe(false);
@@ -288,11 +332,15 @@ describe('createUserSchema', () => {
   // ─── email ──────────────────────────────────────────────────────────────────
   describe('email', () => {
     test.each<TC>([
-      { label: 'missing',        input: { ...validUser, email: undefined },    msg: 'Email is required' },
-      { label: 'null',           input: { ...validUser, email: null },          msg: 'Email is required' },
-      { label: 'number',         input: { ...validUser, email: 123 },           msg: 'Email is required' },
-      { label: 'empty string',   input: { ...validUser, email: '' },            msg: 'Email is required' },
-      { label: 'invalid format', input: { ...validUser, email: 'not-an-email' }, msg: 'Invalid email address' },
+      { label: 'missing', input: { ...validUser, email: undefined }, msg: 'Email is required' },
+      { label: 'null', input: { ...validUser, email: null }, msg: 'Email is required' },
+      { label: 'number', input: { ...validUser, email: 123 }, msg: 'Email is required' },
+      { label: 'empty string', input: { ...validUser, email: '' }, msg: 'Email is required' },
+      {
+        label: 'invalid format',
+        input: { ...validUser, email: 'not-an-email' },
+        msg: 'Invalid email address',
+      },
     ])('$label → "$msg"', ({ input, msg }) => {
       const result = createUserSchema.safeParse(input);
       expect(result.success).toBe(false);
@@ -306,7 +354,9 @@ describe('createUserSchema', () => {
   // ─── username ────────────────────────────────────────────────────────────────
   describe('username', () => {
     test('accepts username up to 100 chars', () => {
-      expect(createUserSchema.safeParse({ ...validUser, username: 'a'.repeat(100) }).success).toBe(true);
+      expect(createUserSchema.safeParse({ ...validUser, username: 'a'.repeat(100) }).success).toBe(
+        true,
+      );
     });
 
     test('rejects username over 100 chars', () => {
@@ -337,12 +387,28 @@ describe('createUserSchema', () => {
   // ─── firstName ──────────────────────────────────────────────────────────────
   describe('firstName', () => {
     test.each<TC>([
-      { label: 'missing',             input: { ...validUser, firstName: undefined },       msg: 'First name is required' },
-      { label: 'null',                input: { ...validUser, firstName: null },             msg: 'First name is required' },
-      { label: 'number',              input: { ...validUser, firstName: 123 },              msg: 'First name is required' },
-      { label: 'empty string',        input: { ...validUser, firstName: '' },               msg: 'First name must be at least 2 characters' },
-      { label: 'too short (1 char)',  input: { ...validUser, firstName: 'A' },              msg: 'First name must be at least 2 characters' },
-      { label: 'too long (101 chars)', input: { ...validUser, firstName: 'A'.repeat(101) }, msg: 'First name must be at most 100 characters' },
+      {
+        label: 'missing',
+        input: { ...validUser, firstName: undefined },
+        msg: 'First name is required',
+      },
+      { label: 'null', input: { ...validUser, firstName: null }, msg: 'First name is required' },
+      { label: 'number', input: { ...validUser, firstName: 123 }, msg: 'First name is required' },
+      {
+        label: 'empty string',
+        input: { ...validUser, firstName: '' },
+        msg: 'First name must be at least 2 characters',
+      },
+      {
+        label: 'too short (1 char)',
+        input: { ...validUser, firstName: 'A' },
+        msg: 'First name must be at least 2 characters',
+      },
+      {
+        label: 'too long (101 chars)',
+        input: { ...validUser, firstName: 'A'.repeat(101) },
+        msg: 'First name must be at most 100 characters',
+      },
     ])('$label → "$msg"', ({ input, msg }) => {
       const result = createUserSchema.safeParse(input);
       expect(result.success).toBe(false);
@@ -357,19 +423,37 @@ describe('createUserSchema', () => {
     });
 
     test('accepts exactly 100 characters (max boundary)', () => {
-      expect(createUserSchema.safeParse({ ...validUser, firstName: 'A'.repeat(100) }).success).toBe(true);
+      expect(createUserSchema.safeParse({ ...validUser, firstName: 'A'.repeat(100) }).success).toBe(
+        true,
+      );
     });
   });
 
   // ─── lastName ───────────────────────────────────────────────────────────────
   describe('lastName', () => {
     test.each<TC>([
-      { label: 'missing',              input: { ...validUser, lastName: undefined },        msg: 'Last name is required' },
-      { label: 'null',                 input: { ...validUser, lastName: null },              msg: 'Last name is required' },
-      { label: 'number',               input: { ...validUser, lastName: 123 },               msg: 'Last name is required' },
-      { label: 'empty string',         input: { ...validUser, lastName: '' },                msg: 'Last name must be at least 2 characters' },
-      { label: 'too short (1 char)',   input: { ...validUser, lastName: 'A' },               msg: 'Last name must be at least 2 characters' },
-      { label: 'too long (101 chars)', input: { ...validUser, lastName: 'A'.repeat(101) },   msg: 'Last name must be at most 100 characters' },
+      {
+        label: 'missing',
+        input: { ...validUser, lastName: undefined },
+        msg: 'Last name is required',
+      },
+      { label: 'null', input: { ...validUser, lastName: null }, msg: 'Last name is required' },
+      { label: 'number', input: { ...validUser, lastName: 123 }, msg: 'Last name is required' },
+      {
+        label: 'empty string',
+        input: { ...validUser, lastName: '' },
+        msg: 'Last name must be at least 2 characters',
+      },
+      {
+        label: 'too short (1 char)',
+        input: { ...validUser, lastName: 'A' },
+        msg: 'Last name must be at least 2 characters',
+      },
+      {
+        label: 'too long (101 chars)',
+        input: { ...validUser, lastName: 'A'.repeat(101) },
+        msg: 'Last name must be at most 100 characters',
+      },
     ])('$label → "$msg"', ({ input, msg }) => {
       const result = createUserSchema.safeParse(input);
       expect(result.success).toBe(false);
@@ -384,18 +468,32 @@ describe('createUserSchema', () => {
     });
 
     test('accepts exactly 100 characters (max boundary)', () => {
-      expect(createUserSchema.safeParse({ ...validUser, lastName: 'A'.repeat(100) }).success).toBe(true);
+      expect(createUserSchema.safeParse({ ...validUser, lastName: 'A'.repeat(100) }).success).toBe(
+        true,
+      );
     });
   });
 
   // ─── password ───────────────────────────────────────────────────────────────
   describe('password', () => {
     test.each<TC>([
-      { label: 'missing',           input: { ...validUser, password: undefined },          msg: 'Password is required' },
-      { label: 'null',              input: { ...validUser, password: null },                msg: 'Password is required' },
-      { label: 'number',            input: { ...validUser, password: 123 },                 msg: 'Password is required' },
-      { label: 'too short (7 chars)', input: { ...validUser, password: 'Ab1@abc' },        msg: 'Password must be at least 8 characters' },
-      { label: 'too long (15 chars)', input: { ...validUser, password: 'Haidang123@abcd' }, msg: 'Password must be at most 14 characters' },
+      {
+        label: 'missing',
+        input: { ...validUser, password: undefined },
+        msg: 'Password is required',
+      },
+      { label: 'null', input: { ...validUser, password: null }, msg: 'Password is required' },
+      { label: 'number', input: { ...validUser, password: 123 }, msg: 'Password is required' },
+      {
+        label: 'too short (7 chars)',
+        input: { ...validUser, password: 'Ab1@abc' },
+        msg: 'Password must be at least 8 characters',
+      },
+      {
+        label: 'too long (15 chars)',
+        input: { ...validUser, password: 'Haidang123@abcd' },
+        msg: 'Password must be at most 14 characters',
+      },
     ])('$label → "$msg"', ({ input, msg }) => {
       const result = createUserSchema.safeParse(input);
       expect(result.success).toBe(false);
@@ -406,10 +504,26 @@ describe('createUserSchema', () => {
     });
 
     test.each<TC>([
-      { label: 'no lowercase',   input: { ...validUser, password: 'HAIDANG123@' },  msg: 'Password must include at least one lowercase letter (a-z)' },
-      { label: 'no uppercase',   input: { ...validUser, password: 'haidang123@' },  msg: 'Password must include at least one uppercase letter (A-Z)' },
-      { label: 'no digit',       input: { ...validUser, password: 'Haidangphan@' }, msg: 'Password must include at least one digit (0-9)' },
-      { label: 'no special char', input: { ...validUser, password: 'Haidang1234' }, msg: 'Password must include at least one special character (any symbol that is not a letter or digit)' },
+      {
+        label: 'no lowercase',
+        input: { ...validUser, password: 'HAIDANG123@' },
+        msg: 'Password must include at least one lowercase letter (a-z)',
+      },
+      {
+        label: 'no uppercase',
+        input: { ...validUser, password: 'haidang123@' },
+        msg: 'Password must include at least one uppercase letter (A-Z)',
+      },
+      {
+        label: 'no digit',
+        input: { ...validUser, password: 'Haidangphan@' },
+        msg: 'Password must include at least one digit (0-9)',
+      },
+      {
+        label: 'no special char',
+        input: { ...validUser, password: 'Haidang1234' },
+        msg: 'Password must include at least one special character (any symbol that is not a letter or digit)',
+      },
     ])('$label → "$msg"', ({ input, msg }) => {
       const result = createUserSchema.safeParse(input);
       expect(result.success).toBe(false);
@@ -424,7 +538,9 @@ describe('createUserSchema', () => {
     });
 
     test('accepts exactly 14 characters (max boundary)', () => {
-      expect(createUserSchema.safeParse({ ...validUser, password: 'Haidangphan12@' }).success).toBe(true);
+      expect(createUserSchema.safeParse({ ...validUser, password: 'Haidangphan12@' }).success).toBe(
+        true,
+      );
     });
   });
 });

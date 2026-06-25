@@ -39,7 +39,7 @@ describe('JwtUserStrategy', () => {
         sub: '1',
         email: 'test@gmail.com',
         typ: 'access' as const,
-        role: 'USER' as const,
+        role: 'STUDENT' as const,
       };
 
       expect(strategy.validate(payload)).toEqual(payload);
