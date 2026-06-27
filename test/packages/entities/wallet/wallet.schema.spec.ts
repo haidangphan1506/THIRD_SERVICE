@@ -68,7 +68,9 @@ describe('wallet schema ...', () => {
     });
 
     it('defaults to CASH when omitted', () => {
-      const input = Object.fromEntries(Object.entries(baseValidation).filter(([k]) => k !== 'type'));
+      const input = Object.fromEntries(
+        Object.entries(baseValidation).filter(([k]) => k !== 'type'),
+      );
       const result = createWalletSchema.safeParse(input);
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.type).toBe('CASH');
@@ -94,7 +96,9 @@ describe('wallet schema ...', () => {
     });
 
     it('defaults to VND when omitted', () => {
-      const input = Object.fromEntries(Object.entries(baseValidation).filter(([k]) => k !== 'currency'));
+      const input = Object.fromEntries(
+        Object.entries(baseValidation).filter(([k]) => k !== 'currency'),
+      );
       const result = createWalletSchema.safeParse(input);
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.currency).toBe('VND');
@@ -138,7 +142,9 @@ describe('wallet schema ...', () => {
     });
 
     it('defaults to [] when omitted', () => {
-      const input = Object.fromEntries(Object.entries(baseValidation).filter(([k]) => k !== 'categoriesId'));
+      const input = Object.fromEntries(
+        Object.entries(baseValidation).filter(([k]) => k !== 'categoriesId'),
+      );
       const result = createWalletSchema.safeParse(input);
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.categoriesId).toEqual([]);
@@ -176,7 +182,9 @@ describe('wallet schema ...', () => {
     });
 
     it('defaults to 0 when omitted', () => {
-      const input = Object.fromEntries(Object.entries(baseValidation).filter(([k]) => k !== 'balance'));
+      const input = Object.fromEntries(
+        Object.entries(baseValidation).filter(([k]) => k !== 'balance'),
+      );
       const result = createWalletSchema.safeParse(input);
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.balance).toBe(0);
@@ -199,7 +207,9 @@ describe('wallet schema ...', () => {
     });
 
     it('defaults to empty string when omitted', () => {
-      const input = Object.fromEntries(Object.entries(baseValidation).filter(([k]) => k !== 'note'));
+      const input = Object.fromEntries(
+        Object.entries(baseValidation).filter(([k]) => k !== 'note'),
+      );
       const result = createWalletSchema.safeParse(input);
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.note).toBe('');
@@ -222,7 +232,9 @@ describe('wallet schema ...', () => {
     });
 
     it('defaults to true when omitted', () => {
-      const input = Object.fromEntries(Object.entries(baseValidation).filter(([k]) => k !== 'isDefault'));
+      const input = Object.fromEntries(
+        Object.entries(baseValidation).filter(([k]) => k !== 'isDefault'),
+      );
       const result = createWalletSchema.safeParse(input);
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.isDefault).toBe(true);
@@ -245,7 +257,9 @@ describe('wallet schema ...', () => {
     });
 
     it('defaults to true when omitted', () => {
-      const input = Object.fromEntries(Object.entries(baseValidation).filter(([k]) => k !== 'isActive'));
+      const input = Object.fromEntries(
+        Object.entries(baseValidation).filter(([k]) => k !== 'isActive'),
+      );
       const result = createWalletSchema.safeParse(input);
       expect(result.success).toBe(true);
       if (result.success) expect(result.data.isActive).toBe(true);

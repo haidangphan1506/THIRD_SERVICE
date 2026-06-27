@@ -10,9 +10,16 @@ import {
   index,
   type AnyPgColumn,
   numeric,
+  integer,
 } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['USER', 'ADMIN', 'MODERATOR', 'TUTOR']);
+export const userRoleEnum = pgEnum('user_role', [
+  'ADMIN',
+  'TUTOR',
+  'PARENT',
+  'STUDENT',
+]);
+export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'OTHER']);
 export const categoryTypeEnum = pgEnum('category_type', ['INCOME', 'EXPENSE']);
 export const walletTypeEnum = pgEnum('wallet_type', ['CASH', 'BANK', 'E_WALLET', 'CREDIT']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
@@ -22,21 +29,40 @@ export const transactionStatusEnum = pgEnum('transaction_status', [
   'CANCELLED',
 ]);
 
-export const users = pgTable('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userCode: varchar('userCode', { length: 6 }),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  username: varchar('username', { length: 50 }).notNull().unique(),
-  firstName: varchar('first_name', { length: 255 }).notNull(),
-  lastName: varchar('last_name', { length: 255 }).notNull(),
-  password: text('password').notNull(),
-  avatar: text('avatar'),
-  phone: varchar('phone', { length: 20 }),
-  isActive: boolean('is_active').default(true),
-  role: userRoleEnum('role').default('USER'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userCode: varchar('userCode', { length: 6 }),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    username: varchar('username', { length: 50 }).notNull().unique(),
+    firstName: varchar('first_name', { length: 255 }).notNull(),
+    lastName: varchar('last_name', { length: 255 }).notNull(),
+    password: text('password').notNull(),
+    avatar: text('avatar'),
+    phone: varchar('phone', { length: 20 }),
+    gender: genderEnum('gender'),
+    dateOfBirth: timestamp('date_of_birth'),
+    address: text('address'),
+    isActive: boolean('is_active').default(true),
+    role: userRoleEnum('role').default('STUDENT'),
+    parentId: uuid('parent_id').references(
+      (): AnyPgColumn => users.id,
+      {
+        onDelete: 'cascade',
+      }
+    ),
+    tutorId: uuid('tutor_id').references(
+      (): AnyPgColumn => users.id,
+      {
+        onDelete: 'cascade',
+      }
+    ),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [index('users_role_idx').on(table.role)],
+);
 
 export const categories = pgTable(
   'categories',
@@ -114,3 +140,194 @@ export const transactions = pgTable(
     index('transactions_created_at_idx').on(table.createdAt),
   ],
 );
+
+// ─── Education Management ────────────────────────────────────────────
+
+export const classStatusEnum = pgEnum('class_status', ['OPEN', 'CLOSED', 'UPCOMING']);
+export const sessionFormatEnum = pgEnum('session_format', ['ONLINE', 'OFFLINE']);
+export const sessionStatusEnum = pgEnum('session_status', ['UPCOMING', 'COMPLETED', 'CANCELLED']);
+export const dayOfWeekEnum = pgEnum('day_of_week', [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+]);
+export const curriculumStatusEnum = pgEnum('curriculum_status', ['COMPLETED', 'UPCOMING']);
+export const assignmentStatusEnum = pgEnum('assignment_status', [
+  'COMPLETED',
+  'OVERDUE',
+  'IN_PROGRESS',
+]);
+export const tuitionStatusEnum = pgEnum('tuition_status', ['PAID', 'UNPAID', 'OVERDUE']);
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'SYSTEM',
+  'TUITION',
+  'STUDENT',
+  'TUTOR',
+]);
+
+// ── Classes ──────────────────────────────────────────────────────────
+export const classes = pgTable('classes', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  code: varchar('code', { length: 50 }).notNull().unique(),
+  subject: varchar('subject', { length: 255 }).notNull(),
+  tuition: numeric('tuition', { precision: 14, scale: 2 }).default('0'),
+  description: text('description'),
+  status: classStatusEnum('status').default('OPEN'),
+  tutorId: uuid('tutor_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// ── Class-Students (M:N) ────────────────────────────────────────────
+export const classStudents = pgTable(
+  'class_students',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    classId: uuid('class_id')
+      .notNull()
+      .references(() => classes.id, { onDelete: 'cascade' }),
+    studentId: uuid('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex('class_students_unique').on(table.classId, table.studentId)],
+);
+
+// ── Recurring Schedules ──────────────────────────────────────────────
+export const schedules = pgTable('schedules', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  classId: uuid('class_id')
+    .notNull()
+    .references(() => classes.id, { onDelete: 'cascade' }),
+  dayOfWeek: dayOfWeekEnum('day_of_week').notNull(),
+  startTime: varchar('start_time', { length: 5 }).notNull(),
+  endTime: varchar('end_time', { length: 5 }).notNull(),
+  format: sessionFormatEnum('format').notNull().default('ONLINE'),
+  location: text('location'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// ── Individual Sessions ──────────────────────────────────────────────
+export const sessions = pgTable(
+  'sessions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    classId: uuid('class_id')
+      .notNull()
+      .references(() => classes.id, { onDelete: 'cascade' }),
+    title: varchar('title', { length: 255 }),
+    date: timestamp('date').notNull(),
+    startTime: varchar('start_time', { length: 5 }).notNull(),
+    endTime: varchar('end_time', { length: 5 }).notNull(),
+    format: sessionFormatEnum('format').notNull().default('ONLINE'),
+    location: text('location'),
+    status: sessionStatusEnum('status').default('UPCOMING'),
+    note: text('note'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('sessions_class_id_idx').on(table.classId),
+    index('sessions_date_idx').on(table.date),
+  ],
+);
+
+// ── Curriculum / Lesson Plan ─────────────────────────────────────────
+export const curriculums = pgTable(
+  'curriculums',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    classId: uuid('class_id')
+      .notNull()
+      .references(() => classes.id, { onDelete: 'cascade' }),
+    lesson: integer('lesson').notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
+    lecture: text('lecture'),
+    assignment: text('assignment'),
+    status: curriculumStatusEnum('status').default('UPCOMING'),
+    note: text('note'),
+    order: integer('order').default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [index('curriculums_class_id_idx').on(table.classId)],
+);
+
+// ── Assignments ──────────────────────────────────────────────────────
+export const assignments = pgTable(
+  'assignments',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    classId: uuid('class_id')
+      .notNull()
+      .references(() => classes.id, { onDelete: 'cascade' }),
+    curriculumId: uuid('curriculum_id').references(() => curriculums.id, { onDelete: 'set null' }),
+    lesson: integer('lesson').notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    requirement: text('requirement'),
+    status: assignmentStatusEnum('status').default('IN_PROGRESS'),
+    score: numeric('score', { precision: 5, scale: 2 }),
+    comment: text('comment'),
+    isHidden: boolean('is_hidden').default(false),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [index('assignments_class_id_idx').on(table.classId)],
+);
+
+// ── Tuitions ─────────────────────────────────────────────────────────
+export const tuitions = pgTable('tuitions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  classId: uuid('class_id')
+    .notNull()
+    .references(() => classes.id, { onDelete: 'cascade' }),
+  studentId: uuid('student_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  amount: numeric('amount', { precision: 14, scale: 2 }).notNull(),
+  dueDate: timestamp('due_date'),
+  paidDate: timestamp('paid_date'),
+  status: tuitionStatusEnum('status').default('UNPAID'),
+  note: text('note'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// ── Notifications ────────────────────────────────────────────────────
+export const notifications = pgTable('notifications', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  type: notificationTypeEnum('type').notNull(),
+  subtype: varchar('subtype', { length: 50 }),
+  title: varchar('title', { length: 255 }).notNull(),
+  content: text('content'),
+  isRead: boolean('is_read').default(false),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  classId: uuid('class_id').references(() => classes.id, { onDelete: 'cascade' }),
+  studentId: uuid('student_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// ── Student Scores / Progress ────────────────────────────────────────
+export const studentScores = pgTable('student_scores', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  studentId: uuid('student_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  classId: uuid('class_id')
+    .notNull()
+    .references(() => classes.id, { onDelete: 'cascade' }),
+  score: numeric('score', { precision: 5, scale: 2 }),
+  comment: text('comment'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});

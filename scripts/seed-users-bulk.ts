@@ -104,7 +104,7 @@ async function main(): Promise<void> {
       lastName,
       password: hashedPassword,
       isActive: true,
-      role: 'USER',
+      role: 'STUDENT',
     });
   }
 

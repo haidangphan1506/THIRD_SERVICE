@@ -1,6 +1,13 @@
 import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiResponse as SwaggerResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import type { Request, Response } from 'express';
 import {
@@ -28,14 +35,35 @@ import { AuthService } from './auth.service';
 
 type RequestWithGoogleProfile = Request & { user: GoogleProfile };
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
+
+  @ApiBearerAuth('access-token')
   @Post('register')
   @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Register a new user',
+    description: 'Create a new user account with email and password',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email', 'password', 'firstName', 'lastName'],
+      properties: {
+        email: { type: 'string', format: 'email', example: 'user@example.com' },
+        username: { type: 'string', example: 'johndoe' },
+        password: { type: 'string', minLength: 6, maxLength: 25, example: 'Password123!' },
+        firstName: { type: 'string', minLength: 1, maxLength: 25, example: 'John' },
+        lastName: { type: 'string', minLength: 1, maxLength: 25, example: 'Doe' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Registration successful' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Login successful' })
   async register(
     @Body(new ZodValidationPipe<RegisterDto>(registerSchema))
@@ -47,6 +75,41 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Login with email',
+    description: 'Authenticate using email and password',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email', 'password'],
+      properties: {
+        email: { type: 'string', format: 'email', example: 'dang04223@gmail.com' },
+        password: { type: 'string', minLength: 6, maxLength: 25, example: 'Admin@123456' },
+      },
+    },
+  })
+  @SwaggerResponse({
+    status: 200,
+    description: 'Login successful',
+    schema: {
+      type: 'object',
+      properties: {
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            email: { type: 'string', format: 'email' },
+            userCode: { type: 'string', nullable: true },
+            username: { type: 'string' },
+          },
+        },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Login successful' })
   async login(
     @Body(new ZodValidationPipe<LoginDto>(loginSchema))
@@ -58,6 +121,42 @@ export class AuthController {
   @Public()
   @Post('login/user-code')
   @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Login with user code',
+    description: 'Authenticate using user code and role',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['userCode', 'password', 'role'],
+      properties: {
+        userCode: { type: 'string', maxLength: 6, example: 'ABC123' },
+        password: { type: 'string', minLength: 6, maxLength: 25, example: 'Password123!' },
+        role: { type: 'string', enum: ['PARENT', 'STUDENT'], example: 'STUDENT' },
+      },
+    },
+  })
+  @SwaggerResponse({
+    status: 200,
+    description: 'Login successful',
+    schema: {
+      type: 'object',
+      properties: {
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            email: { type: 'string', format: 'email' },
+            userCode: { type: 'string', nullable: true },
+            username: { type: 'string' },
+          },
+        },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Login successful' })
   async loginByUserCode(
     @Body(new ZodValidationPipe<LoginByUserCodeDto>(loginByUserCodeSchema))
@@ -69,6 +168,21 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Refresh tokens',
+    description: 'Get new access and refresh tokens using a valid refresh token',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['refreshToken'],
+      properties: {
+        refreshToken: { type: 'string', description: 'Refresh token issued during login' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Token refreshed successfully' })
+  @SwaggerResponse({ status: 401, description: 'Invalid or expired refresh token' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Token refreshed' })
   refresh(
     @Body(new ZodValidationPipe<RefreshTokenBodyDto>(refreshTokenBodySchema))
@@ -77,8 +191,20 @@ export class AuthController {
     return this.authService.refreshTokens(body);
   }
 
+  @Public()
   @Post('forgot-password')
   @HttpCode(StatusCodes.OK)
+  @ApiOperation({ summary: 'Forgot password', description: 'Request a password reset email' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email'],
+      properties: {
+        email: { type: 'string', format: 'email', example: 'user@example.com' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Reset link sent (or logged to console in dev)' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Forgot password successful' })
   forgotPassword(
     @Body(new ZodValidationPipe<ForgotPasswordDto>(forgotPasswordSchema))
@@ -87,8 +213,36 @@ export class AuthController {
     return this.authService.forgotPasswordService(forgotPasswordDto);
   }
 
+  @ApiBearerAuth('access-token')
   @Post('/reset-password')
   @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Reset password',
+    description: 'Reset password using the token from the reset email',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['jti', 'password', 'confirmPassword'],
+      properties: {
+        jti: {
+          type: 'string',
+          format: 'uuid',
+          description: 'Reset token (JWT ID) from the reset email',
+        },
+        password: { type: 'string', minLength: 6, maxLength: 25, example: 'NewPass123!' },
+        newPassword: {
+          type: 'string',
+          minLength: 6,
+          maxLength: 25,
+          description: 'Alias for password',
+        },
+        confirmPassword: { type: 'string', minLength: 6, maxLength: 25, example: 'NewPass123!' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Password reset successful' })
+  @SwaggerResponse({ status: 422, description: 'Validation failed or token invalid' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Reset password successful' })
   resetPassword(
     @Body(new ZodValidationPipe<ResetPasswordDto>(resetPasswordSchema))
@@ -101,6 +255,11 @@ export class AuthController {
   @Public()
   @Get('google')
   @UseGuards(AuthGuard('google'))
+  @ApiOperation({
+    summary: 'Google OAuth login',
+    description: 'Redirect to Google consent screen for authentication',
+  })
+  @SwaggerResponse({ status: 302, description: 'Redirects to Google' })
   googleAuth(): void {
     // Guard redirects to Google's consent screen; no body to return.
   }
@@ -108,6 +267,14 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
+  @ApiOperation({
+    summary: 'Google OAuth callback',
+    description: 'Handle Google OAuth callback and return JWT tokens',
+  })
+  @SwaggerResponse({
+    status: 302,
+    description: 'Redirects to frontend with tokens in query params',
+  })
   async googleAuthCallback(
     @Req() req: RequestWithGoogleProfile,
     @Res() res: Response,

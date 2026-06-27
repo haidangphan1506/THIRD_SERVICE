@@ -210,7 +210,7 @@ describe('Jwt Auth Guard ...', () => {
         id: '1234567890',
         email: 'dang04223@gmail.com',
         typ: 'access',
-        role: 'USER',
+        role: 'STUDENT',
       });
     });
 

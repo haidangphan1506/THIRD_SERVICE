@@ -244,7 +244,7 @@ describe('AuthService ...', () => {
         id: 'f3c5d8ec-82e8-482b-abc8-03f50ab66364',
         email: 'dang04223@gmail.com',
         password: '$2a$12$hashedPasswordValue',
-        role: 'USER',
+        role: 'STUDENT',
       };
       userService.getUserByField.mockReturnValue([loginUser]);
       compareDataMock.mockResolvedValue(true);
@@ -322,7 +322,7 @@ describe('AuthService ...', () => {
           sub: loginUser.id,
           email: loginUser.email,
           typ: 'access',
-          role: 'USER',
+          role: 'STUDENT',
         },
         expect.objectContaining(signOptionsMatcher),
       );
@@ -372,9 +372,7 @@ describe('AuthService ...', () => {
     });
 
     test('3. should fall back to email as displayName when name is empty ...', async () => {
-      userService.getUserByField.mockReturnValue([
-        { ...createdUser, firstName: '', lastName: '' },
-      ]);
+      userService.getUserByField.mockReturnValue([{ ...createdUser, firstName: '', lastName: '' }]);
       redis.set.mockResolvedValue(undefined);
       emailService.sendForgotPasswordMail.mockResolvedValue(undefined);
 
@@ -563,7 +561,7 @@ describe('AuthService ...', () => {
         email: createdUser.email,
         typ: 'refresh',
       });
-      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'USER' }]);
+      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'STUDENT' }]);
       jwtService.signAsync
         .mockResolvedValueOnce('new-access-token')
         .mockResolvedValueOnce('new-refresh-token');
@@ -585,7 +583,7 @@ describe('AuthService ...', () => {
 
     test('5. should be throw error when value from token verify is not oject ...', async () => {
       jwtService.verifyAsync.mockResolvedValue(123);
-      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'USER' }]);
+      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'STUDENT' }]);
       jwtService.signAsync
         .mockResolvedValueOnce('new-access-token')
         .mockResolvedValueOnce('new-refresh-token');
@@ -603,7 +601,7 @@ describe('AuthService ...', () => {
         email: null,
         typ: 'refresh',
       });
-      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'USER' }]);
+      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'STUDENT' }]);
       jwtService.signAsync
         .mockResolvedValueOnce('new-access-token')
         .mockResolvedValueOnce('new-refresh-token');
@@ -621,7 +619,7 @@ describe('AuthService ...', () => {
         email: createdUser.email,
         typ: 'refresh',
       });
-      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'USER' }]);
+      userService.getUserByField.mockReturnValue([{ ...createdUser, role: 'STUDENT' }]);
       jwtService.signAsync
         .mockResolvedValueOnce('new-access-token')
         .mockResolvedValueOnce('new-refresh-token');
@@ -650,7 +648,7 @@ describe('AuthService ...', () => {
       expect(result.accessToken).toBe('new-access-token');
       expect(jwtService.signAsync).toHaveBeenNthCalledWith(
         1,
-        expect.objectContaining({ role: 'USER' }),
+        expect.objectContaining({ role: 'STUDENT' }),
         expect.anything(),
       );
     });

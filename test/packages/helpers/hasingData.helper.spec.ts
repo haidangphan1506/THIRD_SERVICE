@@ -38,9 +38,7 @@ describe('hashing data ...', () => {
       mockedBcrypt.hash.mockRejectedValue(bcryptError as never);
 
       await expect(hashData('some-data')).rejects.toThrow(BadRequestException);
-      await expect(hashData('some-data')).rejects.toThrow(
-        `Failed to hash data: ${bcryptError}`,
-      );
+      await expect(hashData('some-data')).rejects.toThrow(`Failed to hash data: ${bcryptError}`);
     });
 
     it('should hash an empty string without throwing', async () => {

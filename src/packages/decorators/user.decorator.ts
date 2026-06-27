@@ -1,5 +1,5 @@
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { JwtPayload } from "@packages/helpers";
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { JwtPayload } from '@packages/helpers';
 
 export function currentUserFactory(data: keyof JwtPayload | undefined, ctx: ExecutionContext) {
   const request = ctx.switchToHttp().getRequest<{ user: JwtPayload }>();

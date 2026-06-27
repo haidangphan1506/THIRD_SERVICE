@@ -18,8 +18,7 @@ export function getJwtTokensConfig(configService: ConfigService): JwtTokensConfi
     configService.get<string>('JWT_ACCESS_SECRET') ??
     configService.get<string>('JWT_SECRET') ??
     'dev-insecure-jwt-secret';
-  const refreshSecret =
-    configService.get<string>('JWT_REFRESH_SECRET') ?? accessSecret;
+  const refreshSecret = configService.get<string>('JWT_REFRESH_SECRET') ?? accessSecret;
 
   const accessExpiresIn = parsePositiveInt(
     configService.get<string>('JWT_ACCESS_EXPIRES_SECONDS'),

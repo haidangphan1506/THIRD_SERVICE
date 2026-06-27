@@ -33,7 +33,7 @@ describe('Admin Role Guard ...', () => {
       id: '1',
       email: 'dang04223@gmail.com',
       typ: 'access',
-      role: 'USER',
+      role: 'STUDENT',
     });
 
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
