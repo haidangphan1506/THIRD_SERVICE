@@ -15,6 +15,8 @@ export type StudentResponseDto = {
   phone: string | null;
   avatar: string | null;
   parentId: string | null;
+  parentName: string | null;
+  parentPhone: string | null;
   role: string | null;
   isActive: boolean | null;
   classCount: number;

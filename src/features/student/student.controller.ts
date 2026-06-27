@@ -10,6 +10,7 @@ import {
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
+import { CurrentUser } from '@packages/decorators';
 import {
   createStudentSchema,
   type CreateStudentDto,
@@ -18,6 +19,7 @@ import {
   updateStudentSchema,
   type UpdateStudentDto,
 } from '@packages/entities/student';
+import type { JwtGuardUser } from '../../packages/guards/jwt-auth.guard';
 import { StudentService } from './student.service';
 
 @ApiTags('Students')
@@ -26,26 +28,46 @@ import { StudentService } from './student.service';
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
+  @Get('get-student-code')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Generate student code for new student ...',
+    description: 'Generate student code ...',
+  })
+  @SwaggerResponse({ status: 201, description: 'Student created' })
+  async generateStudentCodeController() {
+    return await this.studentService.generateStudentCodeService();
+  }
   @Post()
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({
     summary: 'Create student',
-    description: 'Create a new student. Optionally pass classId to auto-enroll.',
+    description:
+      'Create a new student. If parentName provided, a PARENT user is auto-created and linked. Creator (tutor/admin) is recorded on the student record.',
   })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['password', 'firstName', 'lastName'],
+      required: ['password', 'studentName'],
       properties: {
-        email: { type: 'string', format: 'email', example: 'student@example.com', description: 'Auto-generated if not provided' },
+        email: {
+          type: 'string',
+          format: 'email',
+          example: 'student@example.com',
+          description: 'Auto-generated if not provided',
+        },
         password: { type: 'string', minLength: 8, maxLength: 14, example: 'Pass1234!' },
-        firstName: { type: 'string', maxLength: 255, example: 'Nguyen' },
-        lastName: { type: 'string', maxLength: 255, example: 'Van A' },
+        studentName: { type: 'string', maxLength: 255, example: 'Nguyen Van A' },
+        parentName: { type: 'string', maxLength: 255, example: 'Tran Thi B' },
         userCode: { type: 'string', maxLength: 50, example: 'HS001' },
-        phone: { type: 'string', example: '0912345678' },
+        studentPhone: { type: 'string', example: '0912345678' },
+        parentPhone: { type: 'string', example: '0987654321' },
         avatar: { type: 'string', format: 'url', nullable: true },
-        parentId: { type: 'string', format: 'uuid', nullable: true, description: 'Parent user ID' },
-        classId: { type: 'string', format: 'uuid', description: 'Enroll in class immediately' },
+        classId: {
+          type: 'string',
+          format: 'uuid',
+          description: 'Enroll in class immediately',
+        },
       },
     },
   })
@@ -53,8 +75,9 @@ export class StudentController {
   async create(
     @Body(new ZodValidationPipe(createStudentSchema))
     dto: CreateStudentDto & { classId?: string },
+    @CurrentUser() currentUser: JwtGuardUser,
   ) {
-    return this.studentService.create(dto);
+    return this.studentService.create(dto, currentUser);
   }
 
   @Get()

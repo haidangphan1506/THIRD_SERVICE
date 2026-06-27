@@ -31,7 +31,7 @@ function resolveDatabaseUrl(): string {
 
 const SEED_ACCOUNTS = [
   {
-    email: 'admin@finance.dev',
+    email: 'dang04223@gmail.com',
     username: 'admin',
     firstName: 'Admin',
     lastName: 'Account',

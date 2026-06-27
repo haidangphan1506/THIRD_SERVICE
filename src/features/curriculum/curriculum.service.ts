@@ -98,7 +98,7 @@ export class CurriculumService {
     const asgn = await this.repo.getAssignmentById(id);
     if (!asgn) throw new NotFoundException('Assignment not found');
     await this.verifyClassOwner(asgn.classId, tutorId);
-    return this.repo.updateAssignment(id, dto as Record<string, unknown>);
+    return this.repo.updateAssignment(id, dto);
   }
 
   async deleteAssignment(id: string, tutorId: string) {

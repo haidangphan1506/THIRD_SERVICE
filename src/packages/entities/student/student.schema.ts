@@ -3,15 +3,22 @@ import { z } from 'zod';
 export const createStudentSchema = z.object({
   email: z.string().email('Invalid email').optional(),
   password: z
-    .string({ message : 'Password mút be string ...'})
-    .min(8, 'Password must be at least 8 characters')
-    .max(14, 'Password must be at most 14 characters'),
-  firstName: z.string().min(1, 'First Name is required').max(255, 'First Name too long'),
-  lastName: z.string().min(1, 'Last Name is required').max(255, 'Last Name too long'),
+    .string({ message: 'Password must be string ...' })
+    .min(8, 'Password must be at least 8 characters ...')
+    .max(14, 'Password must be at most 14 characters ...'),
+  studentName: z
+    .string({ message: 'Student name must be required ...' })
+    .min(1, { message: 'Student name must be 1 character ...' })
+    .max(255, { message: 'Student name must not over 255 character ...' }),
+  parentName: z
+    .string({ message: 'Parent name must be required ...' })
+    .min(1, { message: 'Parent name must be 1 character ...' })
+    .max(255, { message: 'Parent name must not over 255 character ...' })
+    .optional(),
   userCode: z.string().min(1, 'Code is required').max(50, 'Code too long').optional(),
-  phone: z.string().max(20).optional(),
+  studentPhone: z.string().max(20).optional(),
+  parentPhone: z.string().max(20).optional(),
   avatar: z.string().url().optional().nullable(),
-  parentId: z.string().uuid('parentId must be a valid UUID').optional().nullable(),
 });
 
 export const updateStudentSchema = z.object({
