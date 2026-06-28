@@ -11,27 +11,26 @@ import { TransactionModule } from 'src/features/transaction/transaction.module';
 import { WalletModule } from 'src/features/wallet/wallet.module';
 
 describe('App module ...', () => {
-    test('0. should be app module defined ...', () => {
-        expect(AppModule).toBeDefined();
-    });
+  test('0. should be app module defined ...', () => {
+    expect(AppModule).toBeDefined();
+  });
 
-    test('1. should be registers imports ...', () => {
-        const imports: unknown[] =
-            (Reflect.getMetadata(MODULE_METADATA.IMPORTS, AppModule) as unknown[] | undefined) ?? [];
+  test('1. should be registers imports ...', () => {
+    const imports: unknown[] =
+      (Reflect.getMetadata(MODULE_METADATA.IMPORTS, AppModule) as unknown[] | undefined) ?? [];
 
-        expect(imports).toEqual(
-            expect.
-                arrayContaining([
-                    DatabaseModule,
-                    MailerModule,
-                    RedisModule,
-                    CategoryModule,
-                    AuthModule,
-                    WalletModule,
-                    TransactionModule,
-                    EmailModule,
-                    ReportModule,
-                ]),
-        );
-    });
+    expect(imports).toEqual(
+      expect.arrayContaining([
+        DatabaseModule,
+        MailerModule,
+        RedisModule,
+        CategoryModule,
+        AuthModule,
+        WalletModule,
+        TransactionModule,
+        EmailModule,
+        ReportModule,
+      ]),
+    );
+  });
 });

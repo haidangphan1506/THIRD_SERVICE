@@ -1,5 +1,5 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { BadRequestException, ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
@@ -12,6 +12,10 @@ import {
 } from '@packages/entities/user';
 import { hashData } from '@packages/helpers';
 
+function generateUserCode(): string {
+  return randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
+}
+
 /** Khớp `getUserDetailQuerySchema` — tách riêng để tránh inference lỗi với `z.preprocess`. */
 export type GetDetailUserQuery = {
   include: Array<'wallets' | 'transactions' | 'categories'>;
@@ -21,12 +25,30 @@ export type GetDetailUserQuery = {
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-  private readonly searchableFields = ['id', 'email', 'username', 'phone'] as const;
+  private readonly searchableFields = ['id', 'email', 'username', 'phone', 'userCode'] as const;
 
   constructor(
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
+
+  async generateUsername(firstName: string, lastName: string): Promise<string> {
+    const baseUsername = `${lastName}${firstName}`
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '');
+
+    for (let i = 0; i < 10; i++) {
+      const candidate = i === 0 ? baseUsername : `${baseUsername}${i}`;
+      const existing = await this.getUserByField({ field: 'username', value: candidate });
+      if (existing.length === 0) return candidate;
+    }
+
+    throw new ConflictException(
+      `Cannot generate unique username for "${firstName} ${lastName}" after 10 attempts`,
+    );
+  }
 
   async getUsersService(query: GetUsersQueryDto): Promise<{
     data: Array<{
@@ -163,7 +185,7 @@ export class UserService {
       id: row.id,
       email: row.email,
       name: `${row.firstName} ${row.lastName}`.trim(),
-      role: row.role ?? 'USER',
+      role: row.role ?? 'STUDENT',
       status: row.isActive === true ? 'active' : 'inactive',
       createdAt:
         row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
@@ -183,13 +205,7 @@ export class UserService {
     };
   }
 
-  async getDetailUserService({
-    id,
-    query,
-  }: {
-    id: string;
-    query?: GetDetailUserQuery;
-  }): Promise<
+  async getDetailUserService({ id, query }: { id: string; query?: GetDetailUserQuery }): Promise<
     | (User & {
         wallets?: Array<Record<string, unknown>>;
         transactions?: Array<Record<string, unknown>>;
@@ -226,8 +242,10 @@ export class UserService {
             payload.wallets = walletRows.map((w) => ({
               ...w,
               balance: w.balance != null ? String(w.balance) : '0',
-              createdAt: w.createdAt instanceof Date ? w.createdAt.toISOString() : String(w.createdAt),
-              updatedAt: w.updatedAt instanceof Date ? w.updatedAt.toISOString() : String(w.updatedAt),
+              createdAt:
+                w.createdAt instanceof Date ? w.createdAt.toISOString() : String(w.createdAt),
+              updatedAt:
+                w.updatedAt instanceof Date ? w.updatedAt.toISOString() : String(w.updatedAt),
             }));
           }),
       );
@@ -269,8 +287,10 @@ export class UserService {
               note: row.note,
               type: row.type,
               status: row.status,
-              createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
-              updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
+              createdAt:
+                row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
+              updatedAt:
+                row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
               category: {
                 id: row.categoryId,
                 name: row.categoryName,
@@ -350,8 +370,10 @@ export class UserService {
               parentId: c.parentId,
               icon: c.icon,
               color: c.color,
-              createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : String(c.createdAt),
-              updatedAt: c.updatedAt instanceof Date ? c.updatedAt.toISOString() : String(c.updatedAt),
+              createdAt:
+                c.createdAt instanceof Date ? c.createdAt.toISOString() : String(c.createdAt),
+              updatedAt:
+                c.updatedAt instanceof Date ? c.updatedAt.toISOString() : String(c.updatedAt),
             });
           };
           for (const c of fromTransactions) {
@@ -383,7 +405,20 @@ export class UserService {
 
     const field = userDataFieldDto.field as (typeof this.searchableFields)[number];
 
-    const user = await this.db.select().from(users).where(eq(users[field], userDataFieldDto.value));
+    const columnMap = {
+      id: users.id,
+      email: users.email,
+      username: users.username,
+      phone: users.phone,
+      userCode: users.userCode,
+    } as const;
+
+    const column = columnMap[field];
+    if (!column) {
+      throw new BadRequestException(`Unsupported field: ${field}`);
+    }
+
+    const user = await this.db.select().from(users).where(eq(column, userDataFieldDto.value));
     return user;
   }
 
@@ -391,34 +426,54 @@ export class UserService {
     this.logger.log(`Creating new user ...`);
 
     const { email, firstName, lastName, password, username } = createUserDto;
-    const resolvedUsername = username?.trim() || email.split('@')[0];
+    let resolvedUsername = username?.trim();
 
     const [existingByEmail, existingByUsername] = await Promise.all([
       this.getUserByField({ field: 'email', value: email }),
-      this.getUserByField({ field: 'username', value: resolvedUsername }),
+      resolvedUsername && this.getUserByField({ field: 'username', value: resolvedUsername }),
     ]);
 
     if (existingByEmail.length > 0) {
       this.logger.warn(`Status: 400 - Email already exists: ${email}`);
       throw new BadRequestException(`Email already exists: ${email}`);
     }
-    if (existingByUsername.length > 0) {
+    if (Array.isArray(existingByUsername) && existingByUsername.length > 0) {
       this.logger.warn(`Status: 400 - Username already exists: ${resolvedUsername}`);
       throw new BadRequestException(`Username already exists: ${resolvedUsername}`);
     }
 
     const id = randomUUID();
     const hashedPassword = await hashData(password);
+    const role = createUserDto.role ?? 'STUDENT';
+    let userCode: string | undefined;
+    if (role === 'TUTOR') {
+      userCode = generateUserCode();
+      for (let i = 0; i < 5; i++) {
+        const existing = await this.db
+          .select()
+          .from(users)
+          .where(eq(users.userCode, userCode))
+          .limit(1);
+        if (existing.length === 0) break;
+        userCode = generateUserCode();
+      }
+    }
+
+    if (!username) {
+      resolvedUsername = await this.generateUsername(firstName, lastName);
+    }
 
     const user = await this.db
       .insert(users)
       .values({
         id,
+        ...(userCode ? { userCode } : {}),
         email,
-        username: resolvedUsername,
+        username: resolvedUsername!,
         firstName,
         lastName,
         password: hashedPassword,
+        role,
       })
       .returning();
     return user[0];
@@ -455,7 +510,11 @@ export class UserService {
       throw new BadRequestException('User not found ...');
     }
 
-    const updatedUser = await this.db.update(users).set({ isActive: !user[0].isActive }).where(eq(users.id, id)).returning();
+    const updatedUser = await this.db
+      .update(users)
+      .set({ isActive: !user[0].isActive })
+      .where(eq(users.id, id))
+      .returning();
     return updatedUser[0];
   }
 

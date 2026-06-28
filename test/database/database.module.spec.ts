@@ -13,8 +13,9 @@ function getFactory(): (cfg: ConfigService) => unknown {
   const providers: Array<{ provide: unknown; useFactory?: (...args: unknown[]) => unknown }> =
     Reflect.getMetadata('providers', DatabaseModule) ?? [];
   const provider = providers.find((p) => p.provide === DRIZZLE);
-  if (!provider?.useFactory) throw new Error('DRIZZLE useFactory not found in DatabaseModule metadata');
-  return provider.useFactory as (cfg: ConfigService) => unknown;
+  if (!provider?.useFactory)
+    throw new Error('DRIZZLE useFactory not found in DatabaseModule metadata');
+  return provider.useFactory;
 }
 
 function makeConfig(values: Record<string, string | undefined>) {

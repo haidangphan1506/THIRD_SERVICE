@@ -9,6 +9,12 @@ bun run db:migrate      # Apply pending migrations
 bun run start:dev       # Dev server on :8888 with --watch
 ```
 
+**First-time setup** (or after dropping DB):
+
+```bash
+bun scripts/recreate-db.ts   # Drop → push schema → seed 3 accounts
+```
+
 - **Runtime**: Bun (`bun run <script>`). Install deps with `npm install` (lockfile is npm's).
 - **No branch/PR conventions** — just commit directly.
 - **No CI pipeline** exists yet.
@@ -91,6 +97,7 @@ bun run db:migrate    # Apply to DB
 
 Migrations land in `drizzle/`. Drizzle config in `drizzle.config.ts` duplicates the URL resolution logic from `DatabaseModule`.
 
+<<<<<<< HEAD
 ## Skills (`.opencode/skills/`)
 
 | Skill | When to use |
@@ -99,3 +106,22 @@ Migrations land in `drizzle/`. Drizzle config in `drizzle.config.ts` duplicates 
 | `jwt-auth` | Auth flows, JWT tokens, guards, forgot/reset password |
 | `wallet-transaction` | Wallet & transaction CRUD, balance math, DTO/schema |
 | `presence` | Real-time Socket.io presence module (online/offline tracking via Redis) |
+=======
+**Note**: `drizzle-kit push` requires `--force` in non-interactive shells (CI, scripts) to skip the TTY confirmation prompt.
+
+## Subagent delegation
+
+Auto-delegate to specialized subagents based on task:
+
+| Task type | Subagent | How |
+|---|---|---|
+| New feature (full CRUD module, DB table → tests) | `feature-builder` | `/feature` or `@feature-builder` |
+| Security audit (auth, injection, secrets, data exposure) | `security-review` | `/security-review` or `@security-review` |
+| Code review (style, types, lint, conventions) | `code-reviewer` | `/review` or `@code-reviewer` |
+| Debug / fix bugs | `fixbug` | `@fixbug` |
+| Write / fix tests | `test` | `/test` or `@test` |
+
+- For complex multi-step work, spawn the appropriate subagent via Task tool instead of doing inline.
+- Security review is read-only — delegate before deployment or after large changes.
+- Feature builder generates all layers at once — prefer it over piecemeal edits for new modules.
+>>>>>>> 852f1975e557a95cb75f495cd8e47072280dce5f

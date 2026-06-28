@@ -50,6 +50,41 @@
       "when": 1781328779954,
       "tag": "0006_outstanding_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1782295058788,
+      "tag": "0007_furry_terror",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782364905030,
+      "tag": "0008_remarkable_wraith",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782368777422,
+      "tag": "0009_awesome_roughhouse",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782378131544,
+      "tag": "0010_absent_wallop",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1782385154984,
+      "tag": "0011_whole_doomsday",
+      "breakpoints": true
     }
   ]
 }

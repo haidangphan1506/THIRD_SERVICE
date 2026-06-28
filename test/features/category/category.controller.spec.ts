@@ -160,9 +160,9 @@ describe('Category Controller ...', () => {
         new Error('Category not-exist not found.'),
       );
 
-      await expect(
-        controller.updateCategory('not-exist', { name: 'New name' }),
-      ).rejects.toThrow('Category not-exist not found.');
+      await expect(controller.updateCategory('not-exist', { name: 'New name' })).rejects.toThrow(
+        'Category not-exist not found.',
+      );
     });
   });
 

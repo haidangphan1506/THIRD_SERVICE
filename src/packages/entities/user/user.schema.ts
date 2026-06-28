@@ -3,48 +3,54 @@ import { z } from 'zod';
 const userDetailIncludeValues = ['wallets', 'transactions', 'categories'] as const;
 
 /** Query `GET /users/detail-user` — ví dụ `?include=wallets,transactions&transactionLimit=30` */
-export const getUserDetailQuerySchema = z.preprocess((val) => {
-  if (!val || typeof val !== 'object' || Array.isArray(val)) {
-    return val;
-  }
-  const o = val as Record<string, unknown>;
-  const rawInc = o.include;
-  const parts = Array.isArray(rawInc)
-    ? rawInc.map(String)
-    : typeof rawInc === 'string'
-      ? rawInc.split(',')
-      : [];
-  const allowedSet = new Set<string>(userDetailIncludeValues);
-  const include = parts
-    .map((s) => s.trim().toLowerCase())
-    .filter((s): s is (typeof userDetailIncludeValues)[number] => allowedSet.has(s));
-  return {
-    ...o,
-    include,
-  };
-}, z.object({
-  include: z.array(z.enum(userDetailIncludeValues)).default([]),
-  transactionLimit: z.coerce.number().int().min(1).max(200).default(50),
-}));
-
-export const getUsersQuerySchema = z.preprocess((val) => {
-  if (val && typeof val === 'object' && !Array.isArray(val)) {
-    const o = val as Record<string, unknown>;
-    if (o.pageSize != null && o.limit == null) {
-      return { ...o, limit: o.pageSize };
+export const getUserDetailQuerySchema = z.preprocess(
+  (val) => {
+    if (!val || typeof val !== 'object' || Array.isArray(val)) {
+      return val;
     }
-  }
-  return val;
-}, z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
-  search: z.string().trim().min(1).optional(),
-  role: z.enum(['USER', 'ADMIN', 'MODERATOR']).optional(),
-  isActive: z
-    .enum(['true', 'false'])
-    .transform((value) => value === 'true')
-    .optional(),
-}));
+    const o = val as Record<string, unknown>;
+    const rawInc = o.include;
+    const parts = Array.isArray(rawInc)
+      ? rawInc.map(String)
+      : typeof rawInc === 'string'
+        ? rawInc.split(',')
+        : [];
+    const allowedSet = new Set<string>(userDetailIncludeValues);
+    const include = parts
+      .map((s) => s.trim().toLowerCase())
+      .filter((s): s is (typeof userDetailIncludeValues)[number] => allowedSet.has(s));
+    return {
+      ...o,
+      include,
+    };
+  },
+  z.object({
+    include: z.array(z.enum(userDetailIncludeValues)).default([]),
+    transactionLimit: z.coerce.number().int().min(1).max(200).default(50),
+  }),
+);
+
+export const getUsersQuerySchema = z.preprocess(
+  (val) => {
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      const o = val as Record<string, unknown>;
+      if (o.pageSize != null && o.limit == null) {
+        return { ...o, limit: o.pageSize };
+      }
+    }
+    return val;
+  },
+  z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    search: z.string().trim().min(1).optional(),
+    role: z.enum(['ADMIN', 'TUTOR', 'PARENT', 'STUDENT']).optional(),
+    isActive: z
+      .enum(['true', 'false'])
+      .transform((value) => value === 'true')
+      .optional(),
+  }),
+);
 
 export const dataFieldSchema = z.object({
   field: z.string({ message: 'Field must be string ...' }).nonempty(),
@@ -53,7 +59,10 @@ export const dataFieldSchema = z.object({
 
 export const createUserSchema = z
   .object({
-    email: z.string({ message: 'Email is required' }).min(1, { message: 'Email is required' }).email({ message: 'Invalid email address' }),
+    email: z
+      .string({ message: 'Email is required' })
+      .min(1, { message: 'Email is required' })
+      .email({ message: 'Invalid email address' }),
     username: z
       .string()
       .trim()
@@ -68,12 +77,13 @@ export const createUserSchema = z
     lastName: z
       .string({ message: 'Last name is required' })
       .trim()
-      .min(2, { message: 'Last name must be at least 2 characters' })
-      .max(100, { message: 'Last name must be at most 100 characters' }),
+      .min(2, { message: 'First name must be at least 2 characters' })
+      .max(100, { message: 'First name must be at most 100 characters' }),
     password: z
       .string({ message: 'Password is required' })
       .min(8, { message: 'Password must be at least 8 characters' })
       .max(14, { message: 'Password must be at most 14 characters' }),
+    role: z.enum(['ADMIN', 'TUTOR', 'PARENT', 'STUDENT']).optional().default('STUDENT'),
   })
   .superRefine((data, ctx) => {
     const { password } = data;
