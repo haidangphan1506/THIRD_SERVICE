@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, type SQL } from 'drizzle-orm';
+import { and, desc, eq, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { notifications } from '../../database/schema';
@@ -20,46 +20,41 @@ export class NotificationRepository {
       .insert(notifications)
       .values({
         type: data.type,
-        subtype: data.subtype ?? null,
         title: data.title,
-        content: data.content ?? null,
-        userId: data.userId ?? null,
-        classId: data.classId ?? null,
-        studentId: data.studentId ?? null,
+        content: data.content,
+        subContent: data.subContent ?? undefined,
+        userId: data.userId ?? undefined,
+        senderId: data.senderId ?? undefined,
+        classId: data.classId ?? undefined,
+        studentId: data.studentId ?? undefined,
+        redirectUrl: data.redirectUrl ?? undefined,
+        actionLabel: data.actionLabel ?? undefined,
+        actionType: data.actionType ?? undefined,
+        metadata: data.metadata ?? undefined,
       })
       .returning();
     return note;
   }
 
-  async findAll(query: GetNotificationsQueryDto) {
-    const { page, limit, type, userId, isRead } = query;
-    const conditions: SQL[] = [];
+  async findAll(userId: string, query: GetNotificationsQueryDto) {
+    const { type, isRead } = query;
+    const conditions: SQL[] = [
+      or(eq(notifications.userId, userId), eq(notifications.senderId, userId))!,
+    ];
 
     if (type) conditions.push(eq(notifications.type, type));
-    if (userId) conditions.push(eq(notifications.userId, userId));
     if (isRead !== undefined) conditions.push(eq(notifications.isRead, isRead));
-
-    const where = conditions.length > 0 ? and(...conditions) : undefined;
-    const offset = (page - 1) * limit;
-
-    const [totalRow] = await this.db.select({ total: count() }).from(notifications).where(where);
-    const total = Number(totalRow?.total ?? 0);
 
     const rows = await this.db
       .select()
       .from(notifications)
-      .where(where)
-      .orderBy(desc(notifications.createdAt))
-      .limit(limit)
-      .offset(offset);
+      .where(and(...conditions))
+      .orderBy(desc(notifications.createdAt));
 
-    return {
-      data: rows.map((r) => ({
-        ...r,
-        createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
-      })),
-      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+    return rows.map((r) => ({
+      ...r,
+      createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
+    }));
   }
 
   async findById(id: string) {
