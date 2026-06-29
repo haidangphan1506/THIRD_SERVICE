@@ -18,6 +18,7 @@ import { SessionModule } from './features/session/session.module';
 import { CurriculumModule } from './features/curriculum/curriculum.module';
 import { TuitionModule } from './features/tuition/tuition.module';
 import { NotificationModule } from './features/notification/notification.module';
+import { ScheduleModule } from './features/schedule/schedule.module';
 import { JwtAuthGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -43,6 +44,7 @@ import { JwtModule } from '@nestjs/jwt';
     CurriculumModule,
     TuitionModule,
     NotificationModule,
+    ScheduleModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },

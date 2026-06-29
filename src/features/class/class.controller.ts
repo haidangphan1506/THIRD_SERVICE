@@ -36,15 +36,16 @@ export class ClassController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['name', 'code', 'subject', 'tutorId'],
+      required: ['name', 'subject', 'tutorId'],
       properties: {
         name: { type: 'string', maxLength: 255, example: 'Toan 12 - Co Ban' },
-        code: { type: 'string', maxLength: 50, example: 'T12CB' },
+        code: { type: 'string', maxLength: 50, example: 'T12CB', description: 'Auto-generated if omitted' },
         subject: { type: 'string', maxLength: 255, example: 'Toan' },
         tuition: { type: 'number', minimum: 0, default: 0, example: 1500000 },
         description: { type: 'string', example: 'Lop toan 12 co ban, hoc 2 buoi/tuan' },
         status: { type: 'string', enum: ['OPEN', 'CLOSED', 'UPCOMING'], default: 'OPEN' },
         tutorId: { type: 'string', format: 'uuid', description: 'Tutor (user) ID' },
+        studentIds: { type: 'array', items: { type: 'string', format: 'uuid' }, description: 'Optional list of student IDs to enroll' },
       },
     },
   })
@@ -80,6 +81,14 @@ export class ClassController {
     query: GetClassesQueryDto,
   ) {
     return this.classService.findAll(user.id, query);
+  }
+
+  @Get('generate-code')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({ summary: 'Generate class code', description: 'Generate a unique class code' })
+  @SwaggerResponse({ status: 200, description: 'Generated code' })
+  async generateCode() {
+    return this.classService.generateCode();
   }
 
   @Get(':id')

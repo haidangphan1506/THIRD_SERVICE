@@ -17,6 +17,7 @@ import {
   getNotificationsQuerySchema,
   type GetNotificationsQueryDto,
 } from '@packages/entities/notification';
+import { type JwtGuardUser } from '@packages/guards/jwt-auth.guard';
 import { NotificationService } from './notification.service';
 
 @ApiTags('Notifications')
@@ -27,7 +28,7 @@ export class NotificationController {
 
   @Post()
   @HttpCode(StatusCodes.CREATED)
-  @ApiOperation({ summary: 'Create notification' })
+  @ApiOperation({ summary: 'Create notification successfully ...' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -38,41 +39,39 @@ export class NotificationController {
           enum: ['SYSTEM', 'TUITION', 'STUDENT', 'TUTOR'],
           example: 'SYSTEM',
         },
-        subtype: {
-          type: 'string',
-          example: 'NEW_FEATURE',
-          description: 'e.g., NEW_FEATURE, MAINTENANCE, PAID, OVERDUE',
-        },
+
         title: { type: 'string', maxLength: 255, example: 'Cap nhat tinh nang moi' },
         content: { type: 'string', example: 'Da them chuc nang quan ly bai tap' },
+        subContent: { type: 'string', example: 'Chưa cập nhật ...' },
         userId: { type: 'string', format: 'uuid', nullable: true },
         classId: { type: 'string', format: 'uuid', nullable: true },
         studentId: { type: 'string', format: 'uuid', nullable: true },
       },
     },
   })
-  @SwaggerResponse({ status: 201, description: 'Notification created' })
+  @SwaggerResponse({ status: 201, description: 'Notification created successfully ...' })
   async create(
+    @CurrentUser() user: JwtGuardUser,
     @Body(new ZodValidationPipe<CreateNotificationDto>(createNotificationSchema))
     dto: CreateNotificationDto,
   ) {
-    return this.notificationService.create(dto);
+    return this.notificationService.createNotificationService({ ...dto, senderId: user.id });
   }
 
   @Get()
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'List notifications' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiOperation({ summary: 'Get all notifications for the current user' })
   @ApiQuery({ name: 'type', required: false, enum: ['SYSTEM', 'TUITION', 'STUDENT', 'TUTOR'] })
-  @ApiQuery({ name: 'userId', required: false, type: String, format: 'uuid' })
   @ApiQuery({ name: 'isRead', required: false, type: Boolean })
   @SwaggerResponse({ status: 200, description: 'Notifications fetched' })
   async findAll(
+    @CurrentUser() user: JwtGuardUser,
     @Query(new ZodValidationPipe<GetNotificationsQueryDto>(getNotificationsQuerySchema))
     query: GetNotificationsQueryDto,
   ) {
-    return this.notificationService.findAll(query);
+    console.log(user.id);
+
+    return this.notificationService.findAll(user.id, query);
   }
 
   @Get(':id')
@@ -100,7 +99,7 @@ export class NotificationController {
     description: 'Mark all notifications as read for the current user',
   })
   @SwaggerResponse({ status: 200, description: 'All marked as read' })
-  async markAllAsRead(@CurrentUser() user: Record<string, string>) {
+  async markAllAsRead(@CurrentUser() user: JwtGuardUser) {
     return this.notificationService.markAllAsRead(user.id);
   }
 

@@ -5,212 +5,238 @@ import {
   Get,
   HttpCode,
   Param,
-  Patch,
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiBody,
-  ApiQuery,
-  ApiParam,
-  ApiResponse as SwaggerResponse,
   ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse as SwaggerResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
-import { ZodValidationPipe } from '@packages/pipes';
-import { CurrentUser } from '@packages/decorators';
-import {
-  createCurriculumSchema,
-  createAssignmentSchema,
-  updateCurriculumSchema,
-  updateAssignmentSchema,
-  type CreateCurriculumDto,
-  type CreateAssignmentDto,
-  type UpdateCurriculumDto,
-  type UpdateAssignmentDto,
-} from '@packages/entities/curriculum';
 import { CurriculumService } from './curriculum.service';
+import { LessonService } from './lesson.service';
+import {
+  type CreateCurriculumDto,
+  createCurriculumSchema,
+  type UpdateCurriculumDto,
+  updateCurriculumSchema,
+  type GetCurriculumsQueryDto,
+  getCurriculumsQuerySchema,
+  type CreateLessonDto,
+  createLessonSchema,
+  type UpdateLessonDto,
+  updateLessonSchema,
+} from '@packages/entities';
+import { ZodValidationPipe } from '@packages/pipes';
+import { ApiResponse, CurrentUser, Roles } from '@packages/decorators';
+import { RolesGuard } from '@packages/guards';
 
 @ApiTags('Curriculum')
 @ApiBearerAuth('access-token')
-@Controller('curriculums')
+@Controller('curriculum')
 export class CurriculumController {
-  constructor(private readonly curriculumService: CurriculumService) {}
-
-  // ── Curriculum ──
-
-  @Get(':classId')
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({
-    summary: 'Get curriculum',
-    description: 'Get lesson plan for a class, grouped by lesson number',
-  })
-  @ApiParam({ name: 'classId', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Curriculum fetched' })
-  async getCurriculums(
-    @Param('classId') classId: string,
-    @CurrentUser() user: Record<string, string>,
-  ) {
-    return this.curriculumService.getCurriculumsByClass(classId, user.id);
-  }
+  constructor(
+    private readonly curriculumService: CurriculumService,
+    private readonly lessonService: LessonService,
+  ) {}
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
   @HttpCode(StatusCodes.CREATED)
-  @ApiOperation({ summary: 'Create curriculum entry' })
+  @ApiOperation({
+    summary: 'Create new curriculum',
+    description: 'Create new curriculum successfully',
+  })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['classId', 'lesson', 'name'],
+      required: ['title'],
       properties: {
-        classId: { type: 'string', format: 'uuid' },
-        lesson: { type: 'number', example: 1, description: 'Lesson number' },
-        name: { type: 'string', maxLength: 255, example: 'Bai 1: Ham so' },
-        lecture: { type: 'string', description: 'Lecture content/link' },
-        assignment: { type: 'string', description: 'Assignment content/link' },
-        status: { type: 'string', enum: ['COMPLETED', 'UPCOMING'], default: 'UPCOMING' },
-        note: { type: 'string' },
-        order: { type: 'number', default: 0 },
+        title: { type: 'string', example: 'Chương 1 : Giải tích cơ bản' },
+        description: { type: 'string', example: '' },
       },
     },
   })
-  @SwaggerResponse({ status: 201, description: 'Curriculum created' })
-  async createCurriculum(
+  @SwaggerResponse({ status: 201, description: 'Curriculum created successfully' })
+  @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Curriculum created successfully' })
+  async createCurriculumController(
+    @CurrentUser() user: Record<string, string>,
     @Body(new ZodValidationPipe<CreateCurriculumDto>(createCurriculumSchema))
-    dto: CreateCurriculumDto,
-    @CurrentUser() user: Record<string, string>,
+    createCurriculumDto: CreateCurriculumDto,
   ) {
-    return this.curriculumService.createCurriculum(dto, user.id);
+    return await this.curriculumService.createCurriculumService({
+      userId: user.id,
+      createCurriculumDto,
+    });
   }
 
-  @Put(':id')
+  @Get()
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Update curriculum entry' })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Curriculum updated' })
-  async updateCurriculum(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(updateCurriculumSchema))
-    dto: UpdateCurriculumDto,
-    @CurrentUser() user: Record<string, string>,
+  @ApiOperation({ summary: 'List curriculums', description: 'Get a paginated list of curriculums' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by title' })
+  @SwaggerResponse({ status: 200, description: 'Curriculums fetched successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Curriculums fetched successfully' })
+  async getCurriculumsController(
+    @Query(new ZodValidationPipe<GetCurriculumsQueryDto>(getCurriculumsQuerySchema))
+    query: GetCurriculumsQueryDto,
   ) {
-    return this.curriculumService.updateCurriculum(id, dto, user.id);
+    return await this.curriculumService.getAllCurriculumService({ query });
   }
 
-  @Delete(':id')
+  @Get('/:id')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Delete curriculum entry' })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Curriculum deleted' })
-  async deleteCurriculum(@Param('id') id: string, @CurrentUser() user: Record<string, string>) {
-    return this.curriculumService.deleteCurriculum(id, user.id);
+  @ApiOperation({ summary: 'Get curriculum by ID', description: 'Get a curriculum with its lessons' })
+  @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'Curriculum ID' })
+  @SwaggerResponse({ status: 200, description: 'Curriculum fetched successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Curriculum fetched successfully' })
+  async getCurriculumByIdController(@Param('id') id: string) {
+    const curriculum = await this.curriculumService.getCurriculumByIdService({ id });
+    const lessons = await this.lessonService.getLessonsService({ curriculumId: id });
+    return { ...curriculum, lessons };
   }
 
-  @Post(':id/row')
+  @Put('/:id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
   @HttpCode(StatusCodes.CREATED)
-  @ApiOperation({
-    summary: 'Add row under lesson',
-    description: 'Add a new row under the same lesson number',
-  })
-  @ApiParam({
-    name: 'id',
-    type: String,
-    format: 'uuid',
-    description: 'Curriculum entry ID to copy lesson from',
-  })
-  @SwaggerResponse({ status: 201, description: 'Row added' })
-  async addRow(@Param('id') id: string, @CurrentUser() user: Record<string, string>) {
-    return this.curriculumService.addRow(id, user.id);
-  }
-
-  // ── Assignments ──
-
-  @Get(':classId/assignments')
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Get assignments', description: 'Get assignments for a class' })
-  @ApiParam({ name: 'classId', type: String, format: 'uuid' })
-  @ApiQuery({ name: 'lesson', required: false, type: Number, description: 'Filter by lesson' })
-  @SwaggerResponse({ status: 200, description: 'Assignments fetched' })
-  async getAssignments(
-    @Param('classId') classId: string,
-    @Query('lesson') lesson?: string,
-    @CurrentUser() user?: Record<string, string>,
-  ) {
-    return this.curriculumService.getAssignmentsByClass(
-      classId,
-      lesson ? Number(lesson) : undefined,
-      user?.id,
-    );
-  }
-
-  @Post('assignments')
-  @HttpCode(StatusCodes.CREATED)
-  @ApiOperation({ summary: 'Create assignment' })
+  @ApiOperation({ summary: 'Update curriculum', description: 'Update a curriculum by ID' })
+  @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'Curriculum ID' })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['classId', 'lesson', 'name'],
       properties: {
-        classId: { type: 'string', format: 'uuid' },
-        curriculumId: { type: 'string', format: 'uuid', nullable: true },
-        lesson: { type: 'number', example: 1 },
-        name: { type: 'string', maxLength: 255, example: 'Bai tap ve nha so 1' },
-        description: { type: 'string' },
-        requirement: { type: 'string' },
-        status: {
-          type: 'string',
-          enum: ['COMPLETED', 'OVERDUE', 'IN_PROGRESS'],
-          default: 'IN_PROGRESS',
-        },
-        score: { type: 'number', minimum: 0, maximum: 10, nullable: true },
-        comment: { type: 'string' },
-        isHidden: { type: 'boolean', default: false },
+        title: { type: 'string', example: 'Chương 1 : Giải tích cơ bản' },
+        description: { type: 'string', example: '' },
       },
     },
   })
-  @SwaggerResponse({ status: 201, description: 'Assignment created' })
-  async createAssignment(
-    @Body(new ZodValidationPipe<CreateAssignmentDto>(createAssignmentSchema))
-    dto: CreateAssignmentDto,
+  @SwaggerResponse({ status: 200, description: 'Curriculum updated successfully' })
+  @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Curriculum updated successfully' })
+  async updateCurriculumController(
     @CurrentUser() user: Record<string, string>,
-  ) {
-    return this.curriculumService.createAssignment(dto, user.id);
-  }
-
-  @Put('assignments/:id')
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Update assignment' })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Assignment updated' })
-  async updateAssignment(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(updateAssignmentSchema))
-    dto: UpdateAssignmentDto,
-    @CurrentUser() user: Record<string, string>,
+    @Body(new ZodValidationPipe<UpdateCurriculumDto>(updateCurriculumSchema))
+    updateCurriculumDto: UpdateCurriculumDto,
   ) {
-    return this.curriculumService.updateAssignment(id, dto, user.id);
+    return await this.curriculumService.updateCurriculumService({
+      userId: user.id,
+      id,
+      updateCurriculumDto,
+    });
   }
 
-  @Delete('assignments/:id')
+  @Delete('/:id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Delete assignment' })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Assignment deleted' })
-  async deleteAssignment(@Param('id') id: string, @CurrentUser() user: Record<string, string>) {
-    return this.curriculumService.deleteAssignment(id, user.id);
+  @ApiOperation({ summary: 'Delete curriculum', description: 'Delete a curriculum by ID' })
+  @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'Curriculum ID' })
+  @SwaggerResponse({ status: 200, description: 'Curriculum deleted successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Curriculum deleted successfully' })
+  async deleteCurriculumController(
+    @CurrentUser() user: Record<string, string>,
+    @Param('id') id: string,
+  ) {
+    return await this.curriculumService.deleteCurriculumService({ userId: user.id, id });
   }
 
-  @Patch('assignments/:id/toggle-hidden')
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({
-    summary: 'Toggle assignment visibility',
-    description: 'Hide/show an assignment from students',
+  // ── Lessons ──────────────────────────────────────────────────────────
+
+  @Post('/:curriculumId/lesson')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
+  @HttpCode(StatusCodes.CREATED)
+  @ApiOperation({ summary: 'Create lesson', description: 'Create a lesson in a curriculum' })
+  @ApiParam({ name: 'curriculumId', type: String, format: 'uuid' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['title'],
+      properties: {
+        title: { type: 'string', example: 'Đạo hàm và ứng dụng' },
+        description: { type: 'string', example: '' },
+        theoryUrls: { type: 'array', items: { type: 'string', format: 'uri' }, example: ['https://example.com/theory.pdf'] },
+        exerciseUrls: { type: 'array', items: { type: 'string', format: 'uri' }, example: ['https://example.com/exercise.pdf'] },
+        order: { type: 'number', example: 1 },
+      },
+    },
   })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Visibility toggled' })
-  async toggleHidden(@Param('id') id: string, @CurrentUser() user: Record<string, string>) {
-    return this.curriculumService.toggleHidden(id, user.id);
+  @SwaggerResponse({ status: 201, description: 'Lesson created successfully' })
+  @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Lesson created successfully' })
+  async createLessonController(
+    @CurrentUser() user: Record<string, string>,
+    @Param('curriculumId') curriculumId: string,
+    @Body(new ZodValidationPipe<CreateLessonDto>(createLessonSchema))
+    createLessonDto: CreateLessonDto,
+  ) {
+    return await this.lessonService.createLessonService({
+      userId: user.id,
+      curriculumId,
+      createLessonDto,
+    });
+  }
+
+  @Get('/:curriculumId/lesson')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({ summary: 'List lessons', description: 'Get all lessons in a curriculum' })
+  @ApiParam({ name: 'curriculumId', type: String, format: 'uuid' })
+  @SwaggerResponse({ status: 200, description: 'Lessons fetched successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Lessons fetched successfully' })
+  async getLessonsController(@Param('curriculumId') curriculumId: string) {
+    return await this.lessonService.getLessonsService({ curriculumId });
+  }
+
+  @Put('/lesson/:id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
+  @HttpCode(StatusCodes.CREATED)
+  @ApiOperation({ summary: 'Update lesson', description: 'Update a lesson by ID' })
+  @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'Lesson ID' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+        theoryUrls: { type: 'array', items: { type: 'string', format: 'uri' } },
+        exerciseUrls: { type: 'array', items: { type: 'string', format: 'uri' } },
+        order: { type: 'number' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Lesson updated successfully' })
+  @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Lesson updated successfully' })
+  async updateLessonController(
+    @CurrentUser() user: Record<string, string>,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe<UpdateLessonDto>(updateLessonSchema))
+    updateLessonDto: UpdateLessonDto,
+  ) {
+    return await this.lessonService.updateLessonService({ userId: user.id, id, updateLessonDto });
+  }
+
+  @Delete('/lesson/:id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({ summary: 'Delete lesson', description: 'Delete a lesson by ID' })
+  @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'Lesson ID' })
+  @SwaggerResponse({ status: 200, description: 'Lesson deleted successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Lesson deleted successfully' })
+  async deleteLessonController(
+    @CurrentUser() user: Record<string, string>,
+    @Param('id') id: string,
+  ) {
+    return await this.lessonService.deleteLessonService({ userId: user.id, id });
   }
 }
