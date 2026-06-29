@@ -11,9 +11,11 @@ import {
   type AnyPgColumn,
   numeric,
   integer,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['STUDENT', 'ADMIN', 'TUTOR','PARENT']);
+export const userRoleEnum = pgEnum('user_role', ['STUDENT', 'ADMIN', 'TUTOR', 'PARENT']);
+export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'OTHER']);
 export const categoryTypeEnum = pgEnum('category_type', ['INCOME', 'EXPENSE']);
 export const walletTypeEnum = pgEnum('wallet_type', ['CASH', 'BANK', 'E_WALLET', 'CREDIT']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
@@ -34,6 +36,12 @@ export const users = pgTable('users', {
   phone: varchar('phone', { length: 20 }),
   isActive: boolean('is_active').default(true),
   role: userRoleEnum('role').default('STUDENT'),
+  userCode: varchar('userCode', { length: 6 }),
+  gender: genderEnum('gender'),
+  dateOfBirth: timestamp('date_of_birth'),
+  address: text('address'),
+  parentId: uuid('parent_id').references((): AnyPgColumn => users.id, { onDelete: 'cascade' }),
+  tutorId: uuid('tutor_id').references((): AnyPgColumn => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -136,11 +144,19 @@ export const assignmentStatusEnum = pgEnum('assignment_status', [
   'IN_PROGRESS',
 ]);
 export const tuitionStatusEnum = pgEnum('tuition_status', ['PAID', 'UNPAID', 'OVERDUE']);
+
 export const notificationTypeEnum = pgEnum('notification_type', [
   'SYSTEM',
   'TUITION',
   'STUDENT',
   'TUTOR',
+]);
+
+export const notificationActionEnum = pgEnum('notification_action', [
+  'VIEW',
+  'CONTACT',
+  'PAYMENT',
+  'UPDATE',
 ]);
 
 // ── Classes ──────────────────────────────────────────────────────────
@@ -280,15 +296,41 @@ export const tuitions = pgTable('tuitions', {
 // ── Notifications ────────────────────────────────────────────────────
 export const notifications = pgTable('notifications', {
   id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
+  senderId: uuid('sender_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+  classId: uuid('class_id').references(() => classes.id, {
+    onDelete: 'cascade',
+  }),
+  studentId: uuid('student_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
+
   type: notificationTypeEnum('type').notNull(),
-  subtype: varchar('subtype', { length: 50 }),
+
   title: varchar('title', { length: 255 }).notNull(),
-  content: text('content'),
-  isRead: boolean('is_read').default(false),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
-  classId: uuid('class_id').references(() => classes.id, { onDelete: 'cascade' }),
-  studentId: uuid('student_id').references(() => users.id, { onDelete: 'set null' }),
+  content: text('content').notNull(),
+  subContent: varchar('sub_content', {
+    length: 255,
+  }),
+  redirectUrl: varchar('redirect_url', {
+    length: 500,
+  }),
+  actionLabel: varchar('action_label', {
+    length: 100,
+  }).default('Xem chi tiết'),
+
+  actionType: notificationActionEnum('action_type'),
+  isRead: boolean('is_read').default(false).notNull(),
+  readAt: timestamp('read_at'),
+  metadata: jsonb('metadata'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 // ── Student Scores / Progress ────────────────────────────────────────
