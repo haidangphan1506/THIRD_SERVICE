@@ -1,10 +1,19 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { eq } from 'drizzle-orm';
 import { CurriculumRepository } from './curriculum.repository';
 import { LessonRepository } from './lesson.repository';
-import { type CreateCurriculumDto, type GetCurriculumsQueryDto, type UpdateCurriculumDto } from '@packages/entities';
-import { UserService } from '../user/user.service';
+import {
+  type CreateCurriculumDto,
+  type GetCurriculumsQueryDto,
+  type UpdateCurriculumDto,
+  type CreateLessonDto,
+  type UpdateLessonDto,
+} from '@packages/entities';
+import { DRIZZLE } from '../../database/database.module';
+import { classes, curriculums } from '../../database/schema';
 import { ERROR_MESSAGES } from 'src/data/constants';
-import { curriculums } from 'src/database/schema';
+import { UserService } from '../user/user.service';
 
 export const UUID_V4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -17,7 +26,17 @@ export class CurriculumService {
     private readonly curriculumRepository: CurriculumRepository,
     private readonly lessonRepository: LessonRepository,
     private readonly userService: UserService,
+    @Inject(DRIZZLE)
+    private readonly db: ReturnType<typeof drizzle>,
   ) {}
+
+  private async verifyClassOwner(classId: string, tutorId: string) {
+    const [cls] = await this.db.select().from(classes).where(eq(classes.id, classId));
+    if (!cls || cls.tutorId !== tutorId) {
+      throw new NotFoundException('Class not found');
+    }
+    return cls;
+  }
 
   private async assertUserExists(userId: string) {
     if (!userId || !UUID_V4_REGEX.test(userId)) {
@@ -32,26 +51,19 @@ export class CurriculumService {
     }
   }
 
-  async createCurriculumService({
-    userId,
-    createCurriculumDto,
-  }: {
-    userId: string;
-    createCurriculumDto: CreateCurriculumDto;
-  }) {
-    await this.assertUserExists(userId);
-    return await this.curriculumRepository.create(userId, createCurriculumDto);
+  // ── Chapter ──
+
+  async createChapter(dto: CreateCurriculumDto, tutorId: string) {
+    return this.curriculumRepository.create(tutorId, dto);
   }
 
-  async getCurriculumByIdService({ id }: { id: string }) {
-    if (!id || !UUID_V4_REGEX.test(id)) {
-      throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
-    }
-    const curriculum = await this.curriculumRepository.findById(id);
-    if (!curriculum) {
-      throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
-    }
-    return curriculum;
+  async getChaptersByClass(classId: string, tutorId: string) {
+    await this.verifyClassOwner(classId, tutorId);
+    const items = await this.curriculumRepository.findAll({
+      filters: { userId: tutorId },
+      filterColumns: { userId: { column: curriculums.userId } },
+    });
+    return items;
   }
 
   async getAllCurriculumService({ query }: { query: GetCurriculumsQueryDto }) {
@@ -80,41 +92,51 @@ export class CurriculumService {
     };
   }
 
-  async updateCurriculumService({
-    userId,
-    id,
-    updateCurriculumDto,
-  }: {
-    userId: string;
-    id: string;
-    updateCurriculumDto: UpdateCurriculumDto;
-  }) {
-    await this.assertUserExists(userId);
-
-    if (!id || !UUID_V4_REGEX.test(id)) {
-      throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
-    }
-
-    const curriculum = await this.curriculumRepository.findById(id);
-    if (!curriculum) {
-      throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
-    }
-
-    return await this.curriculumRepository.update(id, updateCurriculumDto);
+  async updateChapter(id: string, dto: UpdateCurriculumDto, _tutorId: string) {
+    const curr = await this.curriculumRepository.findById(id);
+    if (!curr) throw new NotFoundException('Curriculum not found');
+    return this.curriculumRepository.update(id, dto);
   }
 
-  async deleteCurriculumService({ userId, id }: { userId: string; id: string }) {
-    await this.assertUserExists(userId);
+  async deleteChapter(id: string, _tutorId: string) {
+    const curr = await this.curriculumRepository.findById(id);
+    if (!curr) throw new NotFoundException('Curriculum not found');
+    await this.curriculumRepository.delete(id);
+    return { id };
+  }
 
-    if (!id || !UUID_V4_REGEX.test(id)) {
-      throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
+  // ── Lesson ──
+
+  async getLessonsByClass(classId: string, tutorId: string) {
+    return this.getChaptersByClass(classId, tutorId);
+  }
+
+  async createLesson(
+    dto: CreateLessonDto & { classId: string },
+    tutorId: string,
+  ) {
+    await this.verifyClassOwner(dto.classId, tutorId);
+    const curriculumsList = await this.curriculumRepository.findAll({
+      filters: { userId: tutorId },
+      filterColumns: { userId: { column: curriculums.userId } },
+    });
+    if (curriculumsList.curriculums.length === 0) {
+      throw new NotFoundException('No curriculum found for this class');
     }
+    const curriculumId = curriculumsList.curriculums[0].id;
+    return this.lessonRepository.create(curriculumId, dto);
+  }
 
-    const curriculum = await this.curriculumRepository.findById(id);
-    if (!curriculum) {
-      throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
-    }
+  async updateLesson(id: string, dto: UpdateLessonDto, _tutorId: string) {
+    const lesson = await this.lessonRepository.findById(id);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    return this.lessonRepository.update(id, dto);
+  }
 
-    return await this.curriculumRepository.delete(id);
+  async deleteLesson(id: string, _tutorId: string) {
+    const lesson = await this.lessonRepository.findById(id);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    await this.lessonRepository.delete(id);
+    return { id };
   }
 }
