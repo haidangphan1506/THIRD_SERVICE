@@ -10,7 +10,9 @@ import {
   type UserDataFieldDto,
   User,
 } from '@packages/entities/user';
-import { hashData } from '@packages/helpers';
+import { checkUuidValid, hashData } from '@packages/helpers';
+import { type MulterFile } from '../cloudinary/cloudinary.interface';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 function generateUserCode(): string {
   return randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
@@ -30,6 +32,7 @@ export class UserService {
   constructor(
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async generateUsername(firstName: string, lastName: string): Promise<string> {
@@ -528,5 +531,16 @@ export class UserService {
     }
     await this.db.delete(users).where(eq(users.id, id));
     return { id: id };
+  }
+
+  async uploadAvatarService(userId: string, file: MulterFile) {
+    if (!userId || (userId && !checkUuidValid({ data: userId }))) {
+      throw new BadRequestException('UserId not found ...');
+    }
+    const result = await this.cloudinaryService.upload(file);
+
+    await this.db.update(users).set({ avatar: result.secure_url }).where(eq(users.id, userId));
+
+    return { avatar: result.secure_url };
   }
 }

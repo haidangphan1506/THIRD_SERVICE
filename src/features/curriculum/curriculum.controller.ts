@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -18,24 +9,28 @@ import {
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
-import { CurrentUser } from '@packages/decorators';
+import { CurrentUser, Roles } from '@packages/decorators';
+import { RolesGuard } from '@packages/guards';
 import {
-  createCurriculumSchema,
-  updateCurriculumSchema,
   type CreateCurriculumDto,
+  createCurriculumSchema,
   type UpdateCurriculumDto,
-} from '@packages/entities/curriculum';
+  updateCurriculumSchema,
+  type CreateLessonDto,
+  createLessonSchema,
+  type UpdateLessonDto,
+  updateLessonSchema,
+} from '@packages/entities';
 import { CurriculumService } from './curriculum.service';
 
 @ApiTags('Curriculum')
 @ApiBearerAuth('access-token')
-@Controller('curriculums')
+@Controller('curriculum')
 export class CurriculumController {
   constructor(private readonly curriculumService: CurriculumService) {}
 
   // ── Chapter ──
 
-  // TODO : Get chapters by class
   @Get(':classId')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({
@@ -51,23 +46,18 @@ export class CurriculumController {
     return this.curriculumService.getChaptersByClass(classId, user.id);
   }
 
-  // TODO : Create a new chapter
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({ summary: 'Create chapter' })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['classId', 'lesson', 'name'],
+      required: ['title'],
       properties: {
-        classId: { type: 'string', format: 'uuid' },
-        lesson: { type: 'number', example: 1, description: 'Lesson number' },
-        name: { type: 'string', maxLength: 255, example: 'Bai 1: Ham so' },
-        lecture: { type: 'string', description: 'Lecture content/link' },
-        assignment: { type: 'string', description: 'Assignment content/link' },
-        status: { type: 'string', enum: ['COMPLETED', 'UPCOMING'], default: 'UPCOMING' },
-        note: { type: 'string' },
-        order: { type: 'number', default: 0 },
+        title: { type: 'string', example: 'Chương 1 : Giải tích cơ bản' },
+        description: { type: 'string', example: '' },
       },
     },
   })
@@ -80,7 +70,6 @@ export class CurriculumController {
     return this.curriculumService.createChapter(dto, user.id);
   }
 
-  // TODO : Update chapter
   @Put(':id')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Update chapter' })
@@ -95,7 +84,6 @@ export class CurriculumController {
     return this.curriculumService.updateChapter(id, dto, user.id);
   }
 
-  // TODO : Delete chapter
   @Delete(':id')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Delete chapter' })
@@ -107,20 +95,15 @@ export class CurriculumController {
 
   // ── Lesson ──
 
-  // TODO : Get lessons by class
   @Get(':classId/lessons')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Get lessons' })
   @ApiParam({ name: 'classId', type: String, format: 'uuid' })
   @SwaggerResponse({ status: 200, description: 'Lessons fetched' })
-  async getLessons(
-    @Param('classId') classId: string,
-    @CurrentUser() user: Record<string, string>,
-  ) {
+  async getLessons(@Param('classId') classId: string, @CurrentUser() user: Record<string, string>) {
     return this.curriculumService.getLessonsByClass(classId, user.id);
   }
 
-  // TODO : Create a new lesson
   @Post(':classId/lessons')
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({ summary: 'Create lesson' })
@@ -128,14 +111,13 @@ export class CurriculumController {
   @SwaggerResponse({ status: 201, description: 'Lesson created' })
   async createLesson(
     @Param('classId') classId: string,
-    @Body(new ZodValidationPipe<CreateCurriculumDto>(createCurriculumSchema))
-    dto: CreateCurriculumDto,
+    @Body(new ZodValidationPipe<CreateLessonDto>(createLessonSchema))
+    dto: CreateLessonDto,
     @CurrentUser() user: Record<string, string>,
   ) {
     return this.curriculumService.createLesson({ ...dto, classId }, user.id);
   }
 
-  // TODO : Update lesson
   @Put('lessons/:id')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Update lesson' })
@@ -143,14 +125,13 @@ export class CurriculumController {
   @SwaggerResponse({ status: 200, description: 'Lesson updated' })
   async updateLesson(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(updateCurriculumSchema))
-    dto: UpdateCurriculumDto,
+    @Body(new ZodValidationPipe(updateLessonSchema))
+    dto: UpdateLessonDto,
     @CurrentUser() user: Record<string, string>,
   ) {
     return this.curriculumService.updateLesson(id, dto, user.id);
   }
 
-  // TODO : Delete lesson
   @Delete('lessons/:id')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Delete lesson' })
