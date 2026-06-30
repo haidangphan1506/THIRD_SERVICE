@@ -8,7 +8,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,7 +20,9 @@ import {
   ApiParam,
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { StatusCodes } from 'http-status-codes';
 import {
   getUserDetailQuerySchema,
@@ -33,6 +37,7 @@ import {
 import { ApiResponse, CurrentUser } from '@packages/decorators';
 import { JwtAuthGuard } from '@packages/guards';
 import { ZodValidationPipe } from '@packages/pipes';
+import { type MulterFile } from '../cloudinary/cloudinary.interface';
 import { type GetDetailUserQuery, UserService } from './user.service';
 type GetUsersResponse = Awaited<ReturnType<UserService['getUsersService']>>;
 
@@ -234,5 +239,27 @@ export class UserController {
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Delete user successfully ...' })
   async deleteUserByAdminController(@Param('id') id: string) {
     return await this.userService.deleteUserByAdminService({ id: id });
+  }
+
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload avatar', description: 'Upload avatar image for current user' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: { type: 'string', format: 'binary', description: 'Avatar image file' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 201, description: 'Avatar uploaded successfully' })
+  @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Upload avatar successfully ...' })
+  async uploadAvatarController(
+    @CurrentUser() user: Record<string, string>,
+    @UploadedFile() file: MulterFile,
+  ) {
+    return await this.userService.uploadAvatarService(user.id, file);
   }
 }

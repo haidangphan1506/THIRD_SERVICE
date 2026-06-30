@@ -22,6 +22,7 @@ import { ScheduleModule } from './features/schedule/schedule.module';
 import { JwtAuthGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { CloudinaryModule } from './features/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { JwtModule } from '@nestjs/jwt';
     TuitionModule,
     NotificationModule,
     ScheduleModule,
+    CloudinaryModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
