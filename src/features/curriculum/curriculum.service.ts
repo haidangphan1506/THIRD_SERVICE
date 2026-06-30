@@ -29,14 +29,16 @@ export class CurriculumService {
     return cls;
   }
 
-  // ── Curriculums ──
+  // ── Chapter ──
 
-  async createCurriculum(dto: CreateCurriculumDto, tutorId: string) {
+  // TODO : Create a new chapter
+  async createChapter(dto: CreateCurriculumDto, tutorId: string) {
     await this.verifyClassOwner(dto.classId, tutorId);
     return this.repo.createCurriculum(dto);
   }
 
-  async getCurriculumsByClass(classId: string, tutorId: string) {
+  // TODO : Get chapters by class
+  async getChaptersByClass(classId: string, tutorId: string) {
     await this.verifyClassOwner(classId, tutorId);
     const items = await this.repo.getCurriculumsByClass(classId);
 
@@ -51,14 +53,16 @@ export class CurriculumService {
     };
   }
 
-  async updateCurriculum(id: string, dto: UpdateCurriculumDto, tutorId: string) {
+  // TODO : Update chapter
+  async updateChapter(id: string, dto: UpdateCurriculumDto, tutorId: string) {
     const curr = await this.repo.getCurriculumById(id);
     if (!curr) throw new NotFoundException('Curriculum not found');
     await this.verifyClassOwner(curr.classId, tutorId);
     return this.repo.updateCurriculum(id, dto);
   }
 
-  async deleteCurriculum(id: string, tutorId: string) {
+  // TODO : Delete chapter
+  async deleteChapter(id: string, tutorId: string) {
     const curr = await this.repo.getCurriculumById(id);
     if (!curr) throw new NotFoundException('Curriculum not found');
     await this.verifyClassOwner(curr.classId, tutorId);
@@ -66,6 +70,37 @@ export class CurriculumService {
     return { id };
   }
 
+  // ── Lesson ──
+
+  // TODO : Get lessons by class
+  async getLessonsByClass(classId: string, tutorId: string) {
+    return this.getChaptersByClass(classId, tutorId);
+  }
+
+  // TODO : Create a new lesson
+  async createLesson(dto: CreateCurriculumDto, tutorId: string) {
+    await this.verifyClassOwner(dto.classId, tutorId);
+    return this.repo.createCurriculum(dto);
+  }
+
+  // TODO : Update lesson
+  async updateLesson(id: string, dto: UpdateCurriculumDto, tutorId: string) {
+    const curr = await this.repo.getCurriculumById(id);
+    if (!curr) throw new NotFoundException('Curriculum not found');
+    await this.verifyClassOwner(curr.classId, tutorId);
+    return this.repo.updateCurriculum(id, dto);
+  }
+
+  // TODO : Delete lesson
+  async deleteLesson(id: string, tutorId: string) {
+    const curr = await this.repo.getCurriculumById(id);
+    if (!curr) throw new NotFoundException('Curriculum not found');
+    await this.verifyClassOwner(curr.classId, tutorId);
+    await this.repo.deleteCurriculum(id);
+    return { id };
+  }
+
+  // TODO : Add new row under same lesson
   async addRow(id: string, tutorId: string) {
     const curr = await this.repo.getCurriculumById(id);
     if (!curr) throw new NotFoundException('Curriculum not found');
@@ -82,18 +117,23 @@ export class CurriculumService {
     });
   }
 
-  // ── Assignments ──
+  // ── Lecture Material ──
 
+  // ── Assignment ──
+
+  // TODO : Create assignment
   async createAssignment(dto: CreateAssignmentDto, tutorId: string) {
     await this.verifyClassOwner(dto.classId, tutorId);
     return this.repo.createAssignment(dto);
   }
 
+  // TODO : Get assignments by class
   async getAssignmentsByClass(classId: string, lesson?: number, tutorId?: string) {
     if (tutorId) await this.verifyClassOwner(classId, tutorId);
     return this.repo.getAssignmentsByClass(classId, lesson);
   }
 
+  // TODO : Update assignment
   async updateAssignment(id: string, dto: UpdateAssignmentDto, tutorId: string) {
     const asgn = await this.repo.getAssignmentById(id);
     if (!asgn) throw new NotFoundException('Assignment not found');
@@ -101,6 +141,7 @@ export class CurriculumService {
     return this.repo.updateAssignment(id, dto);
   }
 
+  // TODO : Delete assignment
   async deleteAssignment(id: string, tutorId: string) {
     const asgn = await this.repo.getAssignmentById(id);
     if (!asgn) throw new NotFoundException('Assignment not found');
@@ -109,6 +150,7 @@ export class CurriculumService {
     return { id };
   }
 
+  // TODO : Toggle assignment visibility (hide/show for students)
   async toggleHidden(id: string, tutorId: string) {
     const asgn = await this.repo.getAssignmentById(id);
     if (!asgn) throw new NotFoundException('Assignment not found');
