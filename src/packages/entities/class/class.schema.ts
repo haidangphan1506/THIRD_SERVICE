@@ -7,10 +7,7 @@ export const createClassSchema = z.object({
     .string({ message: 'Name is required' })
     .min(1, 'Name is required')
     .max(255, 'Name too long'),
-  code: z
-    .string({ message: 'Code is required' })
-    .min(1, 'Code is required')
-    .max(50, 'Code too long'),
+  code: z.string().min(1).max(50).optional(),
   subject: z
     .string({ message: 'Subject is required' })
     .min(1, 'Subject is required')
@@ -19,6 +16,7 @@ export const createClassSchema = z.object({
   description: z.string().optional(),
   status: classStatusEnum.default('OPEN').optional(),
   tutorId: z.string({ message: 'Tutor ID is required' }).uuid('Invalid tutor ID'),
+  studentIds: z.array(z.string().uuid('Invalid student ID')).optional(),
 });
 
 export const updateClassSchema = createClassSchema.partial().omit({ tutorId: true });

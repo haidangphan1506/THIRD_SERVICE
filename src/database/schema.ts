@@ -232,25 +232,31 @@ export const sessions = pgTable(
 );
 
 // ── Curriculum / Lesson Plan ─────────────────────────────────────────
-export const curriculums = pgTable(
-  'curriculums',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    classId: uuid('class_id')
-      .notNull()
-      .references(() => classes.id, { onDelete: 'cascade' }),
-    lesson: integer('lesson').notNull(),
-    name: varchar('name', { length: 255 }).notNull(),
-    lecture: text('lecture'),
-    assignment: text('assignment'),
-    status: curriculumStatusEnum('status').default('UPCOMING'),
-    note: text('note'),
-    order: integer('order').default(0),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => [index('curriculums_class_id_idx').on(table.classId)],
-);
+export const curriculums = pgTable('curriculums', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// ── Lessons ──────────────────────────────────────────────────────────
+export const lessons = pgTable('lessons', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  curriculumId: uuid('curriculum_id')
+    .notNull()
+    .references(() => curriculums.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  theoryUrls: jsonb('theory_urls').$type<string[]>().default([]),
+  exerciseUrls: jsonb('exercise_urls').$type<string[]>().default([]),
+  order: integer('order').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
 
 // ── Assignments ──────────────────────────────────────────────────────
 export const assignments = pgTable(

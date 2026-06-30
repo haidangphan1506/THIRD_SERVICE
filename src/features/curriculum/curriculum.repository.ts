@@ -1,96 +1,87 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { DRIZZLE } from 'src/database/database.module';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { DRIZZLE } from '../../database/database.module';
-import { assignments, curriculums } from '../../database/schema';
-import type { CreateAssignmentDto, CreateCurriculumDto } from '@packages/entities/curriculum';
+import { v4 as uuidv4 } from 'uuid';
+import { CreateCurriculumDto, UpdateCurriculumDto } from '@packages/entities';
+import { curriculums } from 'src/database/schema';
+import { buildListWhereClause } from '@packages/helpers';
+import { count, eq } from 'drizzle-orm';
 
 @Injectable()
 export class CurriculumRepository {
-  constructor(
-    @Inject(DRIZZLE)
-    private readonly db: ReturnType<typeof drizzle>,
-  ) {}
+  constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
 
-  // ── Curriculums ──
-
-  async createCurriculum(data: CreateCurriculumDto) {
-    const [curr] = await this.db.insert(curriculums).values(data).returning();
-    return curr;
+  async create(userId: string, data: CreateCurriculumDto) {
+    const { title, description } = data;
+    const [curriculum] = await this.db
+      .insert(curriculums)
+      .values({ id: uuidv4(), userId, title, description: description ?? null })
+      .returning();
+    return curriculum;
   }
 
-  async getCurriculumsByClass(classId: string) {
-    return this.db
+  async findAll({
+    page = 1,
+    limit = 10,
+    search,
+    searchableColumns,
+    filters,
+    filterColumns,
+  }: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    searchableColumns?: Record<string, any>;
+    filters?: Record<string, any>;
+    filterColumns?: Record<string, any>;
+  }) {
+    const whereClause = buildListWhereClause({
+      search,
+      searchableColumns,
+      filters,
+      filterColumns,
+    });
+
+    const [totalRow] = await this.db.select({ total: count() }).from(curriculums).where(whereClause);
+    const total = Number(totalRow?.total ?? 0);
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    const rows = await this.db
       .select()
       .from(curriculums)
-      .where(eq(curriculums.classId, classId))
-      .orderBy(asc(curriculums.lesson), asc(curriculums.order));
+      .where(whereClause)
+      .limit(limitNumber)
+      .offset(offset);
+
+    return {
+      curriculums: rows,
+      pagination: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
+    };
   }
 
-  async getCurriculumById(id: string) {
-    const [curr] = await this.db.select().from(curriculums).where(eq(curriculums.id, id));
-    return curr ?? null;
+  async findById(id: string) {
+    const [curriculum] = await this.db.select().from(curriculums).where(eq(curriculums.id, id));
+    return curriculum ?? null;
   }
 
-  async updateCurriculum(id: string, data: Record<string, unknown>) {
-    const [curr] = await this.db
+  async update(id: string, data: UpdateCurriculumDto) {
+    const [curriculum] = await this.db
       .update(curriculums)
-      .set({ ...data, updatedAt: new Date() })
+      .set(data)
       .where(eq(curriculums.id, id))
       .returning();
-    return curr ?? null;
+    return curriculum ?? null;
   }
 
-  async deleteCurriculum(id: string) {
-    const [curr] = await this.db.delete(curriculums).where(eq(curriculums.id, id)).returning();
-    return !!curr;
-  }
-
-  // ── Assignments ──
-
-  async createAssignment(data: CreateAssignmentDto) {
-    const [asgn] = await this.db
-      .insert(assignments)
-      .values({
-        ...data,
-        score: data.score != null ? String(data.score) : null,
-      })
-      .returning();
-    return asgn;
-  }
-
-  async getAssignmentsByClass(classId: string, lesson?: number) {
-    const conditions = [eq(assignments.classId, classId)];
-    if (lesson) conditions.push(eq(assignments.lesson, lesson));
-    return this.db
-      .select()
-      .from(assignments)
-      .where(and(...conditions))
-      .orderBy(asc(assignments.lesson), desc(assignments.createdAt));
-  }
-
-  async getAssignmentById(id: string) {
-    const [asgn] = await this.db.select().from(assignments).where(eq(assignments.id, id));
-    return asgn ?? null;
-  }
-
-  async updateAssignment(id: string, data: Record<string, unknown>) {
-    const [asgn] = await this.db
-      .update(assignments)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(assignments.id, id))
-      .returning();
-    return asgn ?? null;
-  }
-
-  async deleteAssignment(id: string) {
-    const [asgn] = await this.db.delete(assignments).where(eq(assignments.id, id)).returning();
-    return !!asgn;
-  }
-
-  async toggleHidden(id: string) {
-    const asgn = await this.getAssignmentById(id);
-    if (!asgn) return null;
-    return this.updateAssignment(id, { isHidden: !asgn.isHidden });
+  async delete(id: string) {
+    const [curriculum] = await this.db.delete(curriculums).where(eq(curriculums.id, id)).returning();
+    return !!curriculum;
   }
 }

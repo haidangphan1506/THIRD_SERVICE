@@ -12,7 +12,7 @@ export class ClassRepository {
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
-  async create(data: CreateClassDto & { tutorId: string }) {
+  async create(data: Omit<CreateClassDto, 'code'> & { code: string; tutorId: string }) {
     const [cls] = await this.db
       .insert(classes)
       .values({
