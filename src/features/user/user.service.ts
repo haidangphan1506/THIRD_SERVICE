@@ -1,16 +1,24 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { categories, transactions, users, wallets } from '../../database/schema';
 import {
+  type ChangePasswordValues,
   type CreateUserDto,
   type GetUsersQueryDto,
   type UserDataFieldDto,
   User,
 } from '@packages/entities/user';
-import { checkUuidValid, hashData } from '@packages/helpers';
+import { checkUuidValid, compareData, hashData } from '@packages/helpers';
 import { type MulterFile } from '../cloudinary/cloudinary.interface';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
@@ -289,6 +297,7 @@ export class UserService {
               amount: row.amount != null ? String(row.amount) : '0',
               note: row.note,
               type: row.type,
+              avatar: user.avatar ?? '',
               status: row.status,
               createdAt:
                 row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
@@ -531,6 +540,26 @@ export class UserService {
     }
     await this.db.delete(users).where(eq(users.id, id));
     return { id: id };
+  }
+
+  async changePasswordService(userId: string, dto: ChangePasswordValues) {
+    const [user] = await this.db
+      .select({ id: users.id, password: users.password })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const isMatch = await compareData(dto.currentPassword, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    await this.updateUserPasswordService({ id: userId, password: dto.newPassword });
+    return { message: 'Password changed successfully' };
   }
 
   async uploadAvatarService(userId: string, file: MulterFile) {

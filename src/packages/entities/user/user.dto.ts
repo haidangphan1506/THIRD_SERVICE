@@ -5,6 +5,10 @@ import { createUserSchema, dataFieldSchema, getUsersQuerySchema } from './user.s
 export type GetUsersQueryDto = z.infer<typeof getUsersQuerySchema>;
 export type UserDataFieldDto = z.infer<typeof dataFieldSchema>;
 export type CreateUserDto = z.infer<typeof createUserSchema>;
+export type ChangePasswordValues = {
+  currentPassword: string;
+  newPassword: string;
+};
 
 // ?params: init type not init from schemas
 export type User = {

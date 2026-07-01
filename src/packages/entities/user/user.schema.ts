@@ -52,6 +52,48 @@ export const getUsersQuerySchema = z.preprocess(
   }),
 );
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string({ message: 'Current password is required' }).min(1),
+    newPassword: z
+      .string({ message: 'New password is required' })
+      .min(8, { message: 'Password must be at least 8 characters' })
+      .max(14, { message: 'Password must be at most 14 characters' }),
+  })
+  .superRefine((data, ctx) => {
+    const { newPassword } = data;
+    if (newPassword.length < 8 || newPassword.length > 14) return;
+
+    if (!/[a-z]/.test(newPassword)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Password must include at least one lowercase letter (a-z)',
+        path: ['newPassword'],
+      });
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Password must include at least one uppercase letter (A-Z)',
+        path: ['newPassword'],
+      });
+    }
+    if (!/\d/.test(newPassword)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Password must include at least one digit (0-9)',
+        path: ['newPassword'],
+      });
+    }
+    if (!/[^A-Za-z0-9]/.test(newPassword)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Password must include at least one special character',
+        path: ['newPassword'],
+      });
+    }
+  });
+
 export const dataFieldSchema = z.object({
   field: z.string({ message: 'Field must be string ...' }).nonempty(),
   value: z.string({ message: 'Value must be string ...' }).nonempty(),

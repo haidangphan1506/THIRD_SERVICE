@@ -25,8 +25,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StatusCodes } from 'http-status-codes';
 import {
+  changePasswordSchema,
   getUserDetailQuerySchema,
   getUsersQuerySchema,
+  type ChangePasswordValues,
   type CreateUserDto,
   type CreateUserResponseDto,
   createUserSchema,
@@ -242,15 +244,15 @@ export class UserController {
   }
 
   @Post('avatar')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('avatar'))
   @ApiOperation({ summary: 'Upload avatar', description: 'Upload avatar image for current user' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['file'],
+      required: ['avatar'],
       properties: {
-        file: { type: 'string', format: 'binary', description: 'Avatar image file' },
+        avatar: { type: 'string', format: 'binary', description: 'Avatar image file' },
       },
     },
   })
@@ -261,5 +263,26 @@ export class UserController {
     @UploadedFile() file: MulterFile,
   ) {
     return await this.userService.uploadAvatarService(user.id, file);
+  }
+
+  @Post('change-password')
+  @ApiOperation({ summary: 'Change password', description: 'Change password for current user' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        currentPassword: { type: 'string' },
+        newPassword: { type: 'string' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Password changed successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Change password successfully ...' })
+  async changePasswordController(
+    @CurrentUser() user: Record<string, string>,
+    @Body(new ZodValidationPipe(changePasswordSchema))
+    changePasswordDto: ChangePasswordValues,
+  ) {
+    return await this.userService.changePasswordService(user.id, changePasswordDto);
   }
 }
