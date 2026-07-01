@@ -12,10 +12,10 @@ export class CurriculumRepository {
   constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
 
   async create(userId: string, data: CreateCurriculumDto) {
-    const { title, description } = data;
+    const { title, description, gradeId } = data;
     const [curriculum] = await this.db
       .insert(curriculums)
-      .values({ id: uuidv4(), userId, title, description: description ?? null })
+      .values({ id: uuidv4(), userId, gradeId: gradeId ?? null, title, description: description ?? null })
       .returning();
     return curriculum;
   }

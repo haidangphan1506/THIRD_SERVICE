@@ -54,4 +54,32 @@ export class LessonRepository {
     const [lesson] = await this.db.delete(lessons).where(eq(lessons.id, id)).returning();
     return !!lesson;
   }
+
+  async addTheoryUrls(id: string, files: { name: string; url: string; key: string }[]) {
+    const lesson = await this.findById(id);
+    if (!lesson) return null;
+    const merged = [...(lesson.theoryUrls ?? []), ...files];
+    return this.update(id, { theoryUrls: merged });
+  }
+
+  async addExerciseUrls(id: string, files: { name: string; url: string; key: string }[]) {
+    const lesson = await this.findById(id);
+    if (!lesson) return null;
+    const merged = [...(lesson.exerciseUrls ?? []), ...files];
+    return this.update(id, { exerciseUrls: merged });
+  }
+
+  async removeTheoryUrl(id: string, url: string) {
+    const lesson = await this.findById(id);
+    if (!lesson) return null;
+    const filtered = (lesson.theoryUrls ?? []).filter((f) => f.url !== url);
+    return this.update(id, { theoryUrls: filtered });
+  }
+
+  async removeExerciseUrl(id: string, url: string) {
+    const lesson = await this.findById(id);
+    if (!lesson) return null;
+    const filtered = (lesson.exerciseUrls ?? []).filter((f) => f.url !== url);
+    return this.update(id, { exerciseUrls: filtered });
+  }
 }

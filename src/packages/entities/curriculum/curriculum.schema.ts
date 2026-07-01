@@ -8,6 +8,7 @@ export const createCurriculumSchema = z.object({
     .min(1, 'Title is required')
     .max(255, 'Title too long'),
   description: z.string().optional(),
+  gradeId: z.string().uuid('Invalid grade ID'),
 });
 
 export const updateCurriculumSchema = createCurriculumSchema.partial();
@@ -18,7 +19,11 @@ export const getCurriculumsQuerySchema = z.object({
   search: z.string().trim().min(1).optional(),
 });
 
-const urlSchema = z.string().url('Invalid URL');
+export const lessonFileSchema = z.object({
+  name: z.string().min(1, 'File name is required'),
+  url: z.string().url('Invalid URL'),
+  key: z.string().min(1, 'File key is required'),
+});
 
 export const createLessonSchema = z.object({
   title: z
@@ -26,8 +31,9 @@ export const createLessonSchema = z.object({
     .min(1, 'Title is required')
     .max(255, 'Title too long'),
   description: z.string().optional(),
-  theoryUrls: z.array(urlSchema).optional(),
-  exerciseUrls: z.array(urlSchema).optional(),
+  curriculumId: z.string().uuid('Invalid curriculum ID').optional(),
+  theoryUrls: z.array(lessonFileSchema).optional(),
+  exerciseUrls: z.array(lessonFileSchema).optional(),
   order: z.coerce.number().int().default(0).optional(),
 });
 
@@ -65,4 +71,11 @@ export const getAssignmentsQuerySchema = z.object({
   classId: z.string().uuid('Invalid class ID'),
   lesson: z.coerce.number().int().optional(),
   status: assignmentStatusEnum.optional(),
+});
+
+export const removeLessonFileSchema = z.object({
+  url: z.string().url('Invalid URL').optional(),
+  key: z.string().min(1, 'File key is required').optional(),
+}).refine((data) => data.url || data.key, {
+  message: 'Either url or key is required',
 });

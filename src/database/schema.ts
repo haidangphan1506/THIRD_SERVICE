@@ -159,6 +159,15 @@ export const notificationActionEnum = pgEnum('notification_action', [
   'UPDATE',
 ]);
 
+// ── Grades ───────────────────────────────────────────────────────────
+export const grades = pgTable('grades', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 50 }).notNull().unique(),
+  level: integer('level').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // ── Classes ──────────────────────────────────────────────────────────
 export const classes = pgTable('classes', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -237,6 +246,8 @@ export const curriculums = pgTable('curriculums', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  gradeId: uuid('grade_id')
+    .references(() => grades.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -251,8 +262,8 @@ export const lessons = pgTable('lessons', {
     .references(() => curriculums.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
-  theoryUrls: jsonb('theory_urls').$type<string[]>().default([]),
-  exerciseUrls: jsonb('exercise_urls').$type<string[]>().default([]),
+  theoryUrls: jsonb('theory_urls').$type<{ name: string; url: string; key: string }[]>().default([]),
+  exerciseUrls: jsonb('exercise_urls').$type<{ name: string; url: string; key: string }[]>().default([]),
   order: integer('order').default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

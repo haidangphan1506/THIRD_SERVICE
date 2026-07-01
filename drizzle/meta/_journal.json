@@ -120,6 +120,20 @@
       "when": 1782742643310,
       "tag": "0016_worthless_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1782889546347,
+      "tag": "0017_small_thor",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1782889572387,
+      "tag": "0018_common_iron_monger",
+      "breakpoints": true
     }
   ]
 }

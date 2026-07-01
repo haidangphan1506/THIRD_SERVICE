@@ -11,9 +11,11 @@ import {
   type UpdateLessonDto,
 } from '@packages/entities';
 import { DRIZZLE } from '../../database/database.module';
-import { classes, curriculums } from '../../database/schema';
+import { classes, curriculums, grades } from '../../database/schema';
 import { ERROR_MESSAGES } from 'src/data/constants';
 import { UserService } from '../user/user.service';
+import { UploadService } from '../uploads/upload.service';
+import type { MulterFile } from '../uploads/upload.interface';
 
 export const UUID_V4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -26,6 +28,7 @@ export class CurriculumService {
     private readonly curriculumRepository: CurriculumRepository,
     private readonly lessonRepository: LessonRepository,
     private readonly userService: UserService,
+    private readonly uploadService: UploadService,
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
@@ -111,20 +114,43 @@ export class CurriculumService {
     return this.getChaptersByClass(classId, tutorId);
   }
 
+  async getLessonsByCurriculum(curriculumId: string) {
+    const curriculum = await this.curriculumRepository.findById(curriculumId);
+    if (!curriculum) throw new NotFoundException('Curriculum not found');
+    return this.lessonRepository.findByCurriculumId(curriculumId);
+  }
+
   async createLesson(
     dto: CreateLessonDto & { classId: string },
     tutorId: string,
   ) {
-    await this.verifyClassOwner(dto.classId, tutorId);
-    const curriculumsList = await this.curriculumRepository.findAll({
-      filters: { userId: tutorId },
-      filterColumns: { userId: { column: curriculums.userId } },
-    });
-    if (curriculumsList.curriculums.length === 0) {
-      throw new NotFoundException('No curriculum found for this class');
+    let curriculumId = dto.curriculumId;
+
+    if (!curriculumId) {
+      await this.verifyClassOwner(dto.classId, tutorId);
+      const curriculumsList = await this.curriculumRepository.findAll({
+        filters: { userId: tutorId },
+        filterColumns: { userId: { column: curriculums.userId } },
+      });
+      if (curriculumsList.curriculums.length === 0) {
+        throw new NotFoundException('No curriculum found for this class');
+      }
+      curriculumId = curriculumsList.curriculums[0].id;
+    } else {
+      const curriculum = await this.curriculumRepository.findById(curriculumId);
+      if (!curriculum || curriculum.userId !== tutorId) {
+        throw new NotFoundException('Curriculum not found');
+      }
     }
-    const curriculumId = curriculumsList.curriculums[0].id;
+
     return this.lessonRepository.create(curriculumId, dto);
+  }
+
+  async getLessonDetail(id: string, _tutorId: string) {
+    const lesson = await this.lessonRepository.findById(id);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    const curriculum = await this.curriculumRepository.findById(lesson.curriculumId);
+    return { ...lesson, curriculumTitle: curriculum?.title ?? null };
   }
 
   async updateLesson(id: string, dto: UpdateLessonDto, _tutorId: string) {
@@ -138,5 +164,68 @@ export class CurriculumService {
     if (!lesson) throw new NotFoundException('Lesson not found');
     await this.lessonRepository.delete(id);
     return { id };
+  }
+
+  // ── Lesson File Uploads ──
+
+  async uploadTheoryFiles(lessonId: string, files: MulterFile[], _tutorId: string) {
+    const lesson = await this.lessonRepository.findById(lessonId);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    const results = await Promise.all(
+      files.map((f) => this.uploadService.upload(f, 'curriculum/theory')),
+    );
+    const fileMeta = results.map((r, i) => ({
+      name: files[i].originalname,
+      url: r.url,
+      key: r.key,
+    }));
+    await this.lessonRepository.addTheoryUrls(lessonId, fileMeta);
+    return { files: fileMeta };
+  }
+
+  async uploadExerciseFiles(lessonId: string, files: MulterFile[], _tutorId: string) {
+    const lesson = await this.lessonRepository.findById(lessonId);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    const results = await Promise.all(
+      files.map((f) => this.uploadService.upload(f, 'curriculum/exercise')),
+    );
+    const fileMeta = results.map((r, i) => ({
+      name: files[i].originalname,
+      url: r.url,
+      key: r.key,
+    }));
+    await this.lessonRepository.addExerciseUrls(lessonId, fileMeta);
+    return { files: fileMeta };
+  }
+
+  async removeTheoryFile(lessonId: string, dto: { url?: string; key?: string }, _tutorId: string) {
+    const lesson = await this.lessonRepository.findById(lessonId);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    const targetUrl = dto.url;
+    if (!targetUrl) throw new NotFoundException('File URL is required');
+    await this.lessonRepository.removeTheoryUrl(lessonId, targetUrl);
+    return { url: targetUrl };
+  }
+
+  async removeExerciseFile(lessonId: string, dto: { url?: string; key?: string }, _tutorId: string) {
+    const lesson = await this.lessonRepository.findById(lessonId);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    const targetUrl = dto.url;
+    if (!targetUrl) throw new NotFoundException('File URL is required');
+    await this.lessonRepository.removeExerciseUrl(lessonId, targetUrl);
+    return { url: targetUrl };
+  }
+
+  async getChaptersByGrade(gradeId: string) {
+    return this.curriculumRepository.findAll({
+      filters: { gradeId },
+      filterColumns: { gradeId: { column: curriculums.gradeId } },
+    });
+  }
+
+  // ── Grades ──
+
+  async getGrades() {
+    return this.db.select().from(grades).orderBy(grades.level);
   }
 }
