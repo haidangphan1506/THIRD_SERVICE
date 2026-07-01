@@ -134,6 +134,13 @@
       "when": 1782889572387,
       "tag": "0018_common_iron_monger",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1782922361157,
+      "tag": "0019_puzzling_scourge",
+      "breakpoints": true
     }
   ]
 }

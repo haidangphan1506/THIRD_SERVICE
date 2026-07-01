@@ -34,10 +34,14 @@ import {
   createUserSchema,
   dataFieldSchema,
   type GetUsersQueryDto,
+  type UpdateGradeDto,
+  updateGradeSchema,
+  type UpdateUserGradesDto,
+  updateUserGradesSchema,
   type UserDataFieldDto,
 } from '@packages/entities/user';
-import { ApiResponse, CurrentUser } from '@packages/decorators';
-import { JwtAuthGuard } from '@packages/guards';
+import { ApiResponse, CurrentUser, Roles } from '@packages/decorators';
+import { JwtAuthGuard, RolesGuard } from '@packages/guards';
 import { ZodValidationPipe } from '@packages/pipes';
 import { type MulterFile } from '../cloudinary/cloudinary.interface';
 import { type GetDetailUserQuery, UserService } from './user.service';
@@ -263,6 +267,76 @@ export class UserController {
     @UploadedFile() file: MulterFile,
   ) {
     return await this.userService.uploadAvatarService(user.id, file);
+  }
+
+  @Get('grades')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
+  @ApiOperation({ summary: 'Get all grades', description: 'Get all grades (tutor/admin)' })
+  @SwaggerResponse({ status: 200, description: 'Grades fetched successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Grades fetched successfully' })
+  async getGrades(
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return this.userService.getGradesService(user.id);
+  }
+
+  @Put('grades/:id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
+  @ApiOperation({
+    summary: 'Update grade',
+    description: 'Update a grade name and level (tutor/admin)',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'Grade ID' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['name', 'level'],
+      properties: {
+        name: { type: 'string', example: 'Lớp 10' },
+        level: { type: 'integer', example: 10 },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Grade updated successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Grade updated successfully' })
+  async updateGrade(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe<UpdateGradeDto>(updateGradeSchema))
+    dto: UpdateGradeDto,
+  ) {
+    return this.userService.updateGradeService(id, dto);
+  }
+
+  @Put('/grade')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'TUTOR')
+  @ApiOperation({
+    summary: 'Assign grades to current user',
+    description: 'Set grades array for the authenticated user (tutor/admin)',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['gradesId'],
+      properties: {
+        gradesId: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+          example: ['uuid-of-grade-1', 'uuid-of-grade-2'],
+        },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'User grades updated successfully' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'User grades updated successfully' })
+  async updateUserGrades(
+    @CurrentUser() user: Record<string, string>,
+    @Body(new ZodValidationPipe<UpdateUserGradesDto>(updateUserGradesSchema))
+    dto: UpdateUserGradesDto,
+  ) {
+    return this.userService.updateUserGradesService(user.id, dto);
   }
 
   @Post('change-password')

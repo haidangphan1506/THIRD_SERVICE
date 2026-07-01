@@ -10,11 +10,13 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { categories, transactions, users, wallets } from '../../database/schema';
+import { categories, grades, transactions, users, wallets } from '../../database/schema';
 import {
   type ChangePasswordValues,
   type CreateUserDto,
   type GetUsersQueryDto,
+  type UpdateGradeDto,
+  type UpdateUserGradesDto,
   type UserDataFieldDto,
   User,
 } from '@packages/entities/user';
@@ -540,6 +542,60 @@ export class UserService {
     }
     await this.db.delete(users).where(eq(users.id, id));
     return { id: id };
+  }
+
+  async getGradesService(userId: string) {
+    const [user] = await this.db
+      .select({ gradesId: users.gradesId })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user || !user.gradesId?.length) {
+      return [];
+    }
+
+    return this.db
+      .select()
+      .from(grades)
+      .where(inArray(grades.id, user.gradesId))
+      .orderBy(grades.level);
+  }
+
+  async updateGradeService(id: string, dto: UpdateGradeDto) {
+    const [existing] = await this.db.select().from(grades).where(eq(grades.id, id)).limit(1);
+    if (!existing) {
+      throw new BadRequestException('Grade not found');
+    }
+    const [updated] = await this.db
+      .update(grades)
+      .set({ name: dto.name, level: dto.level })
+      .where(eq(grades.id, id))
+      .returning();
+    return updated;
+  }
+
+  async updateUserGradesService(userId: string, dto: UpdateUserGradesDto) {
+    const [user] = await this.db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const validGrades = await this.db
+      .select({ id: grades.id })
+      .from(grades)
+      .where(inArray(grades.id, dto.gradesId));
+
+    if (validGrades.length !== dto.gradesId.length) {
+      throw new BadRequestException('One or more grade IDs are invalid');
+    }
+
+    const [updated] = await this.db
+      .update(users)
+      .set({ gradesId: dto.gradesId })
+      .where(eq(users.id, userId))
+      .returning();
+    return updated;
   }
 
   async changePasswordService(userId: string, dto: ChangePasswordValues) {

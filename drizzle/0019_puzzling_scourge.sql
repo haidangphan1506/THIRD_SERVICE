@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "grades_id" uuid[] DEFAULT '{}' NOT NULL;

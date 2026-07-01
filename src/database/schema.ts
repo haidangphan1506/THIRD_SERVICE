@@ -40,6 +40,7 @@ export const users = pgTable('users', {
   gender: genderEnum('gender'),
   dateOfBirth: timestamp('date_of_birth'),
   address: text('address'),
+  gradesId: uuid('grades_id').array().notNull().default([]),
   parentId: uuid('parent_id').references((): AnyPgColumn => users.id, { onDelete: 'cascade' }),
   tutorId: uuid('tutor_id').references((): AnyPgColumn => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
