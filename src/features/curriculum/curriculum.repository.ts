@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE } from 'src/database/database.module';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateCurriculumDto, UpdateCurriculumDto } from '@packages/entities';
+import { type CreateCurriculumDto, UpdateCurriculumDto } from '@packages/entities';
 import { curriculums } from 'src/database/schema';
 import { buildListWhereClause } from '@packages/helpers';
 import { count, eq } from 'drizzle-orm';
@@ -11,11 +11,19 @@ import { count, eq } from 'drizzle-orm';
 export class CurriculumRepository {
   constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
 
-  async create(userId: string, data: CreateCurriculumDto) {
-    const { title, description, gradeId } = data;
+  async create({ userId, data }: { userId: string; data: CreateCurriculumDto }) {
+    const { subject, code, grade, description } = data;
     const [curriculum] = await this.db
       .insert(curriculums)
-      .values({ id: uuidv4(), userId, gradeId: gradeId ?? null, title, description: description ?? null })
+      .values({
+        id: uuidv4(),
+        userId,
+        code,
+        grade: String(grade),
+        subject,
+        gradesId: null,
+        description: description ?? null,
+      })
       .returning();
     return curriculum;
   }
@@ -42,7 +50,10 @@ export class CurriculumRepository {
       filterColumns,
     });
 
-    const [totalRow] = await this.db.select({ total: count() }).from(curriculums).where(whereClause);
+    const [totalRow] = await this.db
+      .select({ total: count() })
+      .from(curriculums)
+      .where(whereClause);
     const total = Number(totalRow?.total ?? 0);
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
@@ -72,16 +83,23 @@ export class CurriculumRepository {
   }
 
   async update(id: string, data: UpdateCurriculumDto) {
+    const updateData: Record<string, any> = { ...data };
+    if (data.grade !== undefined) {
+      updateData.grade = String(data.grade);
+    }
     const [curriculum] = await this.db
       .update(curriculums)
-      .set(data)
+      .set(updateData)
       .where(eq(curriculums.id, id))
       .returning();
     return curriculum ?? null;
   }
 
   async delete(id: string) {
-    const [curriculum] = await this.db.delete(curriculums).where(eq(curriculums.id, id)).returning();
+    const [curriculum] = await this.db
+      .delete(curriculums)
+      .where(eq(curriculums.id, id))
+      .returning();
     return !!curriculum;
   }
 }

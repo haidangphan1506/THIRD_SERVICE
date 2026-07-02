@@ -5,141 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1777276830069,
-      "tag": "0000_fast_tigra",
+      "when": 1783002363656,
+      "tag": "0000_wet_morph",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1777277415027,
-      "tag": "0001_jittery_mandarin",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1778334673000,
-      "tag": "0002_nice_categories",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1778212143293,
-      "tag": "0003_overconfident_iron_patriot",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1778220161366,
-      "tag": "0004_worried_frog_thor",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1778336435355,
-      "tag": "0005_swift_sleepwalker",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1781328779954,
-      "tag": "0006_outstanding_leopardon",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1782295058788,
-      "tag": "0007_furry_terror",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1782364905030,
-      "tag": "0008_remarkable_wraith",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1782368777422,
-      "tag": "0009_awesome_roughhouse",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1782378131544,
-      "tag": "0010_absent_wallop",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1782385154984,
-      "tag": "0011_whole_doomsday",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1782647938956,
-      "tag": "0012_narrow_switch",
-      "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "7",
-      "when": 1782741463669,
-      "tag": "0013_boring_toad",
-      "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "7",
-      "when": 1782741534851,
-      "tag": "0014_chief_cardiac",
-      "breakpoints": true
-    },
-    {
-      "idx": 15,
-      "version": "7",
-      "when": 1782742002975,
-      "tag": "0015_lazy_matthew_murdock",
-      "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "7",
-      "when": 1782742643310,
-      "tag": "0016_worthless_captain_stacy",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "7",
-      "when": 1782889546347,
-      "tag": "0017_small_thor",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1782889572387,
-      "tag": "0018_common_iron_monger",
-      "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1782922361157,
-      "tag": "0019_puzzling_scourge",
+      "when": 1783002498868,
+      "tag": "0001_breezy_mojo",
       "breakpoints": true
     }
   ]

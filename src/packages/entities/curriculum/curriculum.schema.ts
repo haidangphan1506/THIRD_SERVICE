@@ -3,12 +3,21 @@ import { z } from 'zod';
 export const curriculumStatusEnum = z.enum(['COMPLETED', 'UPCOMING']);
 
 export const createCurriculumSchema = z.object({
-  title: z
+  subject: z
     .string({ message: 'Title is required' })
     .min(1, 'Title is required')
     .max(255, 'Title too long'),
+  code: z
+    .string({ message: 'Code curriculum must be string ...' })
+    .min(1, {
+      message: 'Code curriculum must me 6 character ...',
+    })
+    .max(6, {
+      message: 'Code curriculum must me 6 character ...',
+    }),
+  grade: z.union([z.string(), z.number()]).transform((value) => Number(value)),
   description: z.string().optional(),
-  gradeId: z.string().uuid('Invalid grade ID'),
+  gradesId: z.string().uuid('Invalid grade ID'),
 });
 
 export const updateCurriculumSchema = createCurriculumSchema.partial();
@@ -73,9 +82,11 @@ export const getAssignmentsQuerySchema = z.object({
   status: assignmentStatusEnum.optional(),
 });
 
-export const removeLessonFileSchema = z.object({
-  url: z.string().url('Invalid URL').optional(),
-  key: z.string().min(1, 'File key is required').optional(),
-}).refine((data) => data.url || data.key, {
-  message: 'Either url or key is required',
-});
+export const removeLessonFileSchema = z
+  .object({
+    url: z.string().url('Invalid URL').optional(),
+    key: z.string().min(1, 'File key is required').optional(),
+  })
+  .refine((data) => data.url || data.key, {
+    message: 'Either url or key is required',
+  });

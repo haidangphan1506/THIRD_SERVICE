@@ -4,7 +4,7 @@ import { CurriculumRepository } from './curriculum.repository';
 import { type CreateLessonDto, type UpdateLessonDto } from '@packages/entities';
 import { UserService } from '../user/user.service';
 import { ERROR_MESSAGES } from 'src/data/constants';
-import { UUID_V4_REGEX } from './curriculum.service';
+import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class LessonService {
@@ -17,7 +17,7 @@ export class LessonService {
   ) {}
 
   private async assertUserExists(userId: string) {
-    if (!userId || !UUID_V4_REGEX.test(userId)) {
+    if (!userId || !checkUuidValid({ data: userId })) {
       throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
     }
     const userData = await this.userService.getUserByField({
@@ -40,7 +40,7 @@ export class LessonService {
   }) {
     await this.assertUserExists(userId);
 
-    if (!curriculumId || !UUID_V4_REGEX.test(curriculumId)) {
+    if (!curriculumId || !!checkUuidValid({ data: curriculumId })) {
       throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
     }
     const curriculum = await this.curriculumRepository.findById(curriculumId);
@@ -52,7 +52,7 @@ export class LessonService {
   }
 
   async getLessonsService({ curriculumId }: { curriculumId: string }) {
-    if (!curriculumId || !UUID_V4_REGEX.test(curriculumId)) {
+    if (!curriculumId || !!checkUuidValid({ data: curriculumId })) {
       throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
     }
     const curriculum = await this.curriculumRepository.findById(curriculumId);
@@ -74,7 +74,7 @@ export class LessonService {
   }) {
     await this.assertUserExists(userId);
 
-    if (!id || !UUID_V4_REGEX.test(id)) {
+    if (!id || !!checkUuidValid({ data: id })) {
       throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
     }
     const lesson = await this.lessonRepository.findById(id);
@@ -88,7 +88,7 @@ export class LessonService {
   async deleteLessonService({ userId, id }: { userId: string; id: string }) {
     await this.assertUserExists(userId);
 
-    if (!id || !UUID_V4_REGEX.test(id)) {
+    if (!id || !!checkUuidValid({ data: id })) {
       throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
     }
     const lesson = await this.lessonRepository.findById(id);

@@ -4,13 +4,14 @@ CREATE TYPE "public"."class_status" AS ENUM('OPEN', 'CLOSED', 'UPCOMING');--> st
 CREATE TYPE "public"."curriculum_status" AS ENUM('COMPLETED', 'UPCOMING');--> statement-breakpoint
 CREATE TYPE "public"."day_of_week" AS ENUM('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY');--> statement-breakpoint
 CREATE TYPE "public"."gender" AS ENUM('MALE', 'FEMALE', 'OTHER');--> statement-breakpoint
+CREATE TYPE "public"."notification_action" AS ENUM('VIEW', 'CONTACT', 'PAYMENT', 'UPDATE');--> statement-breakpoint
 CREATE TYPE "public"."notification_type" AS ENUM('SYSTEM', 'TUITION', 'STUDENT', 'TUTOR');--> statement-breakpoint
 CREATE TYPE "public"."session_format" AS ENUM('ONLINE', 'OFFLINE');--> statement-breakpoint
 CREATE TYPE "public"."session_status" AS ENUM('UPCOMING', 'COMPLETED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."transaction_status" AS ENUM('PENDING', 'COMPLETED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."transaction_type" AS ENUM('INCOME', 'EXPENSE');--> statement-breakpoint
 CREATE TYPE "public"."tuition_status" AS ENUM('PAID', 'UNPAID', 'OVERDUE');--> statement-breakpoint
-CREATE TYPE "public"."user_role" AS ENUM('ADMIN', 'TUTOR', 'PARENT', 'STUDENT');--> statement-breakpoint
+CREATE TYPE "public"."user_role" AS ENUM('STUDENT', 'ADMIN', 'TUTOR', 'PARENT');--> statement-breakpoint
 CREATE TYPE "public"."wallet_type" AS ENUM('CASH', 'BANK', 'E_WALLET', 'CREDIT');--> statement-breakpoint
 CREATE TABLE "assignments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -62,13 +63,33 @@ CREATE TABLE "classes" (
 --> statement-breakpoint
 CREATE TABLE "curriculums" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"class_id" uuid NOT NULL,
-	"lesson" integer NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"lecture" text,
-	"assignment" text,
-	"status" "curriculum_status" DEFAULT 'UPCOMING',
-	"note" text,
+	"user_id" uuid NOT NULL,
+	"grade_id" uuid,
+	"title" varchar(255) NOT NULL,
+	"code" varchar(6) NOT NULL,
+	"text" varchar(2) NOT NULL,
+	"description" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "grades" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar(50) NOT NULL,
+	"level" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "grades_name_unique" UNIQUE("name"),
+	CONSTRAINT "grades_level_unique" UNIQUE("level")
+);
+--> statement-breakpoint
+CREATE TABLE "lessons" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"curriculum_id" uuid NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"theory_urls" jsonb DEFAULT '[]'::jsonb,
+	"exercise_urls" jsonb DEFAULT '[]'::jsonb,
 	"order" integer DEFAULT 0,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
@@ -76,15 +97,22 @@ CREATE TABLE "curriculums" (
 --> statement-breakpoint
 CREATE TABLE "notifications" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"type" "notification_type" NOT NULL,
-	"subtype" varchar(50),
-	"title" varchar(255) NOT NULL,
-	"content" text,
-	"is_read" boolean DEFAULT false,
 	"user_id" uuid,
+	"sender_id" uuid,
 	"class_id" uuid,
 	"student_id" uuid,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"type" "notification_type" NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"content" text NOT NULL,
+	"sub_content" varchar(255),
+	"redirect_url" varchar(500),
+	"action_label" varchar(100) DEFAULT 'Xem chi tiết',
+	"action_type" "notification_action",
+	"is_read" boolean DEFAULT false NOT NULL,
+	"read_at" timestamp,
+	"metadata" jsonb,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "schedules" (
@@ -153,7 +181,6 @@ CREATE TABLE "tuitions" (
 --> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"userCode" varchar(6),
 	"email" varchar(255) NOT NULL,
 	"username" varchar(50) NOT NULL,
 	"first_name" varchar(255) NOT NULL,
@@ -161,11 +188,13 @@ CREATE TABLE "users" (
 	"password" text NOT NULL,
 	"avatar" text,
 	"phone" varchar(20),
+	"is_active" boolean DEFAULT true,
+	"role" "user_role" DEFAULT 'STUDENT',
+	"userCode" varchar(6),
 	"gender" "gender",
 	"date_of_birth" timestamp,
 	"address" text,
-	"is_active" boolean DEFAULT true,
-	"role" "user_role" DEFAULT 'STUDENT',
+	"grades_id" uuid[] DEFAULT '{}' NOT NULL,
 	"parent_id" uuid,
 	"tutor_id" uuid,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -195,10 +224,13 @@ ALTER TABLE "categories" ADD CONSTRAINT "categories_parent_id_categories_id_fk" 
 ALTER TABLE "class_students" ADD CONSTRAINT "class_students_class_id_classes_id_fk" FOREIGN KEY ("class_id") REFERENCES "public"."classes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "class_students" ADD CONSTRAINT "class_students_student_id_users_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "classes" ADD CONSTRAINT "classes_tutor_id_users_id_fk" FOREIGN KEY ("tutor_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "curriculums" ADD CONSTRAINT "curriculums_class_id_classes_id_fk" FOREIGN KEY ("class_id") REFERENCES "public"."classes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "curriculums" ADD CONSTRAINT "curriculums_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "curriculums" ADD CONSTRAINT "curriculums_grade_id_grades_id_fk" FOREIGN KEY ("grade_id") REFERENCES "public"."grades"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "lessons" ADD CONSTRAINT "lessons_curriculum_id_curriculums_id_fk" FOREIGN KEY ("curriculum_id") REFERENCES "public"."curriculums"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_class_id_classes_id_fk" FOREIGN KEY ("class_id") REFERENCES "public"."classes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "notifications" ADD CONSTRAINT "notifications_student_id_users_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_student_id_users_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "schedules" ADD CONSTRAINT "schedules_class_id_classes_id_fk" FOREIGN KEY ("class_id") REFERENCES "public"."classes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_class_id_classes_id_fk" FOREIGN KEY ("class_id") REFERENCES "public"."classes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_scores" ADD CONSTRAINT "student_scores_student_id_users_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -214,12 +246,10 @@ ALTER TABLE "wallets" ADD CONSTRAINT "wallets_user_id_users_id_fk" FOREIGN KEY (
 CREATE INDEX "assignments_class_id_idx" ON "assignments" USING btree ("class_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "categories_name_type_parent_unique" ON "categories" USING btree ("name","type","parent_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "class_students_unique" ON "class_students" USING btree ("class_id","student_id");--> statement-breakpoint
-CREATE INDEX "curriculums_class_id_idx" ON "curriculums" USING btree ("class_id");--> statement-breakpoint
 CREATE INDEX "sessions_class_id_idx" ON "sessions" USING btree ("class_id");--> statement-breakpoint
 CREATE INDEX "sessions_date_idx" ON "sessions" USING btree ("date");--> statement-breakpoint
 CREATE INDEX "transactions_user_id_idx" ON "transactions" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "transactions_wallet_id_idx" ON "transactions" USING btree ("wallet_id");--> statement-breakpoint
 CREATE INDEX "transactions_category_id_idx" ON "transactions" USING btree ("category_id");--> statement-breakpoint
 CREATE INDEX "transactions_created_at_idx" ON "transactions" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "users_role_idx" ON "users" USING btree ("role");--> statement-breakpoint
 CREATE UNIQUE INDEX "wallets_user_name_unique" ON "wallets" USING btree ("user_id","name");

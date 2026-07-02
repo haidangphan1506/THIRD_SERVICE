@@ -244,12 +244,13 @@ export const sessions = pgTable(
 // ── Curriculum / Lesson Plan ─────────────────────────────────────────
 export const curriculums = pgTable('curriculums', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
+  userId: uuid('userId')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  gradeId: uuid('grade_id')
-    .references(() => grades.id, { onDelete: 'cascade' }),
-  title: varchar('title', { length: 255 }).notNull(),
+  gradesId: uuid('grade_id').references(() => grades.id, { onDelete: 'cascade' }),
+  subject: varchar('title', { length: 255 }).notNull(),
+  code: varchar('code', { length: 6 }).notNull(),
+  grade: varchar('grade', { length: 2 }).notNull(),
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -263,8 +264,12 @@ export const lessons = pgTable('lessons', {
     .references(() => curriculums.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
-  theoryUrls: jsonb('theory_urls').$type<{ name: string; url: string; key: string }[]>().default([]),
-  exerciseUrls: jsonb('exercise_urls').$type<{ name: string; url: string; key: string }[]>().default([]),
+  theoryUrls: jsonb('theory_urls')
+    .$type<{ name: string; url: string; key: string }[]>()
+    .default([]),
+  exerciseUrls: jsonb('exercise_urls')
+    .$type<{ name: string; url: string; key: string }[]>()
+    .default([]),
   order: integer('order').default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
