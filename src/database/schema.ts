@@ -256,12 +256,27 @@ export const curriculums = pgTable('curriculums', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// ── Chapters ─────────────────────────────────────────────────────────
+export const chapters = pgTable('chapters', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  curriculumId: uuid('curriculum_id')
+    .notNull()
+    .references(() => curriculums.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  order: integer('order').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // ── Lessons ──────────────────────────────────────────────────────────
 export const lessons = pgTable('lessons', {
   id: uuid('id').defaultRandom().primaryKey(),
   curriculumId: uuid('curriculum_id')
     .notNull()
     .references(() => curriculums.id, { onDelete: 'cascade' }),
+  chapterId: uuid('chapter_id')
+    .references(() => chapters.id, { onDelete: 'set null' }),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   theoryUrls: jsonb('theory_urls')

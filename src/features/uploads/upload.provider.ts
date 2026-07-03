@@ -1,4 +1,4 @@
-import { Provider } from '@nestjs/common';
+import { BadGatewayException, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3Client } from '@aws-sdk/client-s3';
 import { S3_CLIENT } from './upload.constant';
@@ -13,7 +13,7 @@ export const S3ClientProvider: Provider = {
     const region = configService.get<string>('CLOUDFLARE_R2_REGION') ?? 'auto';
 
     if (!endpoint || !accessKeyId || !secretAccessKey) {
-      return null;
+      throw new BadGatewayException('endpoint| accessKeyId|secretAccessKey not foubd ...');
     }
 
     return new S3Client({

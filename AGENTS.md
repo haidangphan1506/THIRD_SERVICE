@@ -100,11 +100,12 @@ Migrations land in `drizzle/`. Drizzle config in `drizzle.config.ts` duplicates 
 ## Skills (`.opencode/skills/`)
 
 | Skill | When to use |
-|---|---|
+|---|---|---|
 | `drizzle-orm` | Drizzle queries, schema changes, migrations, seeding |
 | `jwt-auth` | Auth flows, JWT tokens, guards, forgot/reset password |
 | `wallet-transaction` | Wallet & transaction CRUD, balance math, DTO/schema |
 | `presence` | Real-time Socket.io presence module (online/offline tracking via Redis) |
 | `module-consistency` | Ensure controller, service, repository, module stay in sync |
+| `feature-patterns` | Write new feature or modify existing — full layer-by-layer conventions |
 
 **Note**: `drizzle-kit push` requires `--force` in non-interactive shells (CI, scripts) to skip the TTY confirmation prompt.

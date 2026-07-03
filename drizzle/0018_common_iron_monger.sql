@@ -1,1 +1,0 @@
-ALTER TABLE "curriculums" ALTER COLUMN "grade_id" DROP NOT NULL;

@@ -34,13 +34,25 @@ export const lessonFileSchema = z.object({
   key: z.string().min(1, 'File key is required'),
 });
 
+export const createChapterSchema = z.object({
+  title: z
+    .string({ message: 'Title is required' })
+    .min(1, 'Title is required')
+    .max(255, 'Title too long'),
+  description: z.string().optional(),
+  order: z.coerce.number().int().default(0).optional(),
+});
+
+export const updateChapterSchema = createChapterSchema.partial();
+
 export const createLessonSchema = z.object({
   title: z
     .string({ message: 'Title is required' })
     .min(1, 'Title is required')
     .max(255, 'Title too long'),
   description: z.string().optional(),
-  curriculumId: z.string().uuid('Invalid curriculum ID').optional(),
+  curriculumId: z.string().uuid('Invalid curriculum ID'),
+  chapterId: z.string().uuid('Invalid chapter ID').optional().nullable(),
   theoryUrls: z.array(lessonFileSchema).optional(),
   exerciseUrls: z.array(lessonFileSchema).optional(),
   order: z.coerce.number().int().default(0).optional(),

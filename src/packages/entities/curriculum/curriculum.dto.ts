@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import {
   createCurriculumSchema,
+  createChapterSchema,
+  updateChapterSchema,
   createLessonSchema,
   createAssignmentSchema,
   getCurriculumsQuerySchema,
@@ -12,6 +14,9 @@ import {
 export type CreateCurriculumDto = z.infer<typeof createCurriculumSchema>;
 export type UpdateCurriculumDto = Partial<z.infer<typeof createCurriculumSchema>>;
 export type GetCurriculumsQueryDto = z.infer<typeof getCurriculumsQuerySchema>;
+
+export type CreateChapterDto = z.infer<typeof createChapterSchema>;
+export type UpdateChapterDto = z.infer<typeof updateChapterSchema>;
 
 export type CreateLessonDto = z.infer<typeof createLessonSchema>;
 export type UpdateLessonDto = Partial<z.infer<typeof createLessonSchema>>;

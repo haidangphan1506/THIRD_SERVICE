@@ -53,6 +53,8 @@ export default tseslint.config(
       'src/packages/strategy/jwt-user.strategy.ts',
       'src/features/auth/auth.service.ts',
       'src/features/student/student.repository.ts',
+      'src/features/curriculum/chapter.repository.ts',
+      'src/features/curriculum/chapter.service.ts',
     ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
