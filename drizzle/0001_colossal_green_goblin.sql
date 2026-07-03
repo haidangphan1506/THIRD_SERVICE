@@ -1,0 +1,1 @@
+ALTER TABLE "curriculums" ADD COLUMN "courseTime" varchar NOT NULL;

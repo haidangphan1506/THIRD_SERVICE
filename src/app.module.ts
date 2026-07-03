@@ -16,6 +16,8 @@ import { ClassModule } from './features/class/class.module';
 import { StudentModule } from './features/student/student.module';
 import { SessionModule } from './features/session/session.module';
 import { CurriculumModule } from './features/curriculum/curriculum.module';
+import { ChapterModule } from './features/chapter/chapter.module';
+import { LessonModule } from './features/lesson/lesson.module';
 import { TuitionModule } from './features/tuition/tuition.module';
 import { NotificationModule } from './features/notification/notification.module';
 import { ScheduleModule } from './features/schedule/schedule.module';
@@ -44,6 +46,8 @@ import { UploadModule } from './features/uploads/upload.module';
     StudentModule,
     SessionModule,
     CurriculumModule,
+    ChapterModule,
+    LessonModule,
     TuitionModule,
     NotificationModule,
     ScheduleModule,

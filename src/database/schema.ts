@@ -251,6 +251,7 @@ export const curriculums = pgTable('curriculums', {
   subject: varchar('title', { length: 255 }).notNull(),
   code: varchar('code', { length: 6 }).notNull(),
   grade: varchar('grade', { length: 2 }).notNull(),
+  courseTime: varchar('courseTime').notNull(),
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -275,8 +276,7 @@ export const lessons = pgTable('lessons', {
   curriculumId: uuid('curriculum_id')
     .notNull()
     .references(() => curriculums.id, { onDelete: 'cascade' }),
-  chapterId: uuid('chapter_id')
-    .references(() => chapters.id, { onDelete: 'set null' }),
+  chapterId: uuid('chapter_id').references(() => chapters.id, { onDelete: 'set null' }),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   theoryUrls: jsonb('theory_urls')

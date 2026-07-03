@@ -69,25 +69,66 @@ export class CurriculumService {
     });
   }
 
-  async getCurriculumByIdService(id: string) {
+  async getCurriculumByIdService({ userId, id }: { userId: string; id: string }) {
+    if (!userId || !checkUuidValid({ data: userId })) {
+      throw new BadRequestException('userId not uuid ...');
+    }
     if (!id || !checkUuidValid({ data: id })) {
       throw new BadRequestException('Invalid curriculum id ...');
     }
 
-    return await this.curriculumRepository.findById(id);
+    const user = await this.userService.getUserByField({
+      field: 'id',
+      value: userId,
+    });
+    if (!user || (Array.isArray(user) && user.length === 0)) {
+      throw new BadRequestException('User not found ...');
+    }
+
+    return await this.curriculumRepository.findByIdWithDetails(id);
   }
 
-  async updateCurriculumService(id: string, updateData: CreateCurriculumDto) {
+  async updateCurriculumService({
+    userId,
+    id,
+    data,
+  }: {
+    userId: string;
+    id: string;
+    data: CreateCurriculumDto;
+  }) {
+    if (!userId || !checkUuidValid({ data: userId })) {
+      throw new BadRequestException('userId not uuid ...');
+    }
     if (!id || !checkUuidValid({ data: id })) {
       throw new BadRequestException('Invalid curriculum id ...');
     }
 
-    return await this.curriculumRepository.update(id, updateData);
+    const user = await this.userService.getUserByField({
+      field: 'id',
+      value: userId,
+    });
+    if (!user || (Array.isArray(user) && user.length === 0)) {
+      throw new BadRequestException('User not found ...');
+    }
+
+    return await this.curriculumRepository.update(id, data);
   }
 
-  async deleteCurriculumService(id: string) {
+  async deleteCurriculumService({ userId, id }: { userId: string; id: string }) {
+    if (!userId || !checkUuidValid({ data: userId })) {
+      throw new BadRequestException('userId not uuid ...');
+    }
     if (!id || !checkUuidValid({ data: id })) {
       throw new BadRequestException('Invalid curriculum id ...');
+    }
+
+    const user = await this.userService.getUserByField({
+      field: 'id',
+      value: userId,
+    });
+    if (!user || (Array.isArray(user) && user.length === 0)) {
+      throw new BadRequestException('User not found ...');
     }
 
     return await this.curriculumRepository.delete(id);
