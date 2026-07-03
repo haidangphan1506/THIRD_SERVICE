@@ -3,16 +3,16 @@ import { DRIZZLE } from 'src/database/database.module';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { v4 as uuidv4 } from 'uuid';
 import { type CreateCurriculumDto, UpdateCurriculumDto } from '@packages/entities';
-import { curriculums } from 'src/database/schema';
+import { chapters, curriculums, lessons } from 'src/database/schema';
 import { buildListWhereClause } from '@packages/helpers';
-import { count, eq } from 'drizzle-orm';
+import { asc, count, eq } from 'drizzle-orm';
 
 @Injectable()
 export class CurriculumRepository {
   constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
 
   async create({ userId, data }: { userId: string; data: CreateCurriculumDto }) {
-    const { subject, code, grade, description } = data;
+    const { subject, code, grade, description, courseTime } = data;
     const [curriculum] = await this.db
       .insert(curriculums)
       .values({
@@ -22,6 +22,7 @@ export class CurriculumRepository {
         grade: String(grade),
         subject,
         gradesId: null,
+        courseTime,
         description: description ?? null,
       })
       .returning();
@@ -80,6 +81,27 @@ export class CurriculumRepository {
   async findById(id: string) {
     const [curriculum] = await this.db.select().from(curriculums).where(eq(curriculums.id, id));
     return curriculum ?? null;
+  }
+
+  async findByIdWithDetails(id: string) {
+    const [curriculum] = await this.db.select().from(curriculums).where(eq(curriculums.id, id));
+    if (!curriculum) return null;
+
+    const [chapterRows, lessonRows] = await Promise.all([
+      this.db.select().from(chapters).where(eq(chapters.curriculumId, id)).orderBy(asc(chapters.order)),
+      this.db.select().from(lessons).where(eq(lessons.curriculumId, id)).orderBy(asc(lessons.order)),
+    ]);
+
+    const chaptersWithLessons = chapterRows.map((chapter) => ({
+      ...chapter,
+      lessons: lessonRows.filter((l) => l.chapterId === chapter.id),
+    }));
+
+    return {
+      ...curriculum,
+      chapters: chaptersWithLessons,
+      lessons: lessonRows.filter((l) => !l.chapterId),
+    };
   }
 
   async update(id: string, data: UpdateCurriculumDto) {

@@ -16,6 +16,7 @@ export const createCurriculumSchema = z.object({
       message: 'Code curriculum must me 6 character ...',
     }),
   grade: z.union([z.string(), z.number()]).transform((value) => Number(value)),
+  courseTime: z.string({ message: 'Course time must be string ...' }),
   description: z.string().optional(),
   gradesId: z.string().uuid('Invalid grade ID'),
 });
@@ -60,8 +61,17 @@ export const createLessonSchema = z.object({
 
 export const updateLessonSchema = createLessonSchema.partial();
 
+export const createLessonBodySchema = createLessonSchema.omit({ curriculumId: true, chapterId: true });
+
+export const getChaptersQuerySchema = z.object({
+  curriculumId: z.string().uuid('Invalid curriculum ID'),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+
 export const getLessonsQuerySchema = z.object({
   curriculumId: z.string().uuid('Invalid curriculum ID'),
+  chapterId: z.string().uuid('Invalid chapter ID').optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
 });

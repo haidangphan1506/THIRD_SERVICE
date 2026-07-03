@@ -4,8 +4,10 @@ import {
   createChapterSchema,
   updateChapterSchema,
   createLessonSchema,
+  createLessonBodySchema,
   createAssignmentSchema,
   getCurriculumsQuerySchema,
+  getChaptersQuerySchema,
   getLessonsQuerySchema,
   getAssignmentsQuerySchema,
   removeLessonFileSchema,
@@ -17,8 +19,10 @@ export type GetCurriculumsQueryDto = z.infer<typeof getCurriculumsQuerySchema>;
 
 export type CreateChapterDto = z.infer<typeof createChapterSchema>;
 export type UpdateChapterDto = z.infer<typeof updateChapterSchema>;
+export type GetChaptersQueryDto = z.infer<typeof getChaptersQuerySchema>;
 
 export type CreateLessonDto = z.infer<typeof createLessonSchema>;
+export type CreateLessonBodyDto = z.infer<typeof createLessonBodySchema>;
 export type UpdateLessonDto = Partial<z.infer<typeof createLessonSchema>>;
 export type GetLessonsQueryDto = z.infer<typeof getLessonsQuerySchema>;
 

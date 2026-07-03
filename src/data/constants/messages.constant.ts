@@ -7,6 +7,9 @@ export const ERROR_MESSAGES = {
   CATEGORIES_NOT_FOUND: 'One or more categories not found ...',
   TRANSACTION_NOT_FOUND: 'Transaction not found ...',
   CURRICULUM_NOT_FOUND: 'Curriculum not found ...',
+  LESSON_NOT_FOUND: 'Lesson not found ...',
+  CHAPTER_NOT_FOUND: 'Chapter not found ...',
+  ASSIGNMENT_NOT_FOUND: 'Assignment not found ...',
 };
 
 export const SUCCESS_MESSAGES = {

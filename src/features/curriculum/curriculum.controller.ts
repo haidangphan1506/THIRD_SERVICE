@@ -94,9 +94,9 @@ export class CurriculumController {
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Get curriculum by id ...' })
   async getCurriculumByIdController(
     @Param('id') id: string,
-    @CurrentUser() _user: Record<string, string>,
+    @CurrentUser() user: Record<string, string>,
   ) {
-    return await this.curriculumService.getCurriculumByIdService(id);
+    return await this.curriculumService.getCurriculumByIdService({ userId: user.id, id });
   }
 
   @Put(':id')
@@ -122,9 +122,13 @@ export class CurriculumController {
   async updateCurriculumController(
     @Param('id') id: string,
     @Body() updateData: CreateCurriculumDto,
-    @CurrentUser() _user: Record<string, string>,
+    @CurrentUser() user: Record<string, string>,
   ) {
-    return await this.curriculumService.updateCurriculumService(id, updateData);
+    return await this.curriculumService.updateCurriculumService({
+      userId: user?.id,
+      id,
+      data: updateData,
+    });
   }
 
   @Delete(':id')
@@ -138,8 +142,8 @@ export class CurriculumController {
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Delete curriculum ...' })
   async deleteCurriculumController(
     @Param('id') id: string,
-    @CurrentUser() _user: Record<string, string>,
+    @CurrentUser() user: Record<string, string>,
   ) {
-    return await this.curriculumService.deleteCurriculumService(id);
+    return await this.curriculumService.deleteCurriculumService({ userId: user.id, id });
   }
 }
