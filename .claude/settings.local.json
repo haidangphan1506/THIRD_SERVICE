@@ -81,7 +81,29 @@
       "Bash(grep -n \"headroom\" \"C:\\\\Users\\\\HAIDANGPHAN\\\\.claude.json\" 2>/dev/null | head -20)",
       "Bash(mkdir -p \"d:/my-finance-tracker/app/\\(auth\\)/oauth/callback\")",
       "Bash(sleep 6; tail -n 80 /tmp/backend.log)",
-      "Bash(curl -sS -i \"http://localhost:8888/auth/google\")"
+      "Bash(curl -sS -i \"http://localhost:8888/auth/google\")",
+      "Bash(npx vitest *)",
+      "Bash(./node_modules/.bin/tsc --noEmit -p .)",
+      "Bash(git stash *)",
+      "Bash(bunx eslint *)",
+      "Bash(./node_modules/.bin/eslint src/features/auth/auth.service.ts)",
+      "Bash(./node_modules/.bin/eslint src/features/auth/auth.service.ts --format=stylish)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(node ./node_modules/.bin/eslint \"src/features/auth/auth.service.ts\")",
+      "Bash(git -C /home/haidang/Documents/backends diff src/packages/entities/auth/auth.schema.ts)",
+      "Read(//home/haidang/.bun/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(/home/haidang/.bun/bin/bun run *)",
+      "Bash(podman ps *)",
+      "Bash(pg_isready -h localhost -p 5433)",
+      "Bash(bun install *)",
+      "Bash(grep -n 'typeof students\\\\.$inferSelect\\\\|InferSelectModel' /home/haidang/Documents/backends/src/features/student/student.repository.ts)",
+<<<<<<< HEAD
+      "Bash(~/.bun/bin/bun x *)",
+      "Bash(sed -i '39s/^    \\\\.replace/      .replace/' /home/haidang/Documents/backends/src/features/user/user.service.ts)"
+=======
+      "Bash(~/.bun/bin/bun x *)"
+>>>>>>> 80fd0d8890f9274cb0ce8ebb2f81bebe31b65d58
     ]
   }
 }

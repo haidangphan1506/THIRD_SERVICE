@@ -40,7 +40,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message,
       errors,
       path: request.url,
-      trace: exception.stack,
+      ...(status >= 500 && process.env.NODE_ENV !== 'production' && { trace: exception.stack }),
       timestamp: new Date().toISOString(),
     });
   }

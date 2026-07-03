@@ -74,6 +74,15 @@ export const loginSchema = z.object({
   password: passwordFieldSchema,
 });
 
+export const loginByUserCodeSchema = z.object({
+  userCode: z
+    .string({ message: 'User code is required' })
+    .min(1, { message: 'User code is required' })
+    .max(6, { message: 'User code must be at most 6 characters' }),
+  password: passwordFieldSchema,
+  role: z.enum(['PARENT', 'STUDENT']),
+});
+
 export const refreshTokenBodySchema = z.object({
   refreshToken: z
     .string({ message: AUTH_MESSAGES.REFRESH_TOKEN_REQUIRED })

@@ -1,14 +1,19 @@
 import type { z } from 'zod';
-import { createUserSchema, dataFieldSchema, getUsersQuerySchema } from './user.schema';
+import { createUserSchema, dataFieldSchema, getUsersQuerySchema, updateGradeSchema, updateUserGradesSchema } from './user.schema';
 
 // ?params: export type from schemas
 export type GetUsersQueryDto = z.infer<typeof getUsersQuerySchema>;
 export type UserDataFieldDto = z.infer<typeof dataFieldSchema>;
 export type CreateUserDto = z.infer<typeof createUserSchema>;
+export type ChangePasswordValues = {
+  currentPassword: string;
+  newPassword: string;
+};
 
 // ?params: init type not init from schemas
 export type User = {
   id: string;
+  userCode: string | null;
   email: string;
   username: string;
   firstName: string;
@@ -17,7 +22,8 @@ export type User = {
   avatar: string | null;
   phone: string | null;
   isActive: boolean | null;
-  role: "USER" | "ADMIN" | "MODERATOR" | null;
+  role: 'ADMIN' | 'TUTOR' | 'PARENT' | 'STUDENT' | null;
+  gradesId: string[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -33,6 +39,9 @@ export type UserListResponseDto = {
   };
   data: User[];
 };
+
+export type UpdateGradeDto = z.infer<typeof updateGradeSchema>;
+export type UpdateUserGradesDto = z.infer<typeof updateUserGradesSchema>;
 
 export type CreateUserResponseDto = {
   message: string;
