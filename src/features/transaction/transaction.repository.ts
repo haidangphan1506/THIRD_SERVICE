@@ -23,7 +23,9 @@ import { transactions, wallets } from 'src/database/schema';
 import { createDeltas, deleteDeltas, updateDeltas } from './transaction.balance';
 
 type TransactionRow = InferSelectModel<typeof transactions>;
-type DbOrTx = ReturnType<typeof drizzle> | Parameters<Parameters<ReturnType<typeof drizzle>['transaction']>[0]>[0];
+type DbOrTx =
+  | ReturnType<typeof drizzle>
+  | Parameters<Parameters<ReturnType<typeof drizzle>['transaction']>[0]>[0];
 
 @Injectable()
 export class TransactionRepository {

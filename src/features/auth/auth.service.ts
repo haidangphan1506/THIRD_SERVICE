@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import type {
   ForgotPasswordDto,
   ForgotPasswordResponseDto,
+  LoginByUserCodeDto,
   LoginDto,
   LoginResponseDto,
   RefreshTokenBodyDto,
@@ -86,6 +87,7 @@ export class AuthService {
       password,
       firstName,
       lastName,
+      role: 'STUDENT',
     });
 
     return user as RegisterResponseDto;
@@ -107,7 +109,7 @@ export class AuthService {
       throw new BadRequestException('Invalid password ...');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -118,7 +120,37 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
+    };
+  }
+
+  async loginByUserCodeService(dto: LoginByUserCodeDto): Promise<LoginResponseDto> {
+    const rows = (await this.userService.getUserByField({
+      field: 'userCode',
+      value: dto.userCode,
+    })) as User[];
+
+    const user = rows.find((u) => u.role === dto.role);
+    if (!user) {
+      throw new BadRequestException('User not found ...');
+    }
+    const isPasswordOk = await compareData(dto.password, user.password);
+    if (!isPasswordOk) {
+      throw new BadRequestException('Invalid password ...');
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
+    const [accessToken, refreshToken] = await Promise.all([
+      signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
+      signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
+    ]);
+
+    await this.redis.set(`${this.ACCESS_TOKEN_REDIS_PREFIX}:${user.id}`, refreshToken, 604800);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
     };
   }
 
@@ -135,10 +167,11 @@ export class AuthService {
         password: randomUUID(),
         firstName: profile.firstName,
         lastName: profile.lastName,
+        role: 'STUDENT',
       })) as User;
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -149,7 +182,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
     };
   }
 
@@ -253,7 +286,7 @@ export class AuthService {
     }
 
     const user = rows[0];
-    const accessPayload = { sub: user.id, email: user.email, role: user.role ?? 'USER' };
+    const accessPayload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
     const refreshPayload = { sub: user.id, email: user.email };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, accessPayload, this.jwtTokensConfig),
@@ -263,7 +296,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username },
     };
   }
 

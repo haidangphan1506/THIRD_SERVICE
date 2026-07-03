@@ -3,10 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from '@packages/decorators';
+import { DRIZZLE } from 'src/database/database.module';
 import type { Request } from 'express';
-import { Observable } from 'rxjs';
+import { Inject } from '@nestjs/common';
+import { type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { eq } from 'drizzle-orm';
 
 import type { JwtUserRole } from '@packages/helpers';
+import { users } from 'src/database/schema';
 
 /** Access-token payload shape (matches access JWTs from `signAccessToken`). */
 export type JwtGuardUser = {
@@ -52,13 +56,18 @@ function parseAccessPayload(decoded: unknown): JwtGuardUser {
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private readonly db: PostgresJsDatabase<Record<string, never>>;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly reflector: Reflector,
-  ) {}
+    @Inject(DRIZZLE) private readonly drizzleDB: PostgresJsDatabase<Record<string, never>>,
+  ) {
+    this.db = drizzleDB;
+  }
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -90,6 +99,16 @@ export class JwtAuthGuard implements CanActivate {
 
     const payload = parseAccessPayload(decoded);
     request.user = payload;
+
+    const user = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.id, payload.id))
+      .limit(1);
+
+    if (user.length === 0) {
+      throw new UnauthorizedException('Unauthorized ...');
+    }
 
     return true;
   }
