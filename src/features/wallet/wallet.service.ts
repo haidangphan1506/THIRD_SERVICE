@@ -10,9 +10,7 @@ import { UserService } from '../user/user.service';
 import { CategoryService } from '../category/category.service';
 import { GetWalleDtotQueryDto, UpdateWalletDto, type CreateWalletDto } from '@packages/entities';
 import { ERROR_MESSAGES } from 'src/data/constants';
-
-export const UUID_V4_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+import { checkUuidValid } from '@packages/helpers';
 @Injectable()
 export class WalletService {
   private logger = new Logger(WalletService.name);
@@ -65,7 +63,7 @@ export class WalletService {
   }) {
     const { id } = user;
 
-    if (!id || !UUID_V4_REGEX.test(id)) {
+    if (!id || !checkUuidValid({ data: id })) {
       throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
     }
 
@@ -89,7 +87,7 @@ export class WalletService {
   }) {
     const { id } = user;
 
-    if (!id || !UUID_V4_REGEX.test(id)) {
+    if (!id || !checkUuidValid({ data: id })) {
       throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
     }
 
@@ -126,7 +124,7 @@ export class WalletService {
   }) {
     const { id: userId } = user;
 
-    if (!userId || !UUID_V4_REGEX.test(userId)) {
+    if (!userId || !checkUuidValid({ data: userId })) {
       throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
     }
 
@@ -138,7 +136,7 @@ export class WalletService {
       throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
-    if (!id || !UUID_V4_REGEX.test(id)) {
+    if (!id || !checkUuidValid({ data: id })) {
       throw new NotFoundException(ERROR_MESSAGES.WALLET_NOT_EXISTS);
     }
 
@@ -160,7 +158,7 @@ export class WalletService {
   async deleteWalletService({ user, id }: { user: Record<string, string>; id: string }) {
     const { id: userId } = user;
 
-    if (!userId || !UUID_V4_REGEX.test(userId)) {
+    if (!userId || !checkUuidValid({ data: userId })) {
       throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
     }
 
@@ -172,7 +170,7 @@ export class WalletService {
       throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
-    if (!id || !UUID_V4_REGEX.test(id)) {
+    if (!id || !checkUuidValid({ data: id })) {
       throw new NotFoundException(ERROR_MESSAGES.WALLET_NOT_EXISTS);
     }
 

@@ -6,6 +6,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { and, eq, inArray } from 'drizzle-orm';
 import type { CreateClassDto, GetClassesQueryDto, UpdateClassDto } from '@packages/entities/class';
 import { ClassRepository } from './class.repository';
+import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class ClassService {
@@ -87,6 +88,8 @@ export class ClassService {
   }
 
   async findById(id: string, tutorId: string) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const cls = await this.repo.findById(id);
     if (!cls || cls.tutorId !== tutorId) {
       throw new NotFoundException('Class not found');
@@ -108,6 +111,8 @@ export class ClassService {
   }
 
   async update(id: string, dto: UpdateClassDto, tutorId: string) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const cls = await this.repo.findById(id);
     if (!cls || cls.tutorId !== tutorId) {
       throw new NotFoundException('Class not found');
@@ -120,6 +125,8 @@ export class ClassService {
   }
 
   async delete(id: string, tutorId: string) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const cls = await this.repo.findById(id);
     if (!cls || cls.tutorId !== tutorId) {
       throw new NotFoundException('Class not found');
@@ -129,19 +136,29 @@ export class ClassService {
   }
 
   async addStudent(classId: string, studentId: string, tutorId: string) {
+    if (!classId || !checkUuidValid({ data: classId })) throw new BadRequestException('classId must be uuid ...');
+    if (!studentId || !checkUuidValid({ data: studentId })) throw new BadRequestException('studentId must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const cls = await this.repo.findById(classId);
     if (!cls || cls.tutorId !== tutorId) {
       throw new NotFoundException('Class not found');
     }
+    const [student] = await this.db.select({ id: users.id }).from(users).where(eq(users.id, studentId));
+    if (!student) throw new NotFoundException('Student not found');
     await this.db.insert(classStudents).values({ classId, studentId }).onConflictDoNothing();
     return { classId, studentId };
   }
 
   async removeStudent(classId: string, studentId: string, tutorId: string) {
+    if (!classId || !checkUuidValid({ data: classId })) throw new BadRequestException('classId must be uuid ...');
+    if (!studentId || !checkUuidValid({ data: studentId })) throw new BadRequestException('studentId must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const cls = await this.repo.findById(classId);
     if (!cls || cls.tutorId !== tutorId) {
       throw new NotFoundException('Class not found');
     }
+    const [student] = await this.db.select({ id: users.id }).from(users).where(eq(users.id, studentId));
+    if (!student) throw new NotFoundException('Student not found');
     await this.db
       .delete(classStudents)
       .where(and(eq(classStudents.classId, classId), eq(classStudents.studentId, studentId)));
@@ -149,6 +166,8 @@ export class ClassService {
   }
 
   async getStudents(classId: string, tutorId: string) {
+    if (!classId || !checkUuidValid({ data: classId })) throw new BadRequestException('classId must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const cls = await this.repo.findById(classId);
     if (!cls || cls.tutorId !== tutorId) {
       throw new NotFoundException('Class not found');

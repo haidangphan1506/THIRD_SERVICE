@@ -35,11 +35,11 @@ export class NotificationService {
       throw new BadRequestException('User not found ...');
     }
 
-    if (dto.classId && checkUuidValid({ data: dto.classId })) {
+    if (dto.classId && !checkUuidValid({ data: dto.classId })) {
       throw new BadRequestException('classId not valid ...');
     }
 
-    if (dto.studentId && checkUuidValid({ data: dto.studentId })) {
+    if (dto.studentId && !checkUuidValid({ data: dto.studentId })) {
       throw new BadRequestException('studentId not valid ...');
     }
     return this.repo.create(dto);

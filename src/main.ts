@@ -25,18 +25,27 @@ async function bootstrap() {
       },
       'access-token',
     )
+    // ── Tutor Management ─────────────────────────────
+    .addTag('Users')
     .addTag('Auth')
-    .addTag('Classes')
     .addTag('Students')
-    .addTag('Sessions')
     .addTag('Curriculum')
+    .addTag('Chapter')
+    .addTag('Lesson')
+    .addTag('Classes')
+    .addTag('Schedules')
+    .addTag('Sessions')
+    .addTag('Exercises')
     .addTag('Tuitions')
     .addTag('Notifications')
+    // ── Finance Management ────────────────────────────
     .addTag('Categories')
     .addTag('Wallets')
     .addTag('Transactions')
     .addTag('Reports')
-    .addTag('Users')
+    // ── System ────────────────────────────────────────
+    .addTag('Upload')
+    .addTag('Cloudinary')
     .addTag('Health')
     .addTag('Redis')
     .build();

@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ChapterRepository } from './chapter.repository';
 import { DRIZZLE } from 'src/database/database.module';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -48,6 +48,8 @@ export class ChapterService {
     if (!id || !checkUuidValid({ data: id })) {
       throw new BadRequestException('Invalid chapter id');
     }
+    const existing = await this.chapterRepository.findById(id);
+    if (!existing) throw new NotFoundException('Chapter not found');
     return await this.chapterRepository.update(id, data);
   }
 
@@ -55,6 +57,8 @@ export class ChapterService {
     if (!id || !checkUuidValid({ data: id })) {
       throw new BadRequestException('Invalid chapter id');
     }
+    const existing = await this.chapterRepository.findById(id);
+    if (!existing) throw new NotFoundException('Chapter not found');
     return await this.chapterRepository.delete(id);
   }
 }

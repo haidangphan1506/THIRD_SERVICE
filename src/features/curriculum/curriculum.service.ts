@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CurriculumRepository } from './curriculum.repository';
 import { UserService } from '../user/user.service';
 import { drizzle } from 'drizzle-orm/singlestore';
@@ -128,6 +128,9 @@ export class CurriculumService {
       throw new BadRequestException('User not found ...');
     }
 
+    const existing = await this.curriculumRepository.findById(id);
+    if (!existing) throw new NotFoundException('Curriculum not found');
+
     return await this.curriculumRepository.update(id, data);
   }
 
@@ -146,6 +149,9 @@ export class CurriculumService {
     if (!user || (Array.isArray(user) && user.length === 0)) {
       throw new BadRequestException('User not found ...');
     }
+
+    const existing = await this.curriculumRepository.findById(id);
+    if (!existing) throw new NotFoundException('Curriculum not found');
 
     return await this.curriculumRepository.delete(id);
   }

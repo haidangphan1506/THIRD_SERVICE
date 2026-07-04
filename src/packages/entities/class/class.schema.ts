@@ -17,10 +17,29 @@ export const createClassSchema = z.object({
   description: z.string().optional(),
   status: classStatusEnum.default('OPEN').optional(),
   format: sessionFormatEnum.default('ONLINE').optional(),
+  startTime: z.coerce.date({ message: 'Start time must be a valid date' }),
+  endTime: z.coerce.date({ message: 'End time must be a valid date' }),
   location: z.string().optional(),
   curriculumId: z.string().uuid('Invalid curriculum ID').optional().nullable(),
   tutorId: z.string({ message: 'Tutor ID is required' }).uuid('Invalid tutor ID'),
   studentIds: z.array(z.string().uuid('Invalid student ID')).optional(),
+  schedules: z
+    .array(
+      z.object({
+        dayOfWeek: z.enum([
+          'MONDAY',
+          'TUESDAY',
+          'WEDNESDAY',
+          'THURSDAY',
+          'FRIDAY',
+          'SATURDAY',
+          'SUNDAY',
+        ]),
+        startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
+        endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
+      }),
+    )
+    .optional(),
 });
 
 export const updateClassSchema = createClassSchema.partial().omit({ tutorId: true });

@@ -14,6 +14,8 @@ export type ClassDetailDto = {
   description: string | null;
   status: 'OPEN' | 'CLOSED' | 'UPCOMING';
   format: 'ONLINE' | 'OFFLINE';
+  startTime: string;
+  endTime: string;
   location: string | null;
   curriculumId: string | null;
   tutorId: string;

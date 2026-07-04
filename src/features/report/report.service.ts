@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ReportRepository } from './report.repository';
-import { UUID_V4_REGEX } from '../wallet/wallet.service';
+import { checkUuidValid } from '@packages/helpers';
 import {
   type ReportByCategoryDto,
   type ReportRangeDto,
@@ -12,7 +12,7 @@ export class ReportService {
   constructor(private readonly report: ReportRepository) {}
 
   private assertUserId(userId: string): void {
-    if (!userId || !UUID_V4_REGEX.test(userId)) {
+    if (!userId || !checkUuidValid({ data: userId })) {
       throw new BadRequestException('User ID must be a valid UUID');
     }
   }

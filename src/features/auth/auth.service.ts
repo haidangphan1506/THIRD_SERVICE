@@ -26,7 +26,7 @@ import { getJwtTokensConfig } from '@packages/configs/jwt-sign.config';
 import type { User } from '@packages/entities/user';
 import { randomUUID } from 'node:crypto';
 import { RedisService } from 'src/features/redis/redis.service';
-import { UUID_V4_REGEX } from '../wallet/wallet.service';
+import { checkUuidValid } from '@packages/helpers';
 import { CurrentUser } from '@packages/decorators';
 import type { GoogleProfile } from '@packages/strategy';
 
@@ -301,7 +301,7 @@ export class AuthService {
   }
 
   async logoutService(@CurrentUser() user: Record<string, string>) {
-    if (!user.id || !UUID_V4_REGEX.test(user.id)) {
+    if (!user.id || !checkUuidValid({ data: user.id })) {
       throw new BadRequestException('Invalid user ID ...');
     }
     const blackListToken = await this.redis.get(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`);
