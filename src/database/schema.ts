@@ -178,6 +178,9 @@ export const classes = pgTable('classes', {
   tuition: numeric('tuition', { precision: 14, scale: 2 }).default('0'),
   description: text('description'),
   status: classStatusEnum('status').default('OPEN'),
+  format: sessionFormatEnum('format').notNull().default('ONLINE'),
+  location: text('location'),
+  curriculumId: uuid('curriculum_id').references(() => curriculums.id, { onDelete: 'set null' }),
   tutorId: uuid('tutor_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),

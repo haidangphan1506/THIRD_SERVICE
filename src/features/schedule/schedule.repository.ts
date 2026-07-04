@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { schedules } from '../../database/schema';
+import { classes, schedules } from '../../database/schema';
 import type { CreateScheduleDto } from '@packages/entities/schedule';
 
 @Injectable()
@@ -22,8 +22,32 @@ export class ScheduleRepository {
     return this.db.insert(schedules).values(data).returning();
   }
 
+  private classBasicInfo() {
+    return {
+      id: classes.id,
+      name: classes.name,
+      code: classes.code,
+      subject: classes.subject,
+      status: classes.status,
+    };
+  }
+
   async findByClass(classId: string) {
-    return this.db.select().from(schedules).where(eq(schedules.classId, classId));
+    const rows = await this.db
+      .select({ schedule: schedules, class: this.classBasicInfo() })
+      .from(schedules)
+      .innerJoin(classes, eq(schedules.classId, classes.id))
+      .where(eq(schedules.classId, classId));
+    return rows.map((row) => ({ ...row.schedule, class: row.class }));
+  }
+
+  async findByTutor(tutorId: string) {
+    const rows = await this.db
+      .select({ schedule: schedules, class: this.classBasicInfo() })
+      .from(schedules)
+      .innerJoin(classes, eq(schedules.classId, classes.id))
+      .where(eq(classes.tutorId, tutorId));
+    return rows.map((row) => ({ ...row.schedule, class: row.class }));
   }
 
   async findById(id: string) {

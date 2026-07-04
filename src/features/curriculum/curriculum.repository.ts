@@ -11,6 +11,14 @@ import { asc, count, eq } from 'drizzle-orm';
 export class CurriculumRepository {
   constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
 
+  async findByCode(code: string) {
+    const [curriculum] = await this.db
+      .select()
+      .from(curriculums)
+      .where(eq(curriculums.code, code));
+    return curriculum ?? null;
+  }
+
   async create({ userId, data }: { userId: string; data: CreateCurriculumDto }) {
     const { subject, code, grade, description, courseTime } = data;
     const [curriculum] = await this.db
@@ -88,8 +96,16 @@ export class CurriculumRepository {
     if (!curriculum) return null;
 
     const [chapterRows, lessonRows] = await Promise.all([
-      this.db.select().from(chapters).where(eq(chapters.curriculumId, id)).orderBy(asc(chapters.order)),
-      this.db.select().from(lessons).where(eq(lessons.curriculumId, id)).orderBy(asc(lessons.order)),
+      this.db
+        .select()
+        .from(chapters)
+        .where(eq(chapters.curriculumId, id))
+        .orderBy(asc(chapters.order)),
+      this.db
+        .select()
+        .from(lessons)
+        .where(eq(lessons.curriculumId, id))
+        .orderBy(asc(lessons.order)),
     ]);
 
     const chaptersWithLessons = chapterRows.map((chapter) => ({

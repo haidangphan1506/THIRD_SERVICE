@@ -36,6 +36,13 @@ export class ScheduleService {
     return this.repo.findByClass(classId);
   }
 
+  async findAll(tutorId: string, classId?: string) {
+    if (classId) {
+      return this.findByClass(classId, tutorId);
+    }
+    return this.repo.findByTutor(tutorId);
+  }
+
   async update(id: string, dto: UpdateScheduleDto, tutorId: string) {
     const sched = await this.repo.findById(id);
     if (!sched) throw new NotFoundException('Schedule not found');

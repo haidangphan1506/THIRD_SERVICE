@@ -7,12 +7,14 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiBody,
   ApiParam,
+  ApiQuery,
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
@@ -104,6 +106,21 @@ export class ScheduleController {
       schedules.map((s) => ({ ...s, classId })),
       user.id,
     );
+  }
+
+  @Get()
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Get schedules',
+    description: 'Get all schedules of the current user, or filter by classId',
+  })
+  @ApiQuery({ name: 'classId', type: String, format: 'uuid', required: false })
+  @SwaggerResponse({ status: 200, description: 'Schedules fetched' })
+  async findAll(
+    @Query('classId') classId: string | undefined,
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return this.scheduleService.findAll(user.id, classId);
   }
 
   @Get(':classId')

@@ -60,8 +60,30 @@ export class LessonController {
         title: { type: 'string', example: 'Lesson 1' },
         description: { type: 'string', example: '' },
         order: { type: 'number', example: 1 },
-        theoryUrls: { type: 'array', items: { type: 'object' } },
-        exerciseUrls: { type: 'array', items: { type: 'object' } },
+        theoryUrls: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['name', 'url', 'key'],
+            properties: {
+              name: { type: 'string', example: 'theory.pdf' },
+              url: { type: 'string', example: 'https://cdn.example.com/theory.pdf' },
+              key: { type: 'string', example: 'lessons/theory.pdf' },
+            },
+          },
+        },
+        exerciseUrls: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['name', 'url', 'key'],
+            properties: {
+              name: { type: 'string', example: 'exercise.pdf' },
+              url: { type: 'string', example: 'https://cdn.example.com/exercise.pdf' },
+              key: { type: 'string', example: 'lessons/exercise.pdf' },
+            },
+          },
+        },
       },
     },
   })

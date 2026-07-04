@@ -13,6 +13,9 @@ export type ClassDetailDto = {
   tuition: string;
   description: string | null;
   status: 'OPEN' | 'CLOSED' | 'UPCOMING';
+  format: 'ONLINE' | 'OFFLINE';
+  location: string | null;
+  curriculumId: string | null;
   tutorId: string;
   studentCount: number;
   sessionCount: number;

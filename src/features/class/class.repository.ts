@@ -22,6 +22,9 @@ export class ClassRepository {
         tuition: data.tuition != null ? String(data.tuition) : '0',
         description: data.description ?? null,
         status: data.status ?? 'OPEN',
+        format: data.format ?? 'ONLINE',
+        location: data.location ?? null,
+        curriculumId: data.curriculumId ?? null,
         tutorId: data.tutorId,
       })
       .returning();
@@ -92,6 +95,9 @@ export class ClassRepository {
       tuition: r.tuition != null ? String(r.tuition) : '0',
       description: r.description,
       status: r.status,
+      format: r.format,
+      location: r.location,
+      curriculumId: r.curriculumId,
       tutorId: r.tutorId,
       studentCount: studentCountMap.get(r.id) ?? 0,
       sessionCount: sessionCountMap.get(r.id) ?? 0,

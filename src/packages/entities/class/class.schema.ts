@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const classStatusEnum = z.enum(['OPEN', 'CLOSED', 'UPCOMING']);
+export const sessionFormatEnum = z.enum(['ONLINE', 'OFFLINE']);
 
 export const createClassSchema = z.object({
   name: z
@@ -15,6 +16,9 @@ export const createClassSchema = z.object({
   tuition: z.coerce.number().min(0).default(0).optional(),
   description: z.string().optional(),
   status: classStatusEnum.default('OPEN').optional(),
+  format: sessionFormatEnum.default('ONLINE').optional(),
+  location: z.string().optional(),
+  curriculumId: z.string().uuid('Invalid curriculum ID').optional().nullable(),
   tutorId: z.string({ message: 'Tutor ID is required' }).uuid('Invalid tutor ID'),
   studentIds: z.array(z.string().uuid('Invalid student ID')).optional(),
 });
