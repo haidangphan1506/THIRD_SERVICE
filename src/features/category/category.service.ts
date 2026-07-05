@@ -5,6 +5,7 @@ import {
   type CreateCategoryDto,
 } from '@packages/entities/category';
 import { CategoryRepository } from './category.repository';
+import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class CategoryService {
@@ -48,6 +49,7 @@ export class CategoryService {
     id: string;
     updateCategoryDto: UpdateCategoryDto;
   }) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
     this.logger.log('Updating category...');
 
     const existing = await this.category.getCategory({ field: 'id', value: id });
@@ -61,6 +63,7 @@ export class CategoryService {
   }
 
   async deleteCategoryService({ id }: { id: string }) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
     this.logger.log('Deleting category...');
     const existing = await this.category.getCategory({ field: 'id', value: id });
     const found = Array.isArray(existing) ? existing[0] : existing;

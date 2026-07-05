@@ -37,10 +37,10 @@ import { ZodValidationPipe } from '@packages/pipes';
 export class ChapterController {
   constructor(private readonly chapterService: ChapterService) {}
 
-  @Post('')
+  @Post(':curriculumId')
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({ summary: 'Create chapter', description: 'Create a new chapter for a curriculum' })
-  @ApiQuery({ name: 'curriculumId', description: 'Curriculum ID', type: 'string' })
+  @ApiParam({ name: 'curriculumId', description: 'Curriculum ID', type: 'string' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -55,7 +55,7 @@ export class ChapterController {
   @SwaggerResponse({ status: StatusCodes.CREATED, description: 'Chapter created' })
   @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Create chapter successfully' })
   async createChapterController(
-    @Query('curriculumId') curriculumId: string,
+    @Param('curriculumId') curriculumId: string,
     @Body(new ZodValidationPipe<CreateChapterDto>(createChapterSchema)) data: CreateChapterDto,
   ) {
     return await this.chapterService.createChapterService({ curriculumId, data });
@@ -64,6 +64,9 @@ export class ChapterController {
   @Get('')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Get all chapters', description: 'Get all chapters for a curriculum' })
+  @ApiQuery({ name: 'curriculumId', description: 'Curriculum ID', type: 'string', required: true })
+  @ApiQuery({ name: 'page', description: 'Page number', type: 'number', required: false })
+  @ApiQuery({ name: 'limit', description: 'Items per page', type: 'number', required: false })
   @SwaggerResponse({ status: StatusCodes.OK, description: 'Get all chapters' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Get all chapters successfully' })
   async getAllChaptersController(

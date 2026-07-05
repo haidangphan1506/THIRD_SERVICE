@@ -129,6 +129,13 @@ export const transactions = pgTable(
 export const classStatusEnum = pgEnum('class_status', ['OPEN', 'CLOSED', 'UPCOMING']);
 export const sessionFormatEnum = pgEnum('session_format', ['ONLINE', 'OFFLINE']);
 export const sessionStatusEnum = pgEnum('session_status', ['UPCOMING', 'COMPLETED', 'CANCELLED']);
+export const classSessionStatusEnum = pgEnum('class_session_status', [
+  'SCHEDULED',
+  'ONGOING',
+  'COMPLETED',
+  'CANCELLED',
+  'POSTPONED',
+]);
 export const dayOfWeekEnum = pgEnum('day_of_week', [
   'MONDAY',
   'TUESDAY',
@@ -178,6 +185,11 @@ export const classes = pgTable('classes', {
   tuition: numeric('tuition', { precision: 14, scale: 2 }).default('0'),
   description: text('description'),
   status: classStatusEnum('status').default('OPEN'),
+  format: sessionFormatEnum('format').notNull().default('ONLINE'),
+  startTime: timestamp('start_time').defaultNow().notNull(),
+  endTime: timestamp('end_time').defaultNow().notNull(),
+  location: text('location'),
+  curriculumId: uuid('curriculum_id').references(() => curriculums.id, { onDelete: 'set null' }),
   tutorId: uuid('tutor_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
@@ -216,31 +228,56 @@ export const schedules = pgTable('schedules', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// ── Individual Sessions ──────────────────────────────────────────────
-export const sessions = pgTable(
-  'sessions',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    classId: uuid('class_id')
-      .notNull()
-      .references(() => classes.id, { onDelete: 'cascade' }),
-    title: varchar('title', { length: 255 }),
-    date: timestamp('date').notNull(),
-    startTime: varchar('start_time', { length: 5 }).notNull(),
-    endTime: varchar('end_time', { length: 5 }).notNull(),
-    format: sessionFormatEnum('format').notNull().default('ONLINE'),
-    location: text('location'),
-    status: sessionStatusEnum('status').default('UPCOMING'),
-    note: text('note'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => [
-    index('sessions_class_id_idx').on(table.classId),
-    index('sessions_date_idx').on(table.date),
-  ],
-);
-
+export const sessions = pgTable('class_sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  classId: uuid('class_id')
+    .notNull()
+    .references(() => classes.id, { onDelete: 'cascade' }),
+  lessonId: uuid('lesson_id').references(() => lessons.id, { onDelete: 'set null' }),
+  tutorId: uuid('tutor_id').references(() => users.id, { onDelete: 'set null' }),
+  title: varchar('title', { length: 255 }),
+  description: text('description'),
+  sessionNumber: integer('session_number').notNull(),
+  lessionId: uuid('lession_id').references(() => lessons.id, { onDelete: 'set null' }),
+  theoryUrls: jsonb('theory_urls')
+    .$type<{ name: string; url: string; key: string }[]>()
+    .default([]),
+  exerciseUrls: jsonb('exercise_urls')
+    .$type<{ name: string; url: string; key: string }[]>()
+    .default([]),
+  startAt: timestamp('start_at', {
+    withTimezone: true,
+    mode: 'date',
+  }).notNull(),
+  endAt: timestamp('end_at', {
+    withTimezone: true,
+    mode: 'date',
+  }).notNull(),
+  location: text('location'),
+  status: classSessionStatusEnum('status').default('SCHEDULED').notNull(),
+  note: text('note'),
+  actualStartAt: timestamp('actual_start_at', {
+    withTimezone: true,
+    mode: 'date',
+  }),
+  actualEndAt: timestamp('actual_end_at', {
+    withTimezone: true,
+    mode: 'date',
+  }),
+  createdAt: timestamp('created_at', {
+    withTimezone: true,
+    mode: 'date',
+  })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', {
+    withTimezone: true,
+    mode: 'date',
+  })
+    .$onUpdate(() => new Date())
+    .defaultNow()
+    .notNull(),
+});
 // ── Curriculum / Lesson Plan ─────────────────────────────────────────
 export const curriculums = pgTable('curriculums', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -382,6 +419,27 @@ export const studentScores = pgTable('student_scores', {
     .references(() => classes.id, { onDelete: 'cascade' }),
   score: numeric('score', { precision: 5, scale: 2 }),
   comment: text('comment'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// ── Exercises ─────────────────────────────────────────────
+export const exercise = pgTable('exercises', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lessonId: uuid('lesson_id').references(() => lessons.id, { onDelete: 'set null' }),
+  sessionId: uuid('session_id').references(() => sessions.id, { onDelete: 'set null' }),
+  tutorId: uuid('tutor_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  studentId: uuid('student_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  issueUrls: jsonb('issue_urls')
+    .$type<{ name: string; url: string; key: string }[]>()
+    .default([]),
+  exerciseUrls: jsonb('exercise_urls')
+    .$type<{ name: string; url: string; key: string }[]>()
+    .default([]),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

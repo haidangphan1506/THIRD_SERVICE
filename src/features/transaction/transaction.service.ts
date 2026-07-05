@@ -9,9 +9,7 @@ import {
   type UpdateTransactionDto,
 } from '@packages/entities/transactions';
 import { ERROR_MESSAGES } from 'src/data/constants';
-
-export const UUID_V4_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class TransactionService {
@@ -23,7 +21,7 @@ export class TransactionService {
   ) {}
 
   private async assertUserExists(userId: string) {
-    if (!userId || !UUID_V4_REGEX.test(userId)) {
+    if (!userId || !checkUuidValid({ data: userId })) {
       throw new NotFoundException(ERROR_MESSAGES.USER_ID_NOT_FOUND);
     }
     const userData = await this.userService.getUserByField({ field: 'id', value: userId });

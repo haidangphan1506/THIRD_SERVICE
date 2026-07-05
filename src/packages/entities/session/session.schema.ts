@@ -10,7 +10,13 @@ export const dayOfWeekEnum = z.enum([
   'SUNDAY',
 ]);
 export const sessionFormatEnum = z.enum(['ONLINE', 'OFFLINE']);
-export const sessionStatusEnum = z.enum(['UPCOMING', 'COMPLETED', 'CANCELLED']);
+export const sessionStatusEnum = z.enum([
+  'SCHEDULED',
+  'ONGOING',
+  'COMPLETED',
+  'CANCELLED',
+  'POSTPONED',
+]);
 
 export const createScheduleSchema = z.object({
   classId: z.string().uuid('Invalid class ID'),
@@ -23,16 +29,28 @@ export const createScheduleSchema = z.object({
 
 export const updateScheduleSchema = createScheduleSchema.partial().omit({ classId: true });
 
+const fileUrlSchema = z.object({
+  name: z.string(),
+  url: z.string(),
+  key: z.string(),
+});
+
 export const createSessionSchema = z.object({
   classId: z.string().uuid('Invalid class ID'),
+  lessonId: z.string().uuid('Invalid lesson ID').optional().nullable(),
+  tutorId: z.string().uuid('Invalid tutor ID').optional().nullable(),
   title: z.string().max(255).optional(),
-  date: z.coerce.date({ message: 'Date is required' }),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
-  format: sessionFormatEnum.default('ONLINE'),
+  description: z.string().optional(),
+  sessionNumber: z.coerce.number().int().min(1, 'Session number must be at least 1'),
+  theoryUrls: z.array(fileUrlSchema).optional().default([]),
+  exerciseUrls: z.array(fileUrlSchema).optional().default([]),
+  startAt: z.coerce.date({ message: 'Start time is required' }),
+  endAt: z.coerce.date({ message: 'End time is required' }),
   location: z.string().optional(),
-  status: sessionStatusEnum.default('UPCOMING').optional(),
+  status: sessionStatusEnum.default('SCHEDULED').optional(),
   note: z.string().optional(),
+  actualStartAt: z.coerce.date().optional().nullable(),
+  actualEndAt: z.coerce.date().optional().nullable(),
 });
 
 export const updateSessionSchema = createSessionSchema.partial().omit({ classId: true });
@@ -44,17 +62,4 @@ export const getSessionsQuerySchema = z.object({
   status: sessionStatusEnum.optional(),
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
-});
-
-// Schema for generating multiple sessions at once
-export const generateSessionsSchema = z.object({
-  classId: z.string().uuid('Invalid class ID'),
-  dayOfWeek: dayOfWeekEnum,
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
-  format: sessionFormatEnum.default('ONLINE'),
-  location: z.string().optional(),
-  range: z.enum(['this_week', '4_weeks', '3_months', 'custom']),
-  startDate: z.coerce.date().optional(),
-  endDate: z.coerce.date().optional(),
 });

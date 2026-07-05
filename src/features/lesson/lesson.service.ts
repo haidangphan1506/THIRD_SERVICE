@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { LessonRepository } from './lesson.repository';
 import { DRIZZLE } from 'src/database/database.module';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -61,6 +61,8 @@ export class LessonService {
     if (!id || !checkUuidValid({ data: id })) {
       throw new BadRequestException('Invalid lesson id');
     }
+    const existing = await this.lessonRepository.findById(id);
+    if (!existing) throw new NotFoundException('Lesson not found');
     return await this.lessonRepository.update(id, data);
   }
 
@@ -68,6 +70,8 @@ export class LessonService {
     if (!id || !checkUuidValid({ data: id })) {
       throw new BadRequestException('Invalid lesson id');
     }
+    const existing = await this.lessonRepository.findById(id);
+    if (!existing) throw new NotFoundException('Lesson not found');
     return await this.lessonRepository.delete(id);
   }
 

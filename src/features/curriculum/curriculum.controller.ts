@@ -36,6 +36,17 @@ export class CurriculumController {
   private readonly logger = new Logger(CurriculumController.name);
   constructor(private readonly curriculumService: CurriculumService) {}
 
+  @Get('generate-code')
+  @HttpCode(StatusCodes.CREATED)
+  @ApiOperation({
+    summary: 'Create curriculum code ...',
+    description: 'Create new curriculum code...',
+  })
+  @SwaggerResponse({ status: StatusCodes.CREATED, description: 'Create curriculum code ...' })
+  @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Create curriculum code ...' })
+  async getNewCurrriculumCodeController() {
+    return await this.curriculumService.generateNewCodeService();
+  }
   @Post('')
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({

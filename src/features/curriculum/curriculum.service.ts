@@ -1,10 +1,10 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CurriculumRepository } from './curriculum.repository';
 import { UserService } from '../user/user.service';
 import { drizzle } from 'drizzle-orm/singlestore';
 import { DRIZZLE } from 'src/database/database.module';
 import { type GetCurriculumsQueryDto, type CreateCurriculumDto } from '@packages/entities';
-import { checkUuidValid } from '@packages/helpers';
+import { checkUuidValid, generateCode } from '@packages/helpers';
 
 @Injectable()
 export class CurriculumService {
@@ -15,6 +15,22 @@ export class CurriculumService {
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
+
+  async generateNewCodeService(): Promise<string | null> {
+    const MAX_RETRIES = 5;
+    let attempts = 0;
+    let newCode = generateCode();
+
+    while (await this.curriculumRepository.findByCode(newCode)) {
+      attempts++;
+      if (attempts >= MAX_RETRIES) {
+        throw new ConflictException('Unable to generate unique code, please try again');
+      }
+      newCode = generateCode();
+    }
+
+    return newCode;
+  }
 
   async createCurriculumService({
     userId,
@@ -112,6 +128,9 @@ export class CurriculumService {
       throw new BadRequestException('User not found ...');
     }
 
+    const existing = await this.curriculumRepository.findById(id);
+    if (!existing) throw new NotFoundException('Curriculum not found');
+
     return await this.curriculumRepository.update(id, data);
   }
 
@@ -130,6 +149,9 @@ export class CurriculumService {
     if (!user || (Array.isArray(user) && user.length === 0)) {
       throw new BadRequestException('User not found ...');
     }
+
+    const existing = await this.curriculumRepository.findById(id);
+    if (!existing) throw new NotFoundException('Curriculum not found');
 
     return await this.curriculumRepository.delete(id);
   }

@@ -30,6 +30,7 @@
     "db:seed:categories": "bun scripts/seed-categories.ts",
     "db:seed:grades": "bun scripts/seed-grades.ts",
     "db:seed:wallet": "bun scripts/seed-wallet.ts",
+    "db:seed:edu-flow": "bun scripts/seed-edu-flow.ts",
     "compose:up": "docker compose up -d",
     "compose:down": "docker compose down",
     "podman:up": "podman compose up -d",

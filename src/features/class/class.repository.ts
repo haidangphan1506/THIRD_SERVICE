@@ -22,6 +22,11 @@ export class ClassRepository {
         tuition: data.tuition != null ? String(data.tuition) : '0',
         description: data.description ?? null,
         status: data.status ?? 'OPEN',
+        format: data.format ?? 'ONLINE',
+        startTime: data.startTime,
+        endTime: data.endTime,
+        location: data.location ?? null,
+        curriculumId: data.curriculumId ?? null,
         tutorId: data.tutorId,
       })
       .returning();
@@ -92,6 +97,11 @@ export class ClassRepository {
       tuition: r.tuition != null ? String(r.tuition) : '0',
       description: r.description,
       status: r.status,
+      format: r.format,
+      startTime: r.startTime instanceof Date ? r.startTime.toISOString() : String(r.startTime),
+      endTime: r.endTime instanceof Date ? r.endTime.toISOString() : String(r.endTime),
+      location: r.location,
+      curriculumId: r.curriculumId,
       tutorId: r.tutorId,
       studentCount: studentCountMap.get(r.id) ?? 0,
       sessionCount: sessionCountMap.get(r.id) ?? 0,
@@ -145,7 +155,7 @@ export class ClassRepository {
     const [upcomingRow] = await this.db
       .select({ n: count() })
       .from(sessions)
-      .where(and(eq(sessions.classId, classId), eq(sessions.status, 'UPCOMING')));
+      .where(and(eq(sessions.classId, classId), eq(sessions.status, 'SCHEDULED')));
     return {
       total: Number(totalRow?.n ?? 0),
       upcoming: Number(upcomingRow?.n ?? 0),

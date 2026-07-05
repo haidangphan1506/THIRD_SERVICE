@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -10,6 +10,7 @@ import type {
   UpdateTuitionDto,
 } from '@packages/entities/tuition';
 import { TuitionRepository } from './tuition.repository';
+import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class TuitionService {
@@ -21,6 +22,8 @@ export class TuitionService {
   ) {}
 
   async create(dto: CreateTuitionDto, tutorId: string) {
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
+    if (!dto.classId || !checkUuidValid({ data: dto.classId })) throw new BadRequestException('classId must be uuid ...');
     const [cls] = await this.db.select().from(classes).where(eq(classes.id, dto.classId));
     if (!cls || cls.tutorId !== tutorId) {
       throw new NotFoundException('Class not found');
@@ -33,6 +36,7 @@ export class TuitionService {
   }
 
   async findById(id: string) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
     const tuition = await this.repo.findById(id);
     if (!tuition) throw new NotFoundException('Tuition record not found');
     return {
@@ -42,6 +46,8 @@ export class TuitionService {
   }
 
   async update(id: string, dto: UpdateTuitionDto, tutorId: string) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const tuition = await this.repo.findById(id);
     if (!tuition) throw new NotFoundException('Tuition record not found');
     const [cls] = await this.db.select().from(classes).where(eq(classes.id, tuition.classId));
@@ -52,6 +58,8 @@ export class TuitionService {
   }
 
   async delete(id: string, tutorId: string) {
+    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
+    if (!tutorId || !checkUuidValid({ data: tutorId })) throw new BadRequestException('tutorId must be uuid ...');
     const tuition = await this.repo.findById(id);
     if (!tuition) throw new NotFoundException('Tuition record not found');
     const [cls] = await this.db.select().from(classes).where(eq(classes.id, tuition.classId));
@@ -63,6 +71,7 @@ export class TuitionService {
   }
 
   async getSummary(classId?: string) {
+    if (classId && !checkUuidValid({ data: classId })) throw new BadRequestException('classId must be uuid ...');
     return this.repo.getSummary(classId);
   }
 }
