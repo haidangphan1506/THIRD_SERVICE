@@ -52,4 +52,6 @@ export const getExerciseQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10),
   sessionId: z.string().uuid().optional(),
   studentId: z.string().uuid().optional(),
+  classId: z.string().uuid().optional(),
+  tutorId: z.string().uuid().optional(),
 });

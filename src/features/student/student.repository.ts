@@ -1,4 +1,9 @@
-import { ConflictException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
@@ -94,10 +99,7 @@ export class StudentRepository {
 
     const where = and(...conditions);
 
-    const [totalRow] = await this.db
-      .select({ total: count() })
-      .from(users)
-      .where(where);
+    const [totalRow] = await this.db.select({ total: count() }).from(users).where(where);
     const total = Number(totalRow?.total ?? 0);
 
     const rows = await this.db
@@ -162,7 +164,12 @@ export class StudentRepository {
         const filtered = rows.filter((r) => enrolledIds.has(r.id));
         return {
           data: filtered.map((r) => this.mapRow(r, classMap, parentMap)),
-          pagination: { total: filtered.length, page, limit, totalPages: Math.ceil(filtered.length / limit) },
+          pagination: {
+            total: filtered.length,
+            page,
+            limit,
+            totalPages: Math.ceil(filtered.length / limit),
+          },
         };
       }
 
@@ -230,11 +237,7 @@ export class StudentRepository {
   }
 
   async findByCode(code: string) {
-    const [row] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.userCode, code))
-      .limit(1);
+    const [row] = await this.db.select().from(users).where(eq(users.userCode, code)).limit(1);
     return row ?? null;
   }
 

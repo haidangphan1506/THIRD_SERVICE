@@ -92,14 +92,18 @@ export class ExerciseController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'sessionId', required: false, type: String, format: 'uuid' })
   @ApiQuery({ name: 'studentId', required: false, type: String, format: 'uuid' })
+  @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
+  @ApiQuery({ name: 'tutorId', required: false, type: String, format: 'uuid' })
   @SwaggerResponse({ status: 200, description: 'Exercises fetched' })
   async findAll(
     @Query(new ZodValidationPipe<getExerciseDto>(getExerciseQuerySchema))
     query: getExerciseDto,
     @Query('sessionId') sessionId?: string,
     @Query('studentId') studentId?: string,
+    @Query('classId') classId?: string,
+    @Query('tutorId') tutorId?: string,
   ) {
-    return this.exerciseService.findAll({ ...query, sessionId, studentId });
+    return this.exerciseService.findAll({ ...query, sessionId, studentId, classId, tutorId });
   }
 
   @Get(':id')

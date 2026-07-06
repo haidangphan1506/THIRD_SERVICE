@@ -12,10 +12,7 @@ export class CurriculumRepository {
   constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
 
   async findByCode(code: string) {
-    const [curriculum] = await this.db
-      .select()
-      .from(curriculums)
-      .where(eq(curriculums.code, code));
+    const [curriculum] = await this.db.select().from(curriculums).where(eq(curriculums.code, code));
     return curriculum ?? null;
   }
 

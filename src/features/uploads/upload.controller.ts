@@ -1,18 +1,25 @@
 import {
+  BadRequestException,
   Controller,
   Delete,
+  Get,
   HttpCode,
+  NotFoundException,
   Param,
   Post,
+  Query,
+  Res,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiResponse as SwaggerResponse,
 } from '@nestjs/swagger';
@@ -69,6 +76,34 @@ export class UploadController {
   @SwaggerResponse({ status: 201, description: 'Files uploaded' })
   async uploadMultiple(@UploadedFiles() files: MulterFile[]): Promise<UploadResponse[]> {
     return this.uploadService.uploadMultiple(files);
+  }
+
+  @Public()
+  @Get('download')
+  @ApiOperation({
+    summary: 'Download file',
+    description: 'Stream a file from Cloudflare R2 by its key',
+  })
+  @ApiQuery({ name: 'key', required: true, description: 'R2 object key (e.g. uploads/uuid.jpg)' })
+  @SwaggerResponse({ status: 200, description: 'File stream' })
+  @SwaggerResponse({ status: 400, description: 'key query param missing' })
+  @SwaggerResponse({ status: 404, description: 'File not found in R2' })
+  async download(@Query('key') key: string, @Res() res: Response): Promise<void> {
+    if (!key) throw new BadRequestException('key query param is required');
+    try {
+      const { stream, contentType, contentLength } = await this.uploadService.download(key);
+      const filename = key.split('/').pop() ?? 'download';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      if (contentLength !== undefined) res.setHeader('Content-Length', contentLength);
+      stream.pipe(res);
+    } catch (err: unknown) {
+      const e = err as { name?: string };
+      if (e.name === 'NoSuchKey' || e.name === 'NotFound') {
+        throw new NotFoundException(`File "${key}" not found`);
+      }
+      throw err;
+    }
   }
 
   @Public()

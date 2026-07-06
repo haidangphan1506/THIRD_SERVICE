@@ -14,6 +14,7 @@ import type {
   SubmitExerciseDto,
 } from '@packages/entities/exercise';
 import { checkUuidValid } from '@packages/helpers';
+import { NotificationService } from '../notification/notification.service';
 
 type AuthUser = { id: string; role?: string };
 
@@ -24,6 +25,7 @@ export class ExerciseService {
     private readonly userService: UserService,
     private readonly lessonService: LessonService,
     private readonly sessionRepo: SessionRepository,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(dto: CreateExerciseDto) {
@@ -60,10 +62,27 @@ export class ExerciseService {
       if (!session) throw new BadRequestException('Session not found ...');
     }
 
-    return this.repo.create(dto);
+    const result = await this.repo.create(dto);
+    void this.notificationService.createInternal({
+      type: 'STUDENT',
+      senderId: dto.tutorId,
+      userId: dto.studentId,
+      title: 'Bài tập mới',
+      content: 'Gia sư đã giao bài tập mới cho bạn.',
+      actionType: 'VIEW',
+      actionLabel: 'Xem bài tập',
+    });
+    return result;
   }
 
-  async findAll(query: { page: number; limit: number; sessionId?: string; studentId?: string }) {
+  async findAll(query: {
+    page: number;
+    limit: number;
+    sessionId?: string;
+    studentId?: string;
+    classId?: string;
+    tutorId?: string;
+  }) {
     return this.repo.findAll(query);
   }
 
@@ -90,6 +109,15 @@ export class ExerciseService {
     }
     const updated = await this.repo.submit(id, dto.exerciseUrls);
     if (!updated) throw new NotFoundException('Exercise not found');
+    void this.notificationService.createInternal({
+      type: 'STUDENT',
+      senderId: user.id,
+      userId: ex.tutorId,
+      title: 'Học sinh đã nộp bài',
+      content: 'Học sinh đã nộp bài tập, vui lòng kiểm tra và chấm điểm.',
+      actionType: 'VIEW',
+      actionLabel: 'Xem bài nộp',
+    });
     return updated;
   }
 
@@ -103,6 +131,15 @@ export class ExerciseService {
     }
     const graded = await this.repo.grade(id, dto);
     if (!graded) throw new NotFoundException('Exercise not found');
+    void this.notificationService.createInternal({
+      type: 'STUDENT',
+      senderId: user.id,
+      userId: ex.studentId,
+      title: 'Bài tập đã được chấm điểm',
+      content: `Bài tập của bạn đã được chấm. Điểm: ${dto.score ?? 'chưa có điểm'}.`,
+      actionType: 'VIEW',
+      actionLabel: 'Xem kết quả',
+    });
     return graded;
   }
 

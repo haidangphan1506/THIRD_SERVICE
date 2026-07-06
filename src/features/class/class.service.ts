@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { classStudents, curriculums, sessions, users } from '../../database/schema';
+import { classes, classStudents, curriculums, sessions, users } from '../../database/schema';
 import { DRIZZLE } from '../../database/database.module';
 import { Inject } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -7,6 +7,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import type { CreateClassDto, GetClassesQueryDto, UpdateClassDto } from '@packages/entities/class';
 import { ClassRepository } from './class.repository';
 import { checkUuidValid } from '@packages/helpers';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ClassService {
@@ -15,6 +16,7 @@ export class ClassService {
     private readonly repo: ClassRepository,
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(dto: CreateClassDto, tutorId: string) {
@@ -33,7 +35,7 @@ export class ClassService {
       code = await this.generateUniqueCode();
     }
 
-    const cls = await this.repo.create({ ...dto, code, tutorId });
+    const cls = await this.repo.create({ ...dto, code, tutorId, studentsId: dto.studentIds ?? [] });
     if (!cls) {
       throw new BadRequestException('Failed to create class');
     }
@@ -185,6 +187,9 @@ export class ClassService {
       await this.updateStudentGrades(classId, studentIds);
     }
 
+    // Keep denormalized studentsId array on the class row in sync
+    await this.db.update(classes).set({ studentsId: studentIds }).where(eq(classes.id, classId));
+
     return this.db
       .select({
         id: users.id,
@@ -198,16 +203,18 @@ export class ClassService {
       .where(inArray(users.id, studentIds));
   }
 
-  async findAll(tutorId: string, query: GetClassesQueryDto) {
-    return this.repo.findAll({ tutorId, query });
+  async findAll(userId: string, query: GetClassesQueryDto) {
+    return this.repo.findAll({ userId, query });
   }
 
-  async findById(id: string, tutorId: string) {
+  async findById(id: string, userId: string) {
     if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
-    if (!tutorId || !checkUuidValid({ data: tutorId }))
-      throw new BadRequestException('tutorId must be uuid ...');
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('userId must be uuid ...');
     const cls = await this.repo.findById(id);
-    if (!cls || cls.tutorId !== tutorId) {
+    const isTutor = cls?.tutorId === userId;
+    const isStudent = cls?.studentsId?.includes(userId) ?? false;
+    if (!cls || (!isTutor && !isStudent)) {
       throw new NotFoundException('Class not found');
     }
     const studentCount = await this.repo.getStudentCount(id);
@@ -285,6 +292,24 @@ export class ClassService {
     await this.db.update(users).set({ classId }).where(eq(users.id, studentId));
     // Sync gradesId from the class's curriculum grade
     await this.updateStudentGrades(classId, [studentId]);
+    // Keep denormalized studentsId in sync
+    const current = cls.studentsId ?? [];
+    if (!current.includes(studentId)) {
+      await this.db
+        .update(classes)
+        .set({ studentsId: [...current, studentId] })
+        .where(eq(classes.id, classId));
+    }
+    void this.notificationService.createInternal({
+      type: 'SYSTEM',
+      senderId: tutorId,
+      userId: studentId,
+      classId,
+      title: 'Thêm vào lớp học',
+      content: `Bạn đã được thêm vào lớp "${cls.name}" (${cls.subject}).`,
+      actionType: 'VIEW',
+      actionLabel: 'Xem lớp học',
+    });
     return { classId, studentId };
   }
 
@@ -309,16 +334,21 @@ export class ClassService {
       .where(and(eq(classStudents.classId, classId), eq(classStudents.studentId, studentId)));
     // Clear classId on user
     await this.db.update(users).set({ classId: null }).where(eq(users.id, studentId));
+    // Keep denormalized studentsId in sync
+    const remaining = (cls.studentsId ?? []).filter((id) => id !== studentId);
+    await this.db.update(classes).set({ studentsId: remaining }).where(eq(classes.id, classId));
     return { classId, studentId };
   }
 
-  async getStudents(classId: string, tutorId: string) {
+  async getStudents(classId: string, userId: string) {
     if (!classId || !checkUuidValid({ data: classId }))
       throw new BadRequestException('classId must be uuid ...');
-    if (!tutorId || !checkUuidValid({ data: tutorId }))
-      throw new BadRequestException('tutorId must be uuid ...');
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('userId must be uuid ...');
     const cls = await this.repo.findById(classId);
-    if (!cls || cls.tutorId !== tutorId) {
+    const isTutor = cls?.tutorId === userId;
+    const isStudent = cls?.studentsId?.includes(userId) ?? false;
+    if (!cls || (!isTutor && !isStudent)) {
       throw new NotFoundException('Class not found');
     }
     const rows = await this.db

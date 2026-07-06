@@ -154,11 +154,7 @@ export const assignmentStatusEnum = pgEnum('assignment_status', [
   'OVERDUE',
   'IN_PROGRESS',
 ]);
-export const exerciseStatusEnum = pgEnum('exercise_status', [
-  'SUBMITTED',
-  'GRADED',
-  'RESUBMIT',
-]);
+export const exerciseStatusEnum = pgEnum('exercise_status', ['SUBMITTED', 'GRADED', 'RESUBMIT']);
 export const tuitionStatusEnum = pgEnum('tuition_status', ['PAID', 'UNPAID', 'OVERDUE']);
 
 export const notificationTypeEnum = pgEnum('notification_type', [
@@ -198,6 +194,7 @@ export const classes = pgTable('classes', {
   endTime: timestamp('end_time').defaultNow().notNull(),
   location: text('location'),
   curriculumId: uuid('curriculum_id').references(() => curriculums.id, { onDelete: 'set null' }),
+  studentsId: uuid('students_id').array().notNull().default([]),
   tutorId: uuid('tutor_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
@@ -442,9 +439,7 @@ export const exercise = pgTable('exercises', {
   studentId: uuid('student_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  issueUrls: jsonb('issue_urls')
-    .$type<{ name: string; url: string; key: string }[]>()
-    .default([]),
+  issueUrls: jsonb('issue_urls').$type<{ name: string; url: string; key: string }[]>().default([]),
   exerciseUrls: jsonb('exercise_urls')
     .$type<{ name: string; url: string; key: string }[]>()
     .default([]),

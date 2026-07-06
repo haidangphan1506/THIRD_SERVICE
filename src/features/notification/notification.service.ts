@@ -15,6 +15,17 @@ export class NotificationService {
     private readonly userService: UserService,
   ) {}
 
+  /** Internal fire-and-forget — skips validation, called from other services. */
+  async createInternal(dto: CreateNotificationDto): Promise<void> {
+    try {
+      await this.repo.create(dto);
+    } catch (err) {
+      this.logger.warn(
+        `Failed to create notification: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+
   async createNotificationService(dto: CreateNotificationDto) {
     const existUser =
       dto.userId &&

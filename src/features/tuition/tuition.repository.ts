@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, type SQL, sum } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { tuitions } from '../../database/schema';
+import { classes, tuitions, users } from '../../database/schema';
 import type { CreateTuitionDto, GetTuitionsQueryDto } from '@packages/entities/tuition';
 
 @Injectable()
@@ -11,6 +11,42 @@ export class TuitionRepository {
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
+
+  private readonly joinedColumns = {
+    tuition: tuitions,
+    className: classes.name,
+    classCode: classes.code,
+    studentFirstName: users.firstName,
+    studentLastName: users.lastName,
+    studentUserCode: users.userCode,
+    studentPhone: users.phone,
+    studentAvatar: users.avatar,
+  };
+
+  private serialize(r: {
+    tuition: typeof tuitions.$inferSelect;
+    className: string;
+    classCode: string;
+    studentFirstName: string;
+    studentLastName: string;
+    studentUserCode: string | null;
+    studentPhone: string | null;
+    studentAvatar: string | null;
+  }) {
+    return {
+      ...r.tuition,
+      amount: r.tuition.amount != null ? String(r.tuition.amount) : '0',
+      class: { id: r.tuition.classId, name: r.className, code: r.classCode },
+      student: {
+        id: r.tuition.studentId,
+        firstName: r.studentFirstName,
+        lastName: r.studentLastName,
+        userCode: r.studentUserCode,
+        phone: r.studentPhone,
+        avatar: r.studentAvatar,
+      },
+    };
+  }
 
   async create(data: CreateTuitionDto) {
     const [tuition] = await this.db
@@ -25,7 +61,7 @@ export class TuitionRepository {
         note: data.note ?? null,
       })
       .returning();
-    return tuition;
+    return this.findById(tuition.id);
   }
 
   async findAll(query: GetTuitionsQueryDto) {
@@ -43,25 +79,29 @@ export class TuitionRepository {
     const total = Number(totalRow?.total ?? 0);
 
     const rows = await this.db
-      .select()
+      .select(this.joinedColumns)
       .from(tuitions)
+      .innerJoin(classes, eq(tuitions.classId, classes.id))
+      .innerJoin(users, eq(tuitions.studentId, users.id))
       .where(where)
       .orderBy(desc(tuitions.createdAt))
       .limit(limit)
       .offset(offset);
 
     return {
-      data: rows.map((r) => ({
-        ...r,
-        amount: r.amount != null ? String(r.amount) : '0',
-      })),
+      data: rows.map((r) => this.serialize(r)),
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
 
   async findById(id: string) {
-    const [tuition] = await this.db.select().from(tuitions).where(eq(tuitions.id, id));
-    return tuition ?? null;
+    const [row] = await this.db
+      .select(this.joinedColumns)
+      .from(tuitions)
+      .innerJoin(classes, eq(tuitions.classId, classes.id))
+      .innerJoin(users, eq(tuitions.studentId, users.id))
+      .where(eq(tuitions.id, id));
+    return row ? this.serialize(row) : null;
   }
 
   async update(id: string, data: Record<string, unknown>) {
@@ -70,7 +110,8 @@ export class TuitionRepository {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(tuitions.id, id))
       .returning();
-    return tuition ?? null;
+    if (!tuition) return null;
+    return this.findById(id);
   }
 
   async delete(id: string) {

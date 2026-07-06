@@ -4,7 +4,9 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
+import type { Readable } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import sharp from 'sharp';
 import { S3_CLIENT } from './upload.constant';
@@ -50,10 +52,7 @@ export class UploadService implements OnModuleInit {
     }
   }
 
-  async upload(
-    file: MulterFile,
-    folder = 'uploads',
-  ): Promise<UploadResponse> {
+  async upload(file: MulterFile, folder = 'uploads'): Promise<UploadResponse> {
     if (!this.s3) throw new Error('Cloudflare R2 not configured');
     const ext = file.originalname.split('.').pop() ?? 'bin';
     const key = `${folder}/${uuidv4()}.${ext}`;
@@ -83,17 +82,24 @@ export class UploadService implements OnModuleInit {
     return { url, key, size: processedBuffer.length, mimetype: file.mimetype };
   }
 
-  async delete(key: string): Promise<void> {
+  async download(
+    key: string,
+  ): Promise<{ stream: Readable; contentType: string; contentLength?: number }> {
     if (!this.s3) throw new Error('Cloudflare R2 not configured');
-    await this.s3.send(
-      new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
-    );
+    const result = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }));
+    return {
+      stream: result.Body as Readable,
+      contentType: result.ContentType ?? 'application/octet-stream',
+      contentLength: result.ContentLength,
+    };
   }
 
-  async uploadMultiple(
-    files: MulterFile[],
-    folder = 'uploads',
-  ): Promise<UploadResponse[]> {
+  async delete(key: string): Promise<void> {
+    if (!this.s3) throw new Error('Cloudflare R2 not configured');
+    await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+  }
+
+  async uploadMultiple(files: MulterFile[], folder = 'uploads'): Promise<UploadResponse[]> {
     return Promise.all(files.map((f) => this.upload(f, folder)));
   }
 }

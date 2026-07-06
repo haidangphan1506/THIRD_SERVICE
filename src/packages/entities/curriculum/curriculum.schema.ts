@@ -61,7 +61,10 @@ export const createLessonSchema = z.object({
 
 export const updateLessonSchema = createLessonSchema.partial();
 
-export const createLessonBodySchema = createLessonSchema.omit({ curriculumId: true, chapterId: true });
+export const createLessonBodySchema = createLessonSchema.omit({
+  curriculumId: true,
+  chapterId: true,
+});
 
 export const getChaptersQuerySchema = z.object({
   curriculumId: z.string().uuid('Invalid curriculum ID'),

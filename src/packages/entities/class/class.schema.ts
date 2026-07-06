@@ -50,4 +50,5 @@ export const getClassesQuerySchema = z.object({
   search: z.string().trim().min(1).optional(),
   status: classStatusEnum.optional(),
   subject: z.string().optional(),
+  studentsId: z.string().uuid('Invalid student ID').optional(),
 });

@@ -48,22 +48,33 @@ export class SessionRepository {
     const where = conditions.length > 0 ? and(...conditions) : undefined;
     const offset = (page - 1) * limit;
 
-    const [totalRow] = await this.db
-      .select({ total: count() })
-      .from(sessions)
-      .where(where);
+    const [totalRow] = await this.db.select({ total: count() }).from(sessions).where(where);
     const total = Number(totalRow?.total ?? 0);
 
     const rows = await this.db
-      .select()
+      .select({
+        session: sessions,
+        className: classes.name,
+        classCode: classes.code,
+        classSubject: classes.subject,
+      })
       .from(sessions)
+      .innerJoin(classes, eq(sessions.classId, classes.id))
       .where(where)
       .orderBy(asc(sessions.sessionNumber))
       .limit(limit)
       .offset(offset);
 
     return {
-      data: rows.map((r) => this.serialize(r)),
+      data: rows.map((r) => ({
+        ...this.serialize(r.session),
+        class: {
+          id: r.session.classId,
+          name: r.className,
+          code: r.classCode,
+          subject: r.classSubject,
+        },
+      })),
       pagination: {
         total,
         page,
@@ -100,13 +111,7 @@ export class SessionRepository {
    * Sessions across every class a student is enrolled in, each enriched with a
    * compact `class` object for display. Newest first.
    */
-  async findAllForStudent({
-    classIds,
-    query,
-  }: {
-    classIds: string[];
-    query: GetSessionsQueryDto;
-  }) {
+  async findAllForStudent({ classIds, query }: { classIds: string[]; query: GetSessionsQueryDto }) {
     const { page, limit, classId, status, from, to } = query;
     const conditions: SQL[] = [inArray(sessions.classId, classIds)];
 
@@ -138,7 +143,12 @@ export class SessionRepository {
     return {
       data: rows.map((r) => ({
         ...this.serialize(r.session),
-        class: { id: r.session.classId, name: r.className, code: r.classCode, subject: r.classSubject },
+        class: {
+          id: r.session.classId,
+          name: r.className,
+          code: r.classCode,
+          subject: r.classSubject,
+        },
       })),
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };

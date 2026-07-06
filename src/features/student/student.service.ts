@@ -291,7 +291,8 @@ export class StudentService {
         }
         if (dto.parentPhone !== undefined) parentUpdate.phone = dto.parentPhone || null;
         if (dto.parentEmail !== undefined) parentUpdate.email = dto.parentEmail;
-        if (dto.parentRelationship !== undefined) parentUpdate.relationship = dto.parentRelationship;
+        if (dto.parentRelationship !== undefined)
+          parentUpdate.relationship = dto.parentRelationship;
         if (Object.keys(parentUpdate).length > 0) {
           await this.repo.updateParent(student.parentId, parentUpdate);
         }

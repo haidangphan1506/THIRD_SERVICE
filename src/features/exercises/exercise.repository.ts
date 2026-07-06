@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { exercise } from '../../database/schema';
+import { classes, exercise, sessions, users } from '../../database/schema';
 import type {
   CreateExerciseDto,
   ExerciseDetailDto,
@@ -15,6 +15,45 @@ export class ExerciseRepository {
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
+
+  private readonly joinedColumns = {
+    exercise,
+    sessionNumber: sessions.sessionNumber,
+    classId: sessions.classId,
+    className: classes.name,
+    classCode: classes.code,
+    studentFirstName: users.firstName,
+    studentLastName: users.lastName,
+    studentUserCode: users.userCode,
+    studentAvatar: users.avatar,
+  };
+
+  private serializeWithRelations(r: {
+    exercise: typeof exercise.$inferSelect;
+    sessionNumber: number | null;
+    classId: string | null;
+    className: string | null;
+    classCode: string | null;
+    studentFirstName: string;
+    studentLastName: string;
+    studentUserCode: string | null;
+    studentAvatar: string | null;
+  }) {
+    return {
+      ...this.serialize(r.exercise),
+      session: r.exercise.sessionId
+        ? { id: r.exercise.sessionId, sessionNumber: r.sessionNumber, classId: r.classId }
+        : null,
+      class: r.classId ? { id: r.classId, name: r.className, code: r.classCode } : null,
+      student: {
+        id: r.exercise.studentId,
+        firstName: r.studentFirstName,
+        lastName: r.studentLastName,
+        userCode: r.studentUserCode,
+        avatar: r.studentAvatar,
+      },
+    };
+  }
 
   async create(data: CreateExerciseDto): Promise<ExerciseDetailDto> {
     const [row] = await this.db
@@ -37,27 +76,39 @@ export class ExerciseRepository {
     limit: number;
     sessionId?: string;
     studentId?: string;
+    classId?: string;
+    tutorId?: string;
   }) {
-    const { page, limit, sessionId, studentId } = query;
+    const { page, limit, sessionId, studentId, classId, tutorId } = query;
+
     const conditions: SQL[] = [];
     if (sessionId) conditions.push(eq(exercise.sessionId, sessionId));
     if (studentId) conditions.push(eq(exercise.studentId, studentId));
+    if (classId) conditions.push(eq(sessions.classId, classId));
+    if (tutorId) conditions.push(eq(exercise.tutorId, tutorId));
     const where = conditions.length > 0 ? and(...conditions) : undefined;
     const offset = (page - 1) * limit;
 
-    const [totalRow] = await this.db.select({ total: count() }).from(exercise).where(where);
+    const [totalRow] = await this.db
+      .select({ total: count() })
+      .from(exercise)
+      .leftJoin(sessions, eq(exercise.sessionId, sessions.id))
+      .where(where);
     const total = Number(totalRow?.total ?? 0);
 
     const rows = await this.db
-      .select()
+      .select(this.joinedColumns)
       .from(exercise)
+      .leftJoin(sessions, eq(exercise.sessionId, sessions.id))
+      .leftJoin(classes, eq(sessions.classId, classes.id))
+      .innerJoin(users, eq(exercise.studentId, users.id))
       .where(where)
       .orderBy(desc(exercise.createdAt))
       .limit(limit)
       .offset(offset);
 
     return {
-      data: rows.map((r) => this.serialize(r)),
+      data: rows.map((r) => this.serializeWithRelations(r)),
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
@@ -77,11 +128,7 @@ export class ExerciseRepository {
     if (data.exerciseUrls !== undefined) values.exerciseUrls = data.exerciseUrls;
     if (data.status !== undefined) values.status = data.status;
 
-    const [row] = await this.db
-      .update(exercise)
-      .set(values)
-      .where(eq(exercise.id, id))
-      .returning();
+    const [row] = await this.db.update(exercise).set(values).where(eq(exercise.id, id)).returning();
     return row ? this.serialize(row) : null;
   }
 
@@ -92,7 +139,14 @@ export class ExerciseRepository {
   ): Promise<ExerciseDetailDto | null> {
     const [row] = await this.db
       .update(exercise)
-      .set({ exerciseUrls, status: 'SUBMITTED', score: null, comment: null, gradedAt: null, updatedAt: new Date() })
+      .set({
+        exerciseUrls,
+        status: 'SUBMITTED',
+        score: null,
+        comment: null,
+        gradedAt: null,
+        updatedAt: new Date(),
+      })
       .where(eq(exercise.id, id))
       .returning();
     return row ? this.serialize(row) : null;

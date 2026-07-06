@@ -82,11 +82,7 @@ export class LessonRepository {
   }
 
   async update(id: string, data: UpdateLessonDto) {
-    const [lesson] = await this.db
-      .update(lessons)
-      .set(data)
-      .where(eq(lessons.id, id))
-      .returning();
+    const [lesson] = await this.db.update(lessons).set(data).where(eq(lessons.id, id)).returning();
     return lesson ?? null;
   }
 
