@@ -1,10 +1,21 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ExerciseRepository } from './exercise.repository';
 import { SessionRepository } from '../session/session.repository';
 import { LessonService } from '../lesson/lesson.service';
 import { UserService } from '../user/user.service';
-import type { CreateExerciseDto } from '@packages/entities/exercise';
+import type {
+  CreateExerciseDto,
+  GradeExerciseDto,
+  SubmitExerciseDto,
+} from '@packages/entities/exercise';
 import { checkUuidValid } from '@packages/helpers';
+
+type AuthUser = { id: string; role?: string };
 
 @Injectable()
 export class ExerciseService {
@@ -68,6 +79,31 @@ export class ExerciseService {
     const updated = await this.repo.update(id, dto);
     if (!updated) throw new NotFoundException('Exercise not found');
     return updated;
+  }
+
+  /** Student (re)submits their work. Only the owning student may submit. */
+  async submit(id: string, dto: SubmitExerciseDto, user: AuthUser) {
+    const ex = await this.repo.findById(id);
+    if (!ex) throw new NotFoundException('Exercise not found');
+    if (ex.studentId !== user.id) {
+      throw new ForbiddenException('Bạn không thể nộp bài cho học sinh khác');
+    }
+    const updated = await this.repo.submit(id, dto.exerciseUrls);
+    if (!updated) throw new NotFoundException('Exercise not found');
+    return updated;
+  }
+
+  /** Tutor grades a submission. Only a TUTOR/ADMIN (the assigned tutor) may grade. */
+  async grade(id: string, dto: GradeExerciseDto, user: AuthUser) {
+    const ex = await this.repo.findById(id);
+    if (!ex) throw new NotFoundException('Exercise not found');
+    const isPrivileged = user.role === 'TUTOR' || user.role === 'ADMIN';
+    if (!isPrivileged || (user.role === 'TUTOR' && ex.tutorId !== user.id)) {
+      throw new ForbiddenException('Chỉ gia sư phụ trách mới được chấm điểm');
+    }
+    const graded = await this.repo.grade(id, dto);
+    if (!graded) throw new NotFoundException('Exercise not found');
+    return graded;
   }
 
   async delete(id: string) {

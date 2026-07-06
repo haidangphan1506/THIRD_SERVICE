@@ -14,9 +14,14 @@ export type StudentResponseDto = {
   userCode: string | null;
   phone: string | null;
   avatar: string | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+  school: string | null;
   parentId: string | null;
   parentName: string | null;
   parentPhone: string | null;
+  parentEmail: string | null;
+  parentRelationship: string | null;
   role: string | null;
   isActive: boolean | null;
   classCount: number;

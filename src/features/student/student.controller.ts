@@ -61,7 +61,27 @@ export class StudentController {
         parentName: { type: 'string', maxLength: 255, example: 'Tran Thi B' },
         userCode: { type: 'string', maxLength: 50, example: 'HS001' },
         studentPhone: { type: 'string', example: '0912345678' },
+        gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'], example: 'MALE' },
+        birthday: {
+          type: 'string',
+          format: 'date-time',
+          example: '2008-05-20T00:00:00.000Z',
+          description: 'Student date of birth (ISO 8601)',
+        },
+        school: { type: 'string', maxLength: 255, example: 'THPT Quang Trung' },
+        className: {
+          type: 'string',
+          maxLength: 255,
+          example: 'Toan 12A1',
+          description: "Enroll immediately if it matches one of the tutor's class names",
+        },
         parentPhone: { type: 'string', example: '0987654321' },
+        parentEmail: { type: 'string', format: 'email', example: 'phuhuynh@gmail.com' },
+        parentRelationship: {
+          type: 'string',
+          enum: ['FATHER', 'MOTHER', 'GUARDIAN'],
+          example: 'FATHER',
+        },
         avatar: { type: 'string', format: 'url', nullable: true },
         classId: {
           type: 'string',
@@ -122,11 +142,30 @@ export class StudentController {
     schema: {
       type: 'object',
       properties: {
-        firstName: { type: 'string', maxLength: 255 },
-        lastName: { type: 'string', maxLength: 255 },
-        phone: { type: 'string' },
+        studentName: { type: 'string', maxLength: 255, example: 'Nguyen Van A' },
+        studentPhone: { type: 'string', example: '0912345678' },
+        gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'], example: 'MALE' },
+        birthday: {
+          type: 'string',
+          format: 'date-time',
+          example: '2008-05-20T00:00:00.000Z',
+        },
+        school: { type: 'string', maxLength: 255, example: 'THPT Quang Trung' },
+        className: {
+          type: 'string',
+          maxLength: 255,
+          example: 'Toan 12A1',
+          description: "Enroll if it matches one of the tutor's class names",
+        },
+        parentName: { type: 'string', maxLength: 255, example: 'Tran Thi B' },
+        parentPhone: { type: 'string', example: '0987654321' },
+        parentEmail: { type: 'string', format: 'email', example: 'phuhuynh@gmail.com' },
+        parentRelationship: {
+          type: 'string',
+          enum: ['FATHER', 'MOTHER', 'GUARDIAN'],
+          example: 'FATHER',
+        },
         avatar: { type: 'string', format: 'url', nullable: true },
-        parentId: { type: 'string', format: 'uuid', nullable: true },
       },
     },
   })

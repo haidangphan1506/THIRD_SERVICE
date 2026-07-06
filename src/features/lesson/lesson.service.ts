@@ -107,7 +107,7 @@ export class LessonService {
       throw new BadRequestException('Lesson not found ...');
     }
 
-    const theory = await this.upload.upload(data, 'uploads');
+    const theory = await this.upload.upload(data, 'uploads/theory');
 
     if (!theory) {
       throw new BadRequestException('Upload theory failed ...');
@@ -158,7 +158,7 @@ export class LessonService {
       throw new BadRequestException('Lesson not found ...');
     }
 
-    const exercise = await this.upload.upload(data, 'uploads');
+    const exercise = await this.upload.upload(data, 'uploads/exercises');
 
     if (!exercise) {
       throw new BadRequestException('Upload exercises failed ...');

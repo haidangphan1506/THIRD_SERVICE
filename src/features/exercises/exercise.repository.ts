@@ -3,7 +3,11 @@ import { and, count, desc, eq, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { exercise } from '../../database/schema';
-import type { CreateExerciseDto, ExerciseDetailDto } from '@packages/entities/exercise';
+import type {
+  CreateExerciseDto,
+  ExerciseDetailDto,
+  GradeExerciseDto,
+} from '@packages/entities/exercise';
 
 @Injectable()
 export class ExerciseRepository {
@@ -22,6 +26,7 @@ export class ExerciseRepository {
         studentId: data.studentId,
         issueUrls: data.issueUrls ?? [],
         exerciseUrls: data.exerciseUrls ?? [],
+        status: data.status ?? 'SUBMITTED',
       })
       .returning();
     return this.serialize(row);
@@ -70,10 +75,40 @@ export class ExerciseRepository {
     if (data.studentId !== undefined) values.studentId = data.studentId;
     if (data.issueUrls !== undefined) values.issueUrls = data.issueUrls;
     if (data.exerciseUrls !== undefined) values.exerciseUrls = data.exerciseUrls;
+    if (data.status !== undefined) values.status = data.status;
 
     const [row] = await this.db
       .update(exercise)
       .set(values)
+      .where(eq(exercise.id, id))
+      .returning();
+    return row ? this.serialize(row) : null;
+  }
+
+  /** Student (re)submits their work — resets grading and marks it SUBMITTED. */
+  async submit(
+    id: string,
+    exerciseUrls: { name: string; url: string; key: string }[],
+  ): Promise<ExerciseDetailDto | null> {
+    const [row] = await this.db
+      .update(exercise)
+      .set({ exerciseUrls, status: 'SUBMITTED', score: null, comment: null, gradedAt: null, updatedAt: new Date() })
+      .where(eq(exercise.id, id))
+      .returning();
+    return row ? this.serialize(row) : null;
+  }
+
+  /** Tutor grades a submission — sets score/comment and marks it GRADED. */
+  async grade(id: string, data: GradeExerciseDto): Promise<ExerciseDetailDto | null> {
+    const [row] = await this.db
+      .update(exercise)
+      .set({
+        score: data.score.toString(),
+        comment: data.comment ?? null,
+        status: 'GRADED',
+        gradedAt: new Date(),
+        updatedAt: new Date(),
+      })
       .where(eq(exercise.id, id))
       .returning();
     return row ? this.serialize(row) : null;
@@ -95,6 +130,10 @@ export class ExerciseRepository {
       studentId: r.studentId,
       issueUrls: (r.issueUrls as { name: string; url: string; key: string }[]) ?? [],
       exerciseUrls: (r.exerciseUrls as { name: string; url: string; key: string }[]) ?? [],
+      status: r.status,
+      score: r.score !== null && r.score !== undefined ? Number(r.score) : null,
+      comment: r.comment ?? null,
+      gradedAt: toIso(r.gradedAt),
       createdAt: toIso(r.createdAt)!,
       updatedAt: toIso(r.updatedAt)!,
     };

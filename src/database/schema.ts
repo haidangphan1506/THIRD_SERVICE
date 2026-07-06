@@ -40,6 +40,9 @@ export const users = pgTable('users', {
   gender: genderEnum('gender'),
   dateOfBirth: timestamp('date_of_birth'),
   address: text('address'),
+  school: varchar('school', { length: 255 }),
+  relationship: varchar('relationship', { length: 50 }),
+  classId: uuid('class_id').references((): AnyPgColumn => classes.id, { onDelete: 'set null' }),
   gradesId: uuid('grades_id').array().notNull().default([]),
   parentId: uuid('parent_id').references((): AnyPgColumn => users.id, { onDelete: 'cascade' }),
   tutorId: uuid('tutor_id').references((): AnyPgColumn => users.id, { onDelete: 'cascade' }),
@@ -150,6 +153,11 @@ export const assignmentStatusEnum = pgEnum('assignment_status', [
   'COMPLETED',
   'OVERDUE',
   'IN_PROGRESS',
+]);
+export const exerciseStatusEnum = pgEnum('exercise_status', [
+  'SUBMITTED',
+  'GRADED',
+  'RESUBMIT',
 ]);
 export const tuitionStatusEnum = pgEnum('tuition_status', ['PAID', 'UNPAID', 'OVERDUE']);
 
@@ -440,6 +448,10 @@ export const exercise = pgTable('exercises', {
   exerciseUrls: jsonb('exercise_urls')
     .$type<{ name: string; url: string; key: string }[]>()
     .default([]),
+  status: exerciseStatusEnum('status').default('SUBMITTED').notNull(),
+  score: numeric('score', { precision: 5, scale: 2 }),
+  comment: text('comment'),
+  gradedAt: timestamp('graded_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

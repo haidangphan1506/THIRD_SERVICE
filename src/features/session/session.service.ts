@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { DRIZZLE } from '../../database/database.module';
+import { chapters, lessons } from '../../database/schema';
 import { ClassRepository } from '../class/class.repository';
 import { SessionRepository } from './session.repository';
 import type { CreateSessionDto, GetSessionsQueryDto, UpdateSessionDto } from '@packages/entities/session';
@@ -9,6 +13,8 @@ export class SessionService {
   constructor(
     private readonly repo: SessionRepository,
     private readonly classRepo: ClassRepository,
+    @Inject(DRIZZLE)
+    private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
   private assertUuid(value: string, field: string) {
@@ -46,8 +52,90 @@ export class SessionService {
     this.assertUuid(tutorId, 'tutorId');
     const session = await this.repo.findById(id);
     if (!session) throw new NotFoundException('Session not found');
-    await this.assertClassOwner(session.classId, tutorId);
-    return session;
+    const cls = await this.assertClassOwner(session.classId, tutorId);
+
+    let lesson: { id: string; title: string; chapterTitle: string | null } | null = null;
+    if (session.lessonId) {
+      const [row] = await this.db
+        .select({
+          id: lessons.id,
+          title: lessons.title,
+          chapterTitle: chapters.title,
+        })
+        .from(lessons)
+        .leftJoin(chapters, eq(lessons.chapterId, chapters.id))
+        .where(eq(lessons.id, session.lessonId))
+        .limit(1);
+      if (row) {
+        lesson = { id: row.id, title: row.title, chapterTitle: row.chapterTitle ?? null };
+      }
+    }
+
+    return {
+      ...session,
+      class: {
+        id: cls.id,
+        name: cls.name,
+        code: cls.code,
+        subject: cls.subject,
+        curriculumId: cls.curriculumId,
+      },
+      lesson,
+    };
+  }
+
+  /** Sessions across all classes the current student is enrolled in. */
+  async findAllForStudent(studentId: string, query: GetSessionsQueryDto) {
+    this.assertUuid(studentId, 'studentId');
+    if (query.classId) this.assertUuid(query.classId, 'classId');
+    const classIds = await this.repo.getEnrolledClassIds(studentId);
+    if (classIds.length === 0) {
+      return {
+        data: [],
+        pagination: { total: 0, page: query.page, limit: query.limit, totalPages: 0 },
+      };
+    }
+    return this.repo.findAllForStudent({ classIds, query });
+  }
+
+  /** Session detail for an enrolled student (membership-checked, not owner-checked). */
+  async findByIdForStudent(id: string, studentId: string) {
+    this.assertUuid(id, 'id');
+    this.assertUuid(studentId, 'studentId');
+    const session = await this.repo.findById(id);
+    if (!session) throw new NotFoundException('Session not found');
+
+    const enrolled = await this.repo.isStudentEnrolled(studentId, session.classId);
+    if (!enrolled) throw new NotFoundException('Session not found');
+
+    const cls = await this.classRepo.findById(session.classId);
+    if (!cls) throw new NotFoundException('Session not found');
+
+    const lesson = await this.loadLesson(session.lessonId);
+
+    return {
+      ...session,
+      class: {
+        id: cls.id,
+        name: cls.name,
+        code: cls.code,
+        subject: cls.subject,
+        curriculumId: cls.curriculumId,
+        tutorId: cls.tutorId,
+      },
+      lesson,
+    };
+  }
+
+  private async loadLesson(lessonId: string | null) {
+    if (!lessonId) return null;
+    const [row] = await this.db
+      .select({ id: lessons.id, title: lessons.title, chapterTitle: chapters.title })
+      .from(lessons)
+      .leftJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .where(eq(lessons.id, lessonId))
+      .limit(1);
+    return row ? { id: row.id, title: row.title, chapterTitle: row.chapterTitle ?? null } : null;
   }
 
   async update(id: string, dto: UpdateSessionDto, tutorId: string) {

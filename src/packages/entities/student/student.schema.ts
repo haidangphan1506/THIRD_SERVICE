@@ -18,15 +18,27 @@ export const createStudentSchema = z.object({
   userCode: z.string().min(1, 'Code is required').max(50, 'Code too long').optional(),
   studentPhone: z.string().max(20).optional(),
   parentPhone: z.string().max(20).optional(),
+  parentEmail: z.string().email('Invalid parent email').optional(),
+  parentRelationship: z.enum(['FATHER', 'MOTHER', 'GUARDIAN']).optional(),
+  className: z.string().max(255).optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  birthday: z.coerce.date().optional(),
+  school: z.string().max(255).optional(),
   avatar: z.string().url().optional().nullable(),
 });
 
 export const updateStudentSchema = z.object({
-  firstName: z.string().min(1).max(255).optional(),
-  lastName: z.string().min(1).max(255).optional(),
-  phone: z.string().max(20).optional(),
+  studentName: z.string().min(1).max(255).optional(),
+  studentPhone: z.string().max(20).optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  birthday: z.coerce.date().optional(),
+  school: z.string().max(255).optional(),
+  className: z.string().max(255).optional(),
+  parentName: z.string().min(1).max(255).optional(),
+  parentPhone: z.string().max(20).optional(),
+  parentEmail: z.string().email('Invalid parent email').optional(),
+  parentRelationship: z.enum(['FATHER', 'MOTHER', 'GUARDIAN']).optional(),
   avatar: z.string().url().optional().nullable(),
-  parentId: z.string().uuid().optional().nullable(),
 });
 
 export const getStudentsQuerySchema = z.object({
