@@ -8,24 +8,26 @@ import {
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
-import { chatRequestSchema, type ChatRequestDto } from '@packages/entities/ai-chat';
-import { AiChatService } from './ai-chat.service';
+import { CurrentUser } from '@packages/decorators';
+import type { JwtUserRole } from '@packages/helpers';
+import { chatRequestSchema, type ChatRequestDto } from './dto/ai-chat.dto';
+import { AiService } from './ai.service';
 
 @ApiTags('AI Chat')
 @ApiBearerAuth('access-token')
 @Controller('ai-chat')
-export class AiChatController {
-  constructor(private readonly aiChatService: AiChatService) {}
+export class AiController {
+  constructor(private readonly aiService: AiService) {}
 
   @Post('chat')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Send a message to AI assistant' })
+  @ApiOperation({ summary: 'Send a message to the AI assistant' })
   @ApiBody({
     schema: {
       type: 'object',
       required: ['message'],
       properties: {
-        message: { type: 'string', example: 'Tôi có lịch học hôm nay không?' },
+        message: { type: 'string', example: 'Tôi có bao nhiêu chương trình học?' },
         history: {
           type: 'array',
           items: {
@@ -43,7 +45,8 @@ export class AiChatController {
   async chat(
     @Body(new ZodValidationPipe<ChatRequestDto>(chatRequestSchema))
     dto: ChatRequestDto,
+    @CurrentUser() user: { id: string; role: JwtUserRole },
   ) {
-    return this.aiChatService.chat(dto);
+    return this.aiService.chat(dto, { userId: user.id, role: user.role });
   }
 }

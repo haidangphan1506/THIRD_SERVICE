@@ -27,7 +27,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CloudinaryModule } from './features/cloudinary/cloudinary.module';
 import { UploadModule } from './features/uploads/upload.module';
 import { ExerciseModule } from './features/exercises/exercise.module';
-import { AiChatModule } from './features/ai-chat/ai-chat.module';
+import { AiModule } from './features/ai/ai.module';
 
 @Module({
   imports: [
@@ -56,7 +56,7 @@ import { AiChatModule } from './features/ai-chat/ai-chat.module';
     CloudinaryModule,
     UploadModule,
     ExerciseModule,
-    AiChatModule,
+    AiModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
