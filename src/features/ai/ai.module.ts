@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
 // Providers
-import { GeminiProvider } from './providers/gemini.provider';
+import { OpenRouterProvider } from './providers/openrouter.provider';
 import { OpenAiProvider } from './providers/openai.provider';
 import { ProviderFactory } from './providers/provider.factory';
 // Prompt
@@ -28,7 +28,7 @@ import { ChatRepository } from './chat/chat.repository';
   providers: [
     AiService,
     // Providers
-    GeminiProvider,
+    OpenRouterProvider,
     OpenAiProvider,
     ProviderFactory,
     // Prompt & intent

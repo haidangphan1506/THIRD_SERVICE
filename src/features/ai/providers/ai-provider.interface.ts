@@ -17,7 +17,7 @@ export interface AiGenerateParams {
   executeTool?: AiToolExecutor;
 }
 
-/** Provider-agnostic contract implemented by Gemini/OpenAI/etc. */
+/** Provider-agnostic contract implemented by OpenRouter/OpenAI/etc. */
 export interface AiProvider {
   readonly name: string;
   generate(params: AiGenerateParams): Promise<string>;
