@@ -1,9 +1,14 @@
-import { ConflictException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { classStudents, users } from '../../database/schema';
-import type { GetStudentsQueryDto, UpdateStudentDto } from '@packages/entities/student';
+import type { GetStudentsQueryDto } from '@packages/entities/student';
 
 function handleDbError(err: unknown): never {
   const e = err as Record<string, unknown>;
@@ -39,6 +44,9 @@ export class StudentRepository {
     userCode: string | null;
     phone: string | null;
     avatar: string | null;
+    gender: 'MALE' | 'FEMALE' | 'OTHER' | null;
+    dateOfBirth: Date | null;
+    school: string | null;
     parentId: string | null;
     tutorId: string | null;
   }): Promise<typeof users.$inferSelect> {
@@ -59,6 +67,7 @@ export class StudentRepository {
     lastName: string;
     userCode: string | null;
     phone: string | null;
+    relationship: string | null;
     tutorId: string | null;
   }): Promise<typeof users.$inferSelect> {
     const [parent] = await this.db
@@ -90,10 +99,7 @@ export class StudentRepository {
 
     const where = and(...conditions);
 
-    const [totalRow] = await this.db
-      .select({ total: count() })
-      .from(users)
-      .where(where);
+    const [totalRow] = await this.db.select({ total: count() }).from(users).where(where);
     const total = Number(totalRow?.total ?? 0);
 
     const rows = await this.db
@@ -108,14 +114,36 @@ export class StudentRepository {
     const classMap = new Map<string, number>();
 
     const parentIds = rows.map((r) => r.parentId).filter(Boolean) as string[];
-    const parentMap = new Map<string, { firstName: string; lastName: string; phone: string | null }>();
+    const parentMap = new Map<
+      string,
+      {
+        firstName: string;
+        lastName: string;
+        phone: string | null;
+        email: string;
+        relationship: string | null;
+      }
+    >();
     if (parentIds.length > 0) {
       const parentRows = await this.db
-        .select({ id: users.id, firstName: users.firstName, lastName: users.lastName, phone: users.phone })
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          phone: users.phone,
+          email: users.email,
+          relationship: users.relationship,
+        })
         .from(users)
         .where(inArray(users.id, parentIds));
       for (const p of parentRows) {
-        parentMap.set(p.id, { firstName: p.firstName, lastName: p.lastName, phone: p.phone });
+        parentMap.set(p.id, {
+          firstName: p.firstName,
+          lastName: p.lastName,
+          phone: p.phone,
+          email: p.email,
+          relationship: p.relationship,
+        });
       }
     }
 
@@ -136,7 +164,12 @@ export class StudentRepository {
         const filtered = rows.filter((r) => enrolledIds.has(r.id));
         return {
           data: filtered.map((r) => this.mapRow(r, classMap, parentMap)),
-          pagination: { total: filtered.length, page, limit, totalPages: Math.ceil(filtered.length / limit) },
+          pagination: {
+            total: filtered.length,
+            page,
+            limit,
+            totalPages: Math.ceil(filtered.length / limit),
+          },
         };
       }
 
@@ -157,7 +190,16 @@ export class StudentRepository {
   private mapRow(
     r: typeof users.$inferSelect,
     classMap: Map<string, number>,
-    parentMap: Map<string, { firstName: string; lastName: string; phone: string | null }>,
+    parentMap: Map<
+      string,
+      {
+        firstName: string;
+        lastName: string;
+        phone: string | null;
+        email: string;
+        relationship: string | null;
+      }
+    >,
   ) {
     const parent = r.parentId ? parentMap.get(r.parentId) : undefined;
     return {
@@ -169,11 +211,16 @@ export class StudentRepository {
       userCode: r.userCode,
       phone: r.phone,
       avatar: r.avatar,
+      gender: r.gender,
+      dateOfBirth: r.dateOfBirth instanceof Date ? r.dateOfBirth.toISOString() : r.dateOfBirth,
+      school: r.school,
       role: r.role,
       isActive: r.isActive,
       parentId: r.parentId,
       parentName: parent ? `${parent.firstName} ${parent.lastName}`.trim() : null,
       parentPhone: parent?.phone ?? null,
+      parentEmail: parent?.email ?? null,
+      parentRelationship: parent?.relationship ?? null,
       classCount: classMap.get(r.id) ?? 0,
       createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
       updatedAt: r.updatedAt instanceof Date ? r.updatedAt.toISOString() : String(r.updatedAt),
@@ -190,15 +237,11 @@ export class StudentRepository {
   }
 
   async findByCode(code: string) {
-    const [row] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.userCode, code))
-      .limit(1);
+    const [row] = await this.db.select().from(users).where(eq(users.userCode, code)).limit(1);
     return row ?? null;
   }
 
-  async update(id: string, data: UpdateStudentDto) {
+  async update(id: string, data: Partial<typeof users.$inferInsert>) {
     const [student] = await this.db
       .update(users)
       .set(data)
@@ -206,6 +249,16 @@ export class StudentRepository {
       .returning()
       .catch(handleDbError);
     return student ?? null;
+  }
+
+  async updateParent(id: string, data: Partial<typeof users.$inferInsert>) {
+    const [parent] = await this.db
+      .update(users)
+      .set(data)
+      .where(and(eq(users.id, id), eq(users.role, 'PARENT')))
+      .returning()
+      .catch(handleDbError);
+    return parent ?? null;
   }
 
   async delete(id: string) {

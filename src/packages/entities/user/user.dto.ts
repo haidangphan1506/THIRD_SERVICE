@@ -1,5 +1,11 @@
 import type { z } from 'zod';
-import { createUserSchema, dataFieldSchema, getUsersQuerySchema, updateGradeSchema, updateUserGradesSchema } from './user.schema';
+import {
+  createUserSchema,
+  dataFieldSchema,
+  getUsersQuerySchema,
+  updateGradeSchema,
+  updateUserGradesSchema,
+} from './user.schema';
 
 // ?params: export type from schemas
 export type GetUsersQueryDto = z.infer<typeof getUsersQuerySchema>;

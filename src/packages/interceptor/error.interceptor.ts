@@ -17,8 +17,7 @@ export class ErrorInterceptor implements NestInterceptor {
     if (typeof error === 'object' && error !== null) {
       const e = error as Record<string, unknown>;
       const pgCode = (e.code ?? (e.cause as Record<string, unknown> | undefined)?.code) as
-        | string
-        | undefined;
+        string | undefined;
       switch (pgCode) {
         case '23503':
           return 'Referenced record not found (foreign key violation)';

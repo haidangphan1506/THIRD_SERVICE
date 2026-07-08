@@ -1,9 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
+import {
+  and,
+  arrayContains,
+  arrayOverlaps,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  or,
+  type SQL,
+} from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { classes, classStudents, sessions } from '../../database/schema';
 import type { CreateClassDto, GetClassesQueryDto } from '@packages/entities/class';
+import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class ClassRepository {
@@ -12,7 +24,13 @@ export class ClassRepository {
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
-  async create(data: Omit<CreateClassDto, 'code'> & { code: string; tutorId: string }) {
+  async create(
+    data: Omit<CreateClassDto, 'code' | 'studentIds' | 'schedules'> & {
+      code: string;
+      tutorId: string;
+      studentsId?: string[];
+    },
+  ) {
     const [cls] = await this.db
       .insert(classes)
       .values({
@@ -28,14 +46,24 @@ export class ClassRepository {
         location: data.location ?? null,
         curriculumId: data.curriculumId ?? null,
         tutorId: data.tutorId,
+        studentsId: data.studentsId ?? [],
       })
       .returning();
     return cls;
   }
 
-  async findAll({ tutorId, query }: { tutorId: string; query: GetClassesQueryDto }) {
-    const { page, limit, search, status, subject } = query;
-    const conditions: SQL[] = [eq(classes.tutorId, tutorId)];
+  async findAll({ userId, query }: { userId: string; query: GetClassesQueryDto }) {
+    const { page, limit, search, status, subject, studentsId } = query;
+
+    // Return classes where the caller is the tutor OR is enrolled as a student
+    const userCond = or(eq(classes.tutorId, userId), arrayContains(classes.studentsId, [userId]))!;
+    const conditions: SQL[] = [userCond];
+
+    if (studentsId) {
+      const ids = Array.isArray(studentsId) ? studentsId : [studentsId];
+      const validIds = ids.filter((id) => typeof id === 'string' && checkUuidValid({ data: id }));
+      if (validIds.length) conditions.push(arrayOverlaps(classes.studentsId, validIds));
+    }
 
     if (search?.trim()) {
       const pattern = `%${search.trim()}%`;
@@ -126,9 +154,26 @@ export class ClassRepository {
   }
 
   async update(id: string, data: Record<string, unknown>) {
+    const allowed = new Set([
+      'name',
+      'code',
+      'subject',
+      'tuition',
+      'description',
+      'status',
+      'format',
+      'startTime',
+      'endTime',
+      'location',
+      'curriculumId',
+    ]);
+    const safe: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (allowed.has(k)) safe[k] = v;
+    }
     const [cls] = await this.db
       .update(classes)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...safe, updatedAt: new Date() })
       .where(eq(classes.id, id))
       .returning();
     return cls ?? null;

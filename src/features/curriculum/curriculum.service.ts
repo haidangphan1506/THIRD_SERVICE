@@ -1,4 +1,11 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CurriculumRepository } from './curriculum.repository';
 import { UserService } from '../user/user.service';
 import { drizzle } from 'drizzle-orm/singlestore';

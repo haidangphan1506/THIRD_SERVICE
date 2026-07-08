@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -37,7 +27,10 @@ export class ScheduleController {
 
   @Post()
   @HttpCode(StatusCodes.CREATED)
-  @ApiOperation({ summary: 'Create schedules', description: 'Create weekly schedules for a class (e.g. 2 buổi/tuần)' })
+  @ApiOperation({
+    summary: 'Create schedules',
+    description: 'Create weekly schedules for a class (e.g. 2 buổi/tuần)',
+  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -52,7 +45,19 @@ export class ScheduleController {
             type: 'object',
             required: ['dayOfWeek', 'startTime', 'endTime'],
             properties: {
-              dayOfWeek: { type: 'string', enum: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'], example: 'MONDAY' },
+              dayOfWeek: {
+                type: 'string',
+                enum: [
+                  'MONDAY',
+                  'TUESDAY',
+                  'WEDNESDAY',
+                  'THURSDAY',
+                  'FRIDAY',
+                  'SATURDAY',
+                  'SUNDAY',
+                ],
+                example: 'MONDAY',
+              },
               startTime: { type: 'string', pattern: '^\\d{2}:\\d{2}$', example: '18:00' },
               endTime: { type: 'string', pattern: '^\\d{2}:\\d{2}$', example: '19:30' },
               format: { type: 'string', enum: ['ONLINE', 'OFFLINE'], default: 'ONLINE' },
@@ -85,7 +90,10 @@ export class ScheduleController {
         type: 'object',
         required: ['dayOfWeek', 'startTime', 'endTime'],
         properties: {
-          dayOfWeek: { type: 'string', enum: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] },
+          dayOfWeek: {
+            type: 'string',
+            enum: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
+          },
           startTime: { type: 'string', pattern: '^\\d{2}:\\d{2}$' },
           endTime: { type: 'string', pattern: '^\\d{2}:\\d{2}$' },
           format: { type: 'string', enum: ['ONLINE', 'OFFLINE'], default: 'ONLINE' },

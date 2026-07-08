@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -14,8 +25,12 @@ import { CurrentUser } from '@packages/decorators';
 import {
   createExerciseSchema,
   getExerciseQuerySchema,
+  gradeExerciseSchema,
+  submitExerciseSchema,
   type CreateExerciseDto,
   type getExerciseDto,
+  type GradeExerciseDto,
+  type SubmitExerciseDto,
 } from '@packages/entities/exercise';
 import { ExerciseService } from './exercise.service';
 
@@ -77,14 +92,18 @@ export class ExerciseController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'sessionId', required: false, type: String, format: 'uuid' })
   @ApiQuery({ name: 'studentId', required: false, type: String, format: 'uuid' })
+  @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
+  @ApiQuery({ name: 'tutorId', required: false, type: String, format: 'uuid' })
   @SwaggerResponse({ status: 200, description: 'Exercises fetched' })
   async findAll(
     @Query(new ZodValidationPipe<getExerciseDto>(getExerciseQuerySchema))
     query: getExerciseDto,
     @Query('sessionId') sessionId?: string,
     @Query('studentId') studentId?: string,
+    @Query('classId') classId?: string,
+    @Query('tutorId') tutorId?: string,
   ) {
-    return this.exerciseService.findAll({ ...query, sessionId, studentId });
+    return this.exerciseService.findAll({ ...query, sessionId, studentId, classId, tutorId });
   }
 
   @Get(':id')
@@ -110,6 +129,69 @@ export class ExerciseController {
     @CurrentUser() _user: Record<string, string>,
   ) {
     return this.exerciseService.update(id, dto);
+  }
+
+  @Patch(':id/submit')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Submit exercise (student)',
+    description: 'Học sinh nộp/nộp lại bài làm. Đặt lại trạng thái về SUBMITTED.',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['exerciseUrls'],
+      properties: {
+        exerciseUrls: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              url: { type: 'string' },
+              key: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Exercise submitted' })
+  async submit(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe<SubmitExerciseDto>(submitExerciseSchema))
+    dto: SubmitExerciseDto,
+    @CurrentUser() user: { id: string; role?: string },
+  ) {
+    return this.exerciseService.submit(id, dto, user);
+  }
+
+  @Patch(':id/grade')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Grade exercise (tutor)',
+    description: 'Gia sư chấm điểm và nhận xét bài làm của học sinh.',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['score'],
+      properties: {
+        score: { type: 'number', minimum: 0, maximum: 10, example: 9.5 },
+        comment: { type: 'string', example: 'Trình bày mạch lạc.' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: 200, description: 'Exercise graded' })
+  async grade(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe<GradeExerciseDto>(gradeExerciseSchema))
+    dto: GradeExerciseDto,
+    @CurrentUser() user: { id: string; role?: string },
+  ) {
+    return this.exerciseService.grade(id, dto, user);
   }
 
   @Delete(':id')

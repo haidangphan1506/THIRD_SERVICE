@@ -37,22 +37,45 @@ export class SessionController {
       properties: {
         classId: { type: 'string', format: 'uuid' },
         lessonId: { type: 'string', format: 'uuid', nullable: true },
-        tutorId: { type: 'string', format: 'uuid', nullable: true, description: 'Substitute tutor' },
+        tutorId: {
+          type: 'string',
+          format: 'uuid',
+          nullable: true,
+          description: 'Substitute tutor',
+        },
         title: { type: 'string', maxLength: 255 },
         description: { type: 'string' },
         sessionNumber: { type: 'integer', minimum: 1, example: 1 },
         theoryUrls: {
           type: 'array',
-          items: { type: 'object', properties: { name: { type: 'string' }, url: { type: 'string' }, key: { type: 'string' } } },
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              url: { type: 'string' },
+              key: { type: 'string' },
+            },
+          },
         },
         exerciseUrls: {
           type: 'array',
-          items: { type: 'object', properties: { name: { type: 'string' }, url: { type: 'string' }, key: { type: 'string' } } },
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              url: { type: 'string' },
+              key: { type: 'string' },
+            },
+          },
         },
         startAt: { type: 'string', format: 'date-time', example: '2026-07-10T08:00:00.000Z' },
         endAt: { type: 'string', format: 'date-time', example: '2026-07-10T10:00:00.000Z' },
         location: { type: 'string' },
-        status: { type: 'string', enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'], default: 'SCHEDULED' },
+        status: {
+          type: 'string',
+          enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
+          default: 'SCHEDULED',
+        },
         note: { type: 'string' },
         actualStartAt: { type: 'string', format: 'date-time', nullable: true },
         actualEndAt: { type: 'string', format: 'date-time', nullable: true },
@@ -74,7 +97,11 @@ export class SessionController {
   @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'status', required: false, enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'] })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
+  })
   @ApiQuery({ name: 'from', required: false, type: String, description: 'ISO date string' })
   @ApiQuery({ name: 'to', required: false, type: String, description: 'ISO date string' })
   @SwaggerResponse({ status: 200, description: 'Sessions fetched' })
@@ -84,6 +111,44 @@ export class SessionController {
     query: GetSessionsQueryDto,
   ) {
     return this.sessionService.findAll(user.id, query);
+  }
+
+  @Get('my')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'List my sessions (student)',
+    description: 'Danh sách buổi học của tất cả lớp mà học sinh đang tham gia.',
+  })
+  @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
+  })
+  @ApiQuery({ name: 'from', required: false, type: String, description: 'ISO date string' })
+  @ApiQuery({ name: 'to', required: false, type: String, description: 'ISO date string' })
+  @SwaggerResponse({ status: 200, description: 'My sessions fetched' })
+  async findMy(
+    @CurrentUser() user: Record<string, string>,
+    @Query(new ZodValidationPipe<GetSessionsQueryDto>(getSessionsQuerySchema))
+    query: GetSessionsQueryDto,
+  ) {
+    return this.sessionService.findAllForStudent(user.id, query);
+  }
+
+  @Get('my/:id')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Get my session detail (student)',
+    description: 'Chi tiết buổi học cho học sinh đang tham gia lớp.',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @SwaggerResponse({ status: 200, description: 'Session detail' })
+  @SwaggerResponse({ status: 404, description: 'Session not found' })
+  async findMyById(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.sessionService.findByIdForStudent(id, user.id);
   }
 
   @Get(':id')

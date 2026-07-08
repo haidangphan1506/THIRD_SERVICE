@@ -275,9 +275,7 @@ export class UserController {
   @ApiOperation({ summary: 'Get all grades', description: 'Get all grades (tutor/admin)' })
   @SwaggerResponse({ status: 200, description: 'Grades fetched successfully' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Grades fetched successfully' })
-  async getGrades(
-    @CurrentUser() user: Record<string, string>,
-  ) {
+  async getGrades(@CurrentUser() user: Record<string, string>) {
     return this.userService.getGradesService(user.id);
   }
 

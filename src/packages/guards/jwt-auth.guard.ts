@@ -33,7 +33,7 @@ function bearerToken(authorization: string | undefined): string | undefined {
   return value;
 }
 
-const JWT_ROLES: readonly JwtUserRole[] = ['STUDENT', 'ADMIN', 'TUTOR','PARENT'];
+const JWT_ROLES: readonly JwtUserRole[] = ['STUDENT', 'ADMIN', 'TUTOR', 'PARENT'];
 
 function parseJwtUserRole(value: unknown): JwtUserRole {
   if (typeof value != 'string') throw new UnauthorizedException('Check role user failed ...');
@@ -100,11 +100,7 @@ export class JwtAuthGuard implements CanActivate {
     const payload = parseAccessPayload(decoded);
     request.user = payload;
 
-    const user = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.id, payload.id))
-      .limit(1);
+    const user = await this.db.select().from(users).where(eq(users.id, payload.id)).limit(1);
 
     if (user.length === 0) {
       throw new UnauthorizedException('Unauthorized ...');

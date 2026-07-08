@@ -43,6 +43,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Public()
   @ApiBearerAuth('access-token')
   @Post('register')
   @HttpCode(StatusCodes.OK)

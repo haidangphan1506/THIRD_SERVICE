@@ -1,0 +1,1 @@
+ALTER TABLE "classes" ALTER COLUMN "users_id" SET DATA TYPE uuid[];

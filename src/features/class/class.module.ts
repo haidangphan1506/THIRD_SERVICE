@@ -3,8 +3,10 @@ import { ClassController } from './class.controller';
 import { ClassRepository } from './class.repository';
 import { ClassService } from './class.service';
 import { SessionRepository } from '../session/session.repository';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
+  imports: [NotificationModule],
   controllers: [ClassController],
   providers: [ClassService, ClassRepository, SessionRepository],
   exports: [ClassService],

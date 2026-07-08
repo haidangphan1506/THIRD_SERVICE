@@ -6,10 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { and, eq, ilike } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { classStudents, studentScores, sessions, users } from '../../database/schema';
+import { classes, classStudents, studentScores, sessions, users } from '../../database/schema';
 import type {
   CreateStudentDto,
   GetStudentsQueryDto,
@@ -87,7 +87,18 @@ export class StudentService {
     }
 
     const studentId = randomUUID();
-    const { studentName, studentPhone, parentName, parentPhone } = dto;
+    const {
+      studentName,
+      studentPhone,
+      parentName,
+      parentPhone,
+      parentEmail,
+      parentRelationship,
+      gender,
+      birthday,
+      school,
+      className,
+    } = dto;
 
     const { firstName: studentFirstName, lastName: studentLastName } = this.splitName(studentName);
 
@@ -96,30 +107,30 @@ export class StudentService {
     if (parentName) {
       const parentUserId = randomUUID();
       const parentCode = await this.generateUniqueCode();
-      const defaultPassword = randomUUID().slice(0, 12);
-      const hashedParentPassword = await hashData(defaultPassword);
-      const parentEmail = `parent_${parentUserId}@parent.local`;
+      const hashedParentPassword = await hashData('Parent@123456');
+      const resolvedParentEmail = parentEmail ?? '';
       const { firstName: parentFirstName, lastName: parentLastName } = this.splitName(parentName);
       const parentUsername = await this.generateUsernameFromName(parentFirstName, parentLastName);
 
       const parent = await this.repo.createParent({
         id: parentUserId,
-        email: parentEmail,
+        email: resolvedParentEmail,
         password: hashedParentPassword,
         username: parentUsername,
         firstName: parentFirstName,
         lastName: parentLastName,
         userCode: parentCode,
         phone: parentPhone ?? null,
+        relationship: parentRelationship ?? null,
         tutorId: currentUser.id,
       });
 
       parentId = parent.id;
     }
 
-    const resolvedEmail = dto.email ?? `${dto.userCode || studentId}@student.local`;
+    const resolvedEmail = dto.email ?? '';
     const studentUsername = await this.generateUsernameFromName(studentFirstName, studentLastName);
-    const hashedPassword = await hashData(dto.password);
+    const hashedPassword = await hashData('Student@123456');
 
     const student = await this.repo.create({
       id: studentId,
@@ -131,15 +142,32 @@ export class StudentService {
       userCode: dto.userCode ?? null,
       phone: studentPhone ?? null,
       avatar: dto.avatar ?? null,
+      gender: gender ?? null,
+      dateOfBirth: birthday ?? null,
+      school: school ?? null,
       parentId,
       tutorId: currentUser.id,
     });
 
+    // Explicit class enrollment by id
     if (dto.classId) {
       await this.db
         .insert(classStudents)
         .values({ classId: dto.classId, studentId: student.id })
         .onConflictDoNothing();
+    } else if (className?.trim()) {
+      // Best-effort enrollment: match one of the tutor's classes by name
+      const [matchedClass] = await this.db
+        .select({ id: classes.id })
+        .from(classes)
+        .where(and(eq(classes.tutorId, currentUser.id), ilike(classes.name, className.trim())))
+        .limit(1);
+      if (matchedClass) {
+        await this.db
+          .insert(classStudents)
+          .values({ classId: matchedClass.id, studentId: student.id })
+          .onConflictDoNothing();
+      }
     }
     return student;
   }
@@ -169,6 +197,30 @@ export class StudentService {
       .where(eq(sessions.classId, classRows[0]?.classId ?? ''))
       .limit(10);
 
+    let parentName: string | null = null;
+    let parentPhone: string | null = null;
+    let parentEmail: string | null = null;
+    let parentRelationship: string | null = null;
+    if (user.parentId) {
+      const [parent] = await this.db
+        .select({
+          firstName: users.firstName,
+          lastName: users.lastName,
+          phone: users.phone,
+          email: users.email,
+          relationship: users.relationship,
+        })
+        .from(users)
+        .where(eq(users.id, user.parentId))
+        .limit(1);
+      if (parent) {
+        parentName = `${parent.firstName} ${parent.lastName}`.trim();
+        parentPhone = parent.phone;
+        parentEmail = parent.email;
+        parentRelationship = parent.relationship;
+      }
+    }
+
     return {
       id: user.id,
       email: user.email,
@@ -178,7 +230,15 @@ export class StudentService {
       userCode: user.userCode,
       phone: user.phone,
       avatar: user.avatar,
+      gender: user.gender,
+      dateOfBirth:
+        user.dateOfBirth instanceof Date ? user.dateOfBirth.toISOString() : user.dateOfBirth,
+      school: user.school,
       parentId: user.parentId,
+      parentName,
+      parentPhone,
+      parentEmail,
+      parentRelationship,
       role: user.role,
       isActive: user.isActive,
       classCount: classRows.length,
@@ -195,7 +255,87 @@ export class StudentService {
   async update(id: string, dto: UpdateStudentDto) {
     const student = await this.repo.findById(id);
     if (!student) throw new NotFoundException('Student not found');
-    return this.repo.update(id, dto);
+
+    // ── student fields ──
+    const studentUpdate: Partial<typeof users.$inferInsert> = {};
+    if (dto.studentName !== undefined) {
+      const { firstName, lastName } = this.splitName(dto.studentName);
+      studentUpdate.firstName = firstName;
+      studentUpdate.lastName = lastName;
+    }
+    if (dto.studentPhone !== undefined) studentUpdate.phone = dto.studentPhone || null;
+    if (dto.gender !== undefined) studentUpdate.gender = dto.gender;
+    if (dto.birthday !== undefined) studentUpdate.dateOfBirth = dto.birthday;
+    if (dto.school !== undefined) studentUpdate.school = dto.school || null;
+    if (dto.avatar !== undefined) studentUpdate.avatar = dto.avatar;
+
+    let updated = student;
+    if (Object.keys(studentUpdate).length > 0) {
+      updated = (await this.repo.update(id, studentUpdate)) ?? student;
+    }
+
+    // ── parent fields ──
+    const hasParentField =
+      dto.parentName !== undefined ||
+      dto.parentPhone !== undefined ||
+      dto.parentEmail !== undefined ||
+      dto.parentRelationship !== undefined;
+
+    if (hasParentField) {
+      if (student.parentId) {
+        const parentUpdate: Partial<typeof users.$inferInsert> = {};
+        if (dto.parentName !== undefined) {
+          const { firstName, lastName } = this.splitName(dto.parentName);
+          parentUpdate.firstName = firstName;
+          parentUpdate.lastName = lastName;
+        }
+        if (dto.parentPhone !== undefined) parentUpdate.phone = dto.parentPhone || null;
+        if (dto.parentEmail !== undefined) parentUpdate.email = dto.parentEmail;
+        if (dto.parentRelationship !== undefined)
+          parentUpdate.relationship = dto.parentRelationship;
+        if (Object.keys(parentUpdate).length > 0) {
+          await this.repo.updateParent(student.parentId, parentUpdate);
+        }
+      } else if (dto.parentName) {
+        // No parent linked yet — create one (mirrors create flow)
+        const parentUserId = randomUUID();
+        const parentCode = await this.generateUniqueCode();
+        const hashedParentPassword = await hashData('Parent@123456');
+        const resolvedParentEmail = dto.parentEmail ?? '';
+        const { firstName, lastName } = this.splitName(dto.parentName);
+        const parentUsername = await this.generateUsernameFromName(firstName, lastName);
+        const parent = await this.repo.createParent({
+          id: parentUserId,
+          email: resolvedParentEmail,
+          password: hashedParentPassword,
+          username: parentUsername,
+          firstName,
+          lastName,
+          userCode: parentCode,
+          phone: dto.parentPhone ?? null,
+          relationship: dto.parentRelationship ?? null,
+          tutorId: student.tutorId,
+        });
+        updated = (await this.repo.update(id, { parentId: parent.id })) ?? updated;
+      }
+    }
+
+    // ── best-effort class enrollment by name ──
+    if (dto.className?.trim() && student.tutorId) {
+      const [matchedClass] = await this.db
+        .select({ id: classes.id })
+        .from(classes)
+        .where(and(eq(classes.tutorId, student.tutorId), ilike(classes.name, dto.className.trim())))
+        .limit(1);
+      if (matchedClass) {
+        await this.db
+          .insert(classStudents)
+          .values({ classId: matchedClass.id, studentId: id })
+          .onConflictDoNothing();
+      }
+    }
+
+    return updated;
   }
 
   async delete(id: string) {
