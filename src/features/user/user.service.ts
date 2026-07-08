@@ -13,9 +13,10 @@ import { DRIZZLE } from '../../database/database.module';
 import { categories, grades, transactions, users, wallets } from '../../database/schema';
 import {
   type ChangePasswordValues,
-  type CreateUserDto,
+  type CreateUserInput,
   type GetUsersQueryDto,
   type UpdateGradeDto,
+  type UpdateUserDto,
   type UpdateUserGradesDto,
   type UserDataFieldDto,
   User,
@@ -436,7 +437,7 @@ export class UserService {
     return user;
   }
 
-  async createUserService(createUserDto: CreateUserDto): Promise<unknown> {
+  async createUserService(createUserDto: CreateUserInput): Promise<unknown> {
     this.logger.log(`Creating new user ...`);
 
     const { email, firstName, lastName, password, username } = createUserDto;
@@ -503,7 +504,7 @@ export class UserService {
     return updatedUser[0];
   }
 
-  async updateUserService({ id, data }: { id: string; data: Record<string, string> }) {
+  async updateUserService({ id, data }: { id: string; data: UpdateUserDto }) {
     const user = await this.getUserByField({
       field: 'id',
       value: id,
@@ -512,7 +513,12 @@ export class UserService {
       throw new BadRequestException('User not found ...');
     }
 
-    await this.db.update(users).set(data).where(eq(users.id, id));
+    const [updatedUser] = await this.db
+      .update(users)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
   }
 
   async updateStatusUserService({ id }: { id: string }) {

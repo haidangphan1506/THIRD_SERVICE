@@ -1,7 +1,7 @@
 # AI Module (`src/features/ai`)
 
 Trợ lý AI của **Gia Sư Pro**. Trả lời câu hỏi của người dùng (giáo viên / học sinh / phụ huynh)
-dựa trên **dữ liệu thật trong database**, thông qua cơ chế **function-calling** của Gemini.
+dựa trên **dữ liệu thật trong database**, thông qua cơ chế **function-calling** qua OpenRouter.
 
 Model không tự truy vấn DB. Thay vào đó nó được cung cấp một bộ **công cụ (tools)** read-only đã
 định nghĩa sẵn; model chọn tool phù hợp, backend chạy query Drizzle **scope theo người dùng (JWT)**
@@ -18,7 +18,7 @@ POST /ai-chat/chat  (JwtAuthGuard → @CurrentUser)
         ├─ IntentService.detectIntent()      → phân loại câu hỏi (advisory)
         ├─ PromptService.buildSystemPrompt()  → dựng system instruction theo role + intent
         ├─ RagService.retrieve()              → (đang tắt) bổ sung ngữ cảnh
-        ├─ ProviderFactory.getProvider()      → chọn Gemini (mặc định) / OpenAI
+        ├─ ProviderFactory.getProvider()      → chọn OpenRouter (mặc định) / OpenAI
         │
         ▼
    provider.generate({ systemInstruction, messages, tools, executeTool })
@@ -54,9 +54,9 @@ POST /ai-chat/chat  (JwtAuthGuard → @CurrentUser)
 | File | Chức năng |
 | --- | --- |
 | `ai-provider.interface.ts` | Định nghĩa contract: `AiProvider.generate()`, `AiToolDeclaration`, `AiToolExecutor`, `AiGenerateParams`. Tách logic model khỏi phần còn lại. |
-| `gemini.provider.ts` | **Provider thật** (Google Gemini 2.5 Flash). Chạy vòng lặp function-calling: nhận tool-call → gọi `executeTool` → trả kết quả về model, tối đa `MAX_TOOL_ROUNDS` vòng. |
+| `openrouter.provider.ts` | **Provider thật** (OpenRouter, endpoint OpenAI-compatible, model mặc định `x-ai/grok-4-fast` qua `OPENROUTER_MODEL`). Chạy vòng lặp function-calling: nhận tool-call → gọi `executeTool` → trả kết quả về model, tối đa `MAX_TOOL_ROUNDS` vòng. |
 | `openai.provider.ts` | **Stub** OpenAI (chưa triển khai — `generate()` throw). Giữ chỗ để đổi provider qua config. |
-| `provider.factory.ts` | Chọn provider theo env `AI_PROVIDER` (`gemini` mặc định, `openai` nếu cấu hình). |
+| `provider.factory.ts` | Chọn provider theo env `AI_PROVIDER` (`openrouter` mặc định, `openai` nếu cấu hình). |
 
 ### `context/` — Công cụ dữ liệu (read-only, scope theo user)
 
@@ -131,8 +131,9 @@ POST /ai-chat/chat  (JwtAuthGuard → @CurrentUser)
 
 | Biến | Ý nghĩa | Mặc định |
 | --- | --- | --- |
-| `GEMINI_API_KEY` | API key Google Gemini | (bắt buộc để chat hoạt động) |
-| `AI_PROVIDER` | Chọn provider: `gemini` \| `openai` | `gemini` |
+| `OPENROUTER_API_KEY` | API key OpenRouter (https://openrouter.ai/keys) | (bắt buộc để chat hoạt động) |
+| `OPENROUTER_MODEL` | Model dùng qua OpenRouter | `x-ai/grok-4-fast` |
+| `AI_PROVIDER` | Chọn provider: `openrouter` \| `openai` | `openrouter` |
 
 ## Hướng mở rộng
 

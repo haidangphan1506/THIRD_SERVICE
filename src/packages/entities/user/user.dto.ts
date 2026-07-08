@@ -5,12 +5,21 @@ import {
   getUsersQuerySchema,
   updateGradeSchema,
   updateUserGradesSchema,
+  updateUserSchema,
 } from './user.schema';
 
 // ?params: export type from schemas
 export type GetUsersQueryDto = z.infer<typeof getUsersQuerySchema>;
 export type UserDataFieldDto = z.infer<typeof dataFieldSchema>;
 export type CreateUserDto = z.infer<typeof createUserSchema>;
+/**
+ * Pre-validation shape accepted by `createUserService`. Uses `z.input` so the
+ * schema's defaulted fields (isActive, description, address, ...) are optional
+ * for direct callers (e.g. auth register / OAuth), while the parsed output type
+ * `CreateUserDto` — which the controller passes — remains assignable to it.
+ */
+export type CreateUserInput = z.input<typeof createUserSchema>;
+export type UpdateUserDto = z.infer<typeof updateUserSchema>;
 export type ChangePasswordValues = {
   currentPassword: string;
   newPassword: string;

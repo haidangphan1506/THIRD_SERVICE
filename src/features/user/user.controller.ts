@@ -36,6 +36,8 @@ import {
   type GetUsersQueryDto,
   type UpdateGradeDto,
   updateGradeSchema,
+  type UpdateUserDto,
+  updateUserSchema,
   type UpdateUserGradesDto,
   updateUserGradesSchema,
   type UserDataFieldDto,
@@ -46,6 +48,80 @@ import { ZodValidationPipe } from '@packages/pipes';
 import { type MulterFile } from '../cloudinary/cloudinary.interface';
 import { type GetDetailUserQuery, UserService } from './user.service';
 type GetUsersResponse = Awaited<ReturnType<UserService['getUsersService']>>;
+
+/**
+ * Swagger request body for the update-user endpoints.
+ * Mirrors every updatable column of the `users` table (password excluded — use
+ * the change-password endpoint). All fields are optional.
+ */
+const UPDATE_USER_BODY_SCHEMA = {
+  type: 'object',
+  properties: {
+    email: { type: 'string', format: 'email', example: 'updated@example.com' },
+    username: { type: 'string', maxLength: 50, example: 'newusername' },
+    firstName: { type: 'string', minLength: 2, maxLength: 100, example: 'John' },
+    lastName: { type: 'string', minLength: 2, maxLength: 100, example: 'Doe' },
+    avatar: {
+      type: 'string',
+      format: 'uri',
+      nullable: true,
+      example: 'https://cdn.example.com/avatar.png',
+    },
+    phone: { type: 'string', maxLength: 20, nullable: true, example: '+84901234567' },
+    isActive: { type: 'boolean', example: true },
+    role: { type: 'string', enum: ['ADMIN', 'TUTOR', 'PARENT', 'STUDENT'], example: 'STUDENT' },
+    description: { type: 'string', maxLength: 5000, nullable: true, example: 'Short bio' },
+    userCode: { type: 'string', maxLength: 6, nullable: true, example: 'ABC123' },
+    gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'], nullable: true, example: 'MALE' },
+    dateOfBirth: {
+      type: 'string',
+      format: 'date-time',
+      nullable: true,
+      example: '2000-01-15T00:00:00.000Z',
+    },
+    address: { type: 'string', nullable: true, example: '123 Nguyen Trai' },
+    district: { type: 'string', maxLength: 30, nullable: true, example: 'District 1' },
+    province: { type: 'string', maxLength: 30, nullable: true, example: 'Ho Chi Minh' },
+    subjects: { type: 'string', maxLength: 30, nullable: true, example: 'Toán, Vật lý' },
+    facebookId: {
+      type: 'string',
+      maxLength: 200,
+      nullable: true,
+      example: 'https://facebook.com/john',
+    },
+    googleId: {
+      type: 'string',
+      maxLength: 200,
+      nullable: true,
+      example: 'https://google.com/john',
+    },
+    school: { type: 'string', maxLength: 255, nullable: true, example: 'Le Hong Phong High School' },
+    relationship: { type: 'string', maxLength: 50, nullable: true, example: 'FATHER' },
+    classId: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+      example: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    },
+    gradesId: {
+      type: 'array',
+      items: { type: 'string', format: 'uuid' },
+      example: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
+    },
+    parentId: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+      example: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    },
+    tutorId: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+      example: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    },
+  },
+};
 
 @ApiTags('Users')
 @ApiBearerAuth('access-token')
@@ -173,25 +249,15 @@ export class UserController {
   @Put('')
   @ApiOperation({
     summary: 'Update current user',
-    description: 'Update the authenticated user profile',
+    description: 'Update the authenticated user profile. All fields are optional.',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', format: 'email', example: 'updated@example.com' },
-        firstName: { type: 'string', example: 'John' },
-        lastName: { type: 'string', example: 'Doe' },
-        avatar: { type: 'string', nullable: true },
-        phone: { type: 'string', nullable: true },
-      },
-    },
-  })
+  @ApiBody({ schema: UPDATE_USER_BODY_SCHEMA })
   @SwaggerResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Update user successfully ...' })
   async updateUserController(
     @CurrentUser() user: Record<string, string>,
-    @Body() updateUserDto: Record<string, string>,
+    @Body(new ZodValidationPipe<UpdateUserDto>(updateUserSchema))
+    updateUserDto: UpdateUserDto,
   ) {
     return await this.userService.updateUserService({ id: user.id, data: updateUserDto });
   }
@@ -200,26 +266,16 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Update user by admin',
-    description: 'Update any user by ID (admin only)',
+    description: 'Update any user by ID (admin only). All fields are optional.',
   })
   @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'User ID' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', format: 'email' },
-        firstName: { type: 'string' },
-        lastName: { type: 'string' },
-        role: { type: 'string', enum: ['ADMIN', 'TUTOR', 'PARENT', 'STUDENT'] },
-        isActive: { type: 'boolean' },
-      },
-    },
-  })
+  @ApiBody({ schema: UPDATE_USER_BODY_SCHEMA })
   @SwaggerResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Update user successfully ...' })
   async updateUserByAdminController(
     @Param('id') id: string,
-    @Body() updateUserDto: Record<string, string>,
+    @Body(new ZodValidationPipe<UpdateUserDto>(updateUserSchema))
+    updateUserDto: UpdateUserDto,
   ) {
     return await this.userService.updateUserService({ id: id, data: updateUserDto });
   }
