@@ -29,3 +29,15 @@ lint:
     - install
   script:
     - npm run lint
+test:
+  stage: test
+  dependencies:
+    - install
+  script:
+    - npm run test
+build:
+  stage: test
+  dependencies:
+    - install
+  script:
+    - npm run build
