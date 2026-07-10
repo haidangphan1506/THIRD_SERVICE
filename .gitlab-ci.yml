@@ -48,5 +48,4 @@ deploy:
     - npm install -g @railway/cli
 
   script:
-    - railway login --token $RAILWAY_TOKEN
     - railway up --service=$RAILWAY_SERVICE
