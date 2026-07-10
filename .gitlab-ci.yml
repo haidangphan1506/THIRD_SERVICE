@@ -44,8 +44,6 @@ stages:
 
 deploy:
   stage: deploy
-  dependencies:
-    - install
   before_script:
     - npm install -g @railway/cli
 
