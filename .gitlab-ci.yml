@@ -7,40 +7,46 @@ stages:
   - build
   - deploy
 
-# install:
-#   stage: install
-#   script:
-#     - npm ci
-#   artifacts:
-#     paths:
-#       - node_modules/
+install:
+  stage: install
+  script:
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
 
-# typecheck:
-#   stage: typecheck
-#   dependencies:
-#     - install
-#   script:
-#     - npm run typecheck
+typecheck:
+  stage: typecheck
+  dependencies:
+    - install
+  script:
+    - npm run typecheck
 
-# lint:
-#   stage: lint
-#   image: node:22
-#   dependencies:
-#     - install
-#   script:
-#     - npm run lint
-# test:
-#   stage: test
-#   dependencies:
-#     - install
-#   script:
-#     - npm run test
-# build:
-#   stage: build
-#   dependencies:
-#     - install
-#   script:
-#     - npm run build
+lint:
+  stage: lint
+  image: node:22
+  dependencies:
+    - install
+  script:
+    - npm run lint
+test:
+  stage: test
+  dependencies:
+    - install
+  script:
+    - npm run test
+  rules:
+    - exists:
+        - '**/*.spec.ts'
+        - '**/*.test.ts'
+        - '**/*.spec.js'
+        - '**/*.test.js'
+build:
+  stage: build
+  dependencies:
+    - install
+  script:
+    - npm run build
 
 deploy:
   stage: deploy
@@ -49,3 +55,5 @@ deploy:
 
   script:
     - railway up --service=$RAILWAY_SERVICE
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
