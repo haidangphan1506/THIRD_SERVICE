@@ -10,6 +10,7 @@ import { DRIZZLE } from '../../database/database.module';
 import { classStudents, users } from '../../database/schema';
 import type { GetStudentsQueryDto } from '@packages/entities/student';
 
+//todo : handle error from database can check ...
 function handleDbError(err: unknown): never {
   const e = err as Record<string, unknown>;
   // Drizzle wraps postgres-js errors; the real pg error with `code`/`detail` is in `cause`
@@ -34,7 +35,8 @@ export class StudentRepository {
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
-  async create(data: {
+  // todo : create student ...
+  async createStudent(data: {
     id: string;
     email: string;
     password: string;
@@ -58,6 +60,7 @@ export class StudentRepository {
     return student;
   }
 
+  // todo : create parent ...
   async createParent(data: {
     id: string;
     email: string;
@@ -68,6 +71,7 @@ export class StudentRepository {
     userCode: string | null;
     phone: string | null;
     relationship: string | null;
+    gender: 'MALE' | 'FEMALE' | 'OTHER' | null;
     tutorId: string | null;
   }): Promise<typeof users.$inferSelect> {
     const [parent] = await this.db
@@ -78,6 +82,7 @@ export class StudentRepository {
     return parent;
   }
 
+  // todo : get and filter student ...
   async findAll(query: GetStudentsQueryDto & { classIdFilter?: string }) {
     const { page, limit, search, classId: queryClassId, classIdFilter } = query;
     const effectiveClassId = classIdFilter || queryClassId;
@@ -227,7 +232,7 @@ export class StudentRepository {
     };
   }
 
-  async findById(id: string) {
+  async findById({ id }: { id: string }) {
     const [row] = await this.db
       .select()
       .from(users)
@@ -236,12 +241,12 @@ export class StudentRepository {
     return row ?? null;
   }
 
-  async findByCode(code: string) {
+  async findByCode({ code }: { code: string }) {
     const [row] = await this.db.select().from(users).where(eq(users.userCode, code)).limit(1);
     return row ?? null;
   }
 
-  async update(id: string, data: Partial<typeof users.$inferInsert>) {
+  async update({ id, data }: { id: string; data: Partial<typeof users.$inferInsert> }) {
     const [student] = await this.db
       .update(users)
       .set(data)
@@ -251,7 +256,7 @@ export class StudentRepository {
     return student ?? null;
   }
 
-  async updateParent(id: string, data: Partial<typeof users.$inferInsert>) {
+  async updateParent({ id, data }: { id: string; data: Partial<typeof users.$inferInsert> }) {
     const [parent] = await this.db
       .update(users)
       .set(data)
@@ -261,7 +266,7 @@ export class StudentRepository {
     return parent ?? null;
   }
 
-  async delete(id: string) {
+  async delete({ id }: { id: string }) {
     const [student] = await this.db
       .delete(users)
       .where(and(eq(users.id, id), eq(users.role, 'STUDENT')))

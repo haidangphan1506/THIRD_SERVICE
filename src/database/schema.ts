@@ -201,6 +201,7 @@ export const classes = pgTable('classes', {
   location: text('location'),
   curriculumId: uuid('curriculum_id').references(() => curriculums.id, { onDelete: 'set null' }),
   studentsId: uuid('students_id').array().notNull().default([]),
+  parentsId: uuid('parents_id').array().notNull().default([]),
   tutorId: uuid('tutor_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),

@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { and, eq, ilike } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -29,12 +23,13 @@ export class StudentService {
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
+  // TODO: generate unique code ...
   private async generateUniqueCode(): Promise<string> {
     const MAX_RETRIES = 5;
     let attempts = 0;
     let newCode = generateCode();
 
-    while (await this.repo.findByCode(newCode)) {
+    while (await this.repo.findByCode({ code: newCode })) {
       attempts++;
       if (attempts >= MAX_RETRIES) {
         throw new ConflictException('Unable to generate unique code, please try again');
@@ -45,6 +40,7 @@ export class StudentService {
     return newCode;
   }
 
+  // TODO: generate unique code services ...
   async generateStudentCodeService(): Promise<string> {
     return this.generateUniqueCode();
   }
@@ -57,6 +53,7 @@ export class StudentService {
     };
   }
 
+  // TODO: generate username from full name ...
   private async generateUsernameFromName(firstName: string, lastName: string): Promise<string> {
     const base = `${lastName}${firstName}`
       .normalize('NFD')
@@ -78,97 +75,75 @@ export class StudentService {
     throw new ConflictException(`Cannot generate unique username for "${firstName} ${lastName}"`);
   }
 
-  async create(dto: CreateStudentDto & { classId?: string }, currentUser: JwtGuardUser) {
+  /**
+   * Create a new student, auto-creating a linked PARENT account when parent info is supplied.
+   * The creating user (tutor/admin) is recorded as `tutorId` on both records.
+   */
+  async create(dto: CreateStudentDto, currentUser: JwtGuardUser) {
+    // 1. Resolve the student code: if the client supplied one, it must be free — reject the
+    // request instead of silently generating a different code. Otherwise, auto-generate one.
+    let studentCode: string;
     if (dto.userCode) {
-      const existing = await this.repo.findByCode(dto.userCode);
-      if (existing) {
-        throw new BadRequestException(`Student code "${dto.userCode}" already exists`);
-      }
+      const taken = await this.repo.findByCode({ code: dto.userCode });
+      if (taken) throw new ConflictException(`Student code "${dto.userCode}" already exists`);
+      studentCode = dto.userCode;
+    } else {
+      studentCode = await this.generateUniqueCode();
     }
 
-    const studentId = randomUUID();
-    const {
-      studentName,
-      studentPhone,
-      parentName,
-      parentPhone,
-      parentEmail,
-      parentRelationship,
-      gender,
-      birthday,
-      school,
-      className,
-    } = dto;
+    // 2. Split the student's full name into the first/last name columns `users` expects.
+    const { firstName, lastName } = this.splitName(dto.studentName);
 
-    const { firstName: studentFirstName, lastName: studentLastName } = this.splitName(studentName);
+    // 3. Generate a unique username + default password for the new student login.
+    const studentUsername = await this.generateUsernameFromName(firstName, lastName);
+    const hashedStudentPassword = await hashData('Student@123456');
 
+    // 4. If parent info was submitted, create the PARENT user first so it can be linked below.
     let parentId: string | null = null;
-
-    if (parentName) {
-      const parentUserId = randomUUID();
+    if (dto.parentName) {
+      const { firstName: parentFirstName, lastName: parentLastName } = this.splitName(
+        dto.parentName,
+      );
+      const parentUsername = await this.generateUsernameFromName(parentFirstName, parentLastName);
       const parentCode = await this.generateUniqueCode();
       const hashedParentPassword = await hashData('Parent@123456');
-      const resolvedParentEmail = parentEmail ?? '';
-      const { firstName: parentFirstName, lastName: parentLastName } = this.splitName(parentName);
-      const parentUsername = await this.generateUsernameFromName(parentFirstName, parentLastName);
 
       const parent = await this.repo.createParent({
-        id: parentUserId,
-        email: resolvedParentEmail,
+        id: randomUUID(),
+        // Every account needs a unique, non-null email — fall back to a placeholder when
+        // the tutor didn't provide one instead of colliding on `''` for every parent-less student.
+        email: dto.parentEmail || '',
         password: hashedParentPassword,
         username: parentUsername,
         firstName: parentFirstName,
         lastName: parentLastName,
         userCode: parentCode,
-        phone: parentPhone ?? null,
-        relationship: parentRelationship ?? null,
+        phone: dto.parentPhone ?? null,
+        relationship: dto.parentRelationship ?? null,
+        gender: dto.parentRelationship === 'FATHER' ? 'MALE' : 'FEMALE',
         tutorId: currentUser.id,
       });
-
       parentId = parent.id;
     }
 
-    const resolvedEmail = dto.email ?? '';
-    const studentUsername = await this.generateUsernameFromName(studentFirstName, studentLastName);
-    const hashedPassword = await hashData('Student@123456');
-
-    const student = await this.repo.create({
-      id: studentId,
-      email: resolvedEmail,
-      password: hashedPassword,
+    // 5. Create the student, linking the parent (if any) and the creating tutor/admin.
+    const student = await this.repo.createStudent({
+      id: randomUUID(),
+      email: dto.email || `${studentUsername}@no-email.local`,
+      password: hashedStudentPassword,
       username: studentUsername,
-      firstName: studentFirstName,
-      lastName: studentLastName,
-      userCode: dto.userCode ?? null,
-      phone: studentPhone ?? null,
-      avatar: dto.avatar ?? null,
-      gender: gender ?? null,
-      dateOfBirth: birthday ?? null,
-      school: school ?? null,
+      firstName,
+      lastName,
+      userCode: studentCode,
+      phone: dto.studentPhone ?? null,
+      avatar: null,
+      gender: dto.gender ?? null,
+      dateOfBirth: null,
+      school: dto.school ?? null,
       parentId,
       tutorId: currentUser.id,
     });
 
-    // Explicit class enrollment by id
-    if (dto.classId) {
-      await this.db
-        .insert(classStudents)
-        .values({ classId: dto.classId, studentId: student.id })
-        .onConflictDoNothing();
-    } else if (className?.trim()) {
-      // Best-effort enrollment: match one of the tutor's classes by name
-      const [matchedClass] = await this.db
-        .select({ id: classes.id })
-        .from(classes)
-        .where(and(eq(classes.tutorId, currentUser.id), ilike(classes.name, className.trim())))
-        .limit(1);
-      if (matchedClass) {
-        await this.db
-          .insert(classStudents)
-          .values({ classId: matchedClass.id, studentId: student.id })
-          .onConflictDoNothing();
-      }
-    }
     return student;
   }
 
@@ -177,7 +152,7 @@ export class StudentService {
   }
 
   async findById(id: string) {
-    const user = await this.repo.findById(id);
+    const user = await this.repo.findById({ id });
     if (!user) throw new NotFoundException('Student not found');
 
     const [scoreRow] = await this.db
@@ -253,7 +228,7 @@ export class StudentService {
   }
 
   async update(id: string, dto: UpdateStudentDto) {
-    const student = await this.repo.findById(id);
+    const student = await this.repo.findById({ id });
     if (!student) throw new NotFoundException('Student not found');
 
     // ── student fields ──
@@ -271,7 +246,7 @@ export class StudentService {
 
     let updated = student;
     if (Object.keys(studentUpdate).length > 0) {
-      updated = (await this.repo.update(id, studentUpdate)) ?? student;
+      updated = (await this.repo.update({ id, data: studentUpdate })) ?? student;
     }
 
     // ── parent fields ──
@@ -294,7 +269,7 @@ export class StudentService {
         if (dto.parentRelationship !== undefined)
           parentUpdate.relationship = dto.parentRelationship;
         if (Object.keys(parentUpdate).length > 0) {
-          await this.repo.updateParent(student.parentId, parentUpdate);
+          await this.repo.updateParent({ id: student.parentId, data: parentUpdate });
         }
       } else if (dto.parentName) {
         // No parent linked yet — create one (mirrors create flow)
@@ -314,9 +289,10 @@ export class StudentService {
           userCode: parentCode,
           phone: dto.parentPhone ?? null,
           relationship: dto.parentRelationship ?? null,
+          gender: dto.parentRelationship === 'FATHER' ? 'MALE' : 'FEMALE',
           tutorId: student.tutorId,
         });
-        updated = (await this.repo.update(id, { parentId: parent.id })) ?? updated;
+        updated = await this.repo.update({ id, data: parent });
       }
     }
 
@@ -339,9 +315,9 @@ export class StudentService {
   }
 
   async delete(id: string) {
-    const student = await this.repo.findById(id);
+    const student = await this.repo.findById({ id });
     if (!student) throw new NotFoundException('Student not found');
-    await this.repo.delete(id);
+    await this.repo.delete({ id });
     return { id };
   }
 }
