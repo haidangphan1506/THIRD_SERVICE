@@ -137,8 +137,6 @@ export class ContextService {
           byClass: scope.byClass,
           status: args.status as string | undefined,
         });
-      case 'getMyAssignments':
-        return this.exerciseCtx.getMyAssignments(scope.classIds, args.status as string | undefined);
       case 'getMyScores':
         return this.exerciseCtx.getMyScores({
           classIds: scope.classIds,

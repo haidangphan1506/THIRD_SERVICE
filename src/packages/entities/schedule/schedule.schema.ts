@@ -9,6 +9,16 @@ export const dayOfWeekEnum = z.enum([
   'SATURDAY',
   'SUNDAY',
 ]);
+
+export const dayOfWeeks = [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+] as const;
 export const sessionFormatEnum = z.enum(['ONLINE', 'OFFLINE']);
 
 export const createScheduleSchema = z.object({
@@ -34,6 +44,13 @@ export const createSchedulesSchema = z.object({
     )
     .min(1, 'At least 1 schedule is required')
     .max(7, 'At most 7 schedules allowed'),
+});
+
+export const getSchedulesSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  search: z.string().optional(),
+  classId: z.string().uuid('Invalid class ID').optional(),
 });
 
 export const updateScheduleSchema = createScheduleSchema.partial().omit({ classId: true });

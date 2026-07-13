@@ -1,9 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, count, desc, eq, gte, inArray, lte, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { classStudents, classes, sessions } from '../../database/schema';
-import type { CreateSessionDto, GetSessionsQueryDto } from '@packages/entities/session';
+import {
+  CreateSessionDto,
+  CreateSessionsDto,
+  GetSessionsQueryDto,
+  UpdateSessionDto,
+} from '@packages/entities/session';
+import { chapters, classStudents, classes, lessons, sessions, users } from 'src/database/schema';
+import { buildListWhereClause } from '@packages/helpers';
 
 @Injectable()
 export class SessionRepository {
@@ -12,200 +18,216 @@ export class SessionRepository {
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
-  async create(data: CreateSessionDto) {
+  async create({ data }: { data: CreateSessionDto }) {
     const [session] = await this.db
       .insert(sessions)
       .values({
         classId: data.classId,
-        lessonId: data.lessonId ?? null,
-        tutorId: data.tutorId ?? null,
-        title: data.title ?? null,
-        description: data.description ?? null,
+        lessonId: data.lessonId,
+        tutorId: data.tutorId,
+        title: data.title,
+        description: data.description,
         sessionNumber: data.sessionNumber,
-        theoryUrls: data.theoryUrls ?? [],
-        exerciseUrls: data.exerciseUrls ?? [],
+        theoryUrls: data.theoryUrls,
+        exerciseUrls: data.exerciseUrls,
         startAt: data.startAt,
         endAt: data.endAt,
-        location: data.location ?? null,
-        status: data.status ?? 'SCHEDULED',
-        note: data.note ?? null,
-        actualStartAt: data.actualStartAt ?? null,
-        actualEndAt: data.actualEndAt ?? null,
+        location: data.location,
+        status: data.status,
+        note: data.note,
+        actualStartAt: data.actualStartAt,
+        actualEndAt: data.actualEndAt,
       })
       .returning();
     return session;
   }
 
-  async findAll({ query }: { query: GetSessionsQueryDto }) {
-    const { page, limit, classId, status, from, to } = query;
-    const conditions: SQL[] = [];
+  async createMany({ classId, items }: { classId: string; items: CreateSessionsDto['sessions'] }) {
+    const rows = await this.db
+      .insert(sessions)
+      .values(
+        items.map((item) => ({
+          classId,
+          lessonId: item.lessonId,
+          tutorId: item.tutorId,
+          title: item.title,
+          description: item.description,
+          sessionNumber: item.sessionNumber,
+          theoryUrls: item.theoryUrls,
+          exerciseUrls: item.exerciseUrls,
+          startAt: item.startAt,
+          endAt: item.endAt,
+          location: item.location,
+          status: item.status,
+          note: item.note,
+          actualStartAt: item.actualStartAt,
+          actualEndAt: item.actualEndAt,
+        })),
+      )
+      .returning();
+    return rows;
+  }
 
-    if (classId) conditions.push(eq(sessions.classId, classId));
-    if (status) conditions.push(eq(sessions.status, status));
-    if (from) conditions.push(gte(sessions.startAt, from));
-    if (to) conditions.push(lte(sessions.startAt, to));
+  // list every session across the classes the user owns (tutor) or is enrolled in (student)
+  async getAll({ userId, query }: { userId: string; query: GetSessionsQueryDto }) {
+    const { page = 1, limit = 10, search, status, classId } = query;
 
-    const where = conditions.length > 0 ? and(...conditions) : undefined;
-    const offset = (page - 1) * limit;
+    const ownedClassIds = this.db
+      .select({ id: classes.id })
+      .from(classes)
+      .where(eq(classes.tutorId, userId));
 
-    const [totalRow] = await this.db.select({ total: count() }).from(sessions).where(where);
+    const enrolledClassIds = this.db
+      .select({ id: classStudents.classId })
+      .from(classStudents)
+      .where(eq(classStudents.studentId, userId));
+
+    const searchWhere = buildListWhereClause({
+      search,
+      searchableColumns: { title: { column: sessions.title } },
+      filters: { status, classId },
+      filterColumns: {
+        status: { column: sessions.status },
+        classId: { column: sessions.classId },
+      },
+    });
+
+    const accessWhere = or(
+      inArray(sessions.classId, ownedClassIds),
+      inArray(sessions.classId, enrolledClassIds),
+    );
+    const whereClause = and(...[searchWhere, accessWhere].filter((c) => c !== undefined));
+
+    const [totalRow] = await this.db.select({ total: count() }).from(sessions).where(whereClause);
     const total = Number(totalRow?.total ?? 0);
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const offset = (pageNumber - 1) * limitNumber;
 
     const rows = await this.db
       .select({
         session: sessions,
-        className: classes.name,
-        classCode: classes.code,
-        classSubject: classes.subject,
+        class: {
+          id: classes.id,
+          name: classes.name,
+          code: classes.code,
+          subject: classes.subject,
+          tutorId: classes.tutorId,
+        },
       })
       .from(sessions)
-      .innerJoin(classes, eq(sessions.classId, classes.id))
-      .where(where)
-      .orderBy(asc(sessions.sessionNumber))
-      .limit(limit)
+      .leftJoin(classes, eq(sessions.classId, classes.id))
+      .where(whereClause)
+      .orderBy(desc(sessions.startAt))
+      .limit(limitNumber)
       .offset(offset);
 
     return {
-      data: rows.map((r) => ({
-        ...this.serialize(r.session),
-        class: {
-          id: r.session.classId,
-          name: r.className,
-          code: r.classCode,
-          subject: r.classSubject,
-        },
-      })),
+      sessions: rows.map((row) => ({ ...row.session, class: row.class })),
       pagination: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
       },
     };
   }
 
-  async findById(id: string) {
-    const [session] = await this.db.select().from(sessions).where(eq(sessions.id, id));
-    return session ? this.serialize(session) : null;
+  async getByClass({ classId }: { classId: string }) {
+    return this.db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.classId, classId))
+      .orderBy(asc(sessions.sessionNumber), asc(sessions.startAt));
   }
 
-  /** Class IDs the student is enrolled in. */
-  async getEnrolledClassIds(studentId: string): Promise<string[]> {
-    const rows = await this.db
-      .select({ classId: classStudents.classId })
-      .from(classStudents)
-      .where(eq(classStudents.studentId, studentId));
-    return rows.map((r) => r.classId);
+  async getById({ id }: { id: string }) {
+    const [session] = await this.db.select().from(sessions).where(eq(sessions.id, id)).limit(1);
+    return session;
   }
 
-  async isStudentEnrolled(studentId: string, classId: string): Promise<boolean> {
+  // detail with the nested class + lesson (incl. chapter title) the detail UI needs
+  async getDetailById({ id }: { id: string }) {
+    const [row] = await this.db
+      .select({
+        session: sessions,
+        class: {
+          id: classes.id,
+          name: classes.name,
+          code: classes.code,
+          subject: classes.subject,
+          curriculumId: classes.curriculumId,
+          tutorId: classes.tutorId,
+        },
+        lesson: {
+          id: lessons.id,
+          title: lessons.title,
+          chapterTitle: chapters.title,
+        },
+      })
+      .from(sessions)
+      .leftJoin(classes, eq(sessions.classId, classes.id))
+      .leftJoin(lessons, eq(sessions.lessonId, lessons.id))
+      .leftJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .leftJoin(users, eq(users.id, classes.tutorId))
+      .where(eq(sessions.id, id))
+      .limit(1);
+
+    if (!row) return null;
+    return {
+      ...row.session,
+      class: row.class,
+      lesson: row.lesson?.id ? row.lesson : null,
+    };
+  }
+
+  async isEnrolled({ userId, classId }: { userId: string; classId: string }) {
     const [row] = await this.db
       .select({ id: classStudents.id })
       .from(classStudents)
-      .where(and(eq(classStudents.studentId, studentId), eq(classStudents.classId, classId)))
+      .where(and(eq(classStudents.classId, classId), eq(classStudents.studentId, userId)))
       .limit(1);
     return !!row;
   }
 
-  /**
-   * Sessions across every class a student is enrolled in, each enriched with a
-   * compact `class` object for display. Newest first.
-   */
-  async findAllForStudent({ classIds, query }: { classIds: string[]; query: GetSessionsQueryDto }) {
-    const { page, limit, classId, status, from, to } = query;
-    const conditions: SQL[] = [inArray(sessions.classId, classIds)];
-
-    if (classId) conditions.push(eq(sessions.classId, classId));
-    if (status) conditions.push(eq(sessions.status, status));
-    if (from) conditions.push(gte(sessions.startAt, from));
-    if (to) conditions.push(lte(sessions.startAt, to));
-
-    const where = and(...conditions);
-    const offset = (page - 1) * limit;
-
-    const [totalRow] = await this.db.select({ total: count() }).from(sessions).where(where);
-    const total = Number(totalRow?.total ?? 0);
-
-    const rows = await this.db
-      .select({
-        session: sessions,
-        className: classes.name,
-        classCode: classes.code,
-        classSubject: classes.subject,
-      })
-      .from(sessions)
-      .innerJoin(classes, eq(sessions.classId, classes.id))
-      .where(where)
-      .orderBy(desc(sessions.startAt))
-      .limit(limit)
-      .offset(offset);
-
-    return {
-      data: rows.map((r) => ({
-        ...this.serialize(r.session),
-        class: {
-          id: r.session.classId,
-          name: r.className,
-          code: r.classCode,
-          subject: r.classSubject,
-        },
-      })),
-      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+  // a parent can reach a class when one of their children (users.parentId = userId) is enrolled
+  async isParentOfEnrolled({ userId, classId }: { userId: string; classId: string }) {
+    const [row] = await this.db
+      .select({ id: classStudents.id })
+      .from(classStudents)
+      .innerJoin(users, eq(users.id, classStudents.studentId))
+      .where(and(eq(classStudents.classId, classId), eq(users.parentId, userId)))
+      .limit(1);
+    return !!row;
   }
 
-  async update(id: string, data: Partial<Omit<CreateSessionDto, 'classId'>>) {
-    const values: Record<string, unknown> = { updatedAt: new Date() };
-    if (data.lessonId !== undefined) values.lessonId = data.lessonId;
-    if (data.tutorId !== undefined) values.tutorId = data.tutorId;
-    if (data.title !== undefined) values.title = data.title;
-    if (data.description !== undefined) values.description = data.description;
-    if (data.sessionNumber !== undefined) values.sessionNumber = data.sessionNumber;
-    if (data.theoryUrls !== undefined) values.theoryUrls = data.theoryUrls;
-    if (data.exerciseUrls !== undefined) values.exerciseUrls = data.exerciseUrls;
-    if (data.startAt !== undefined) values.startAt = data.startAt;
-    if (data.endAt !== undefined) values.endAt = data.endAt;
-    if (data.location !== undefined) values.location = data.location;
-    if (data.status !== undefined) values.status = data.status;
-    if (data.note !== undefined) values.note = data.note;
-    if (data.actualStartAt !== undefined) values.actualStartAt = data.actualStartAt;
-    if (data.actualEndAt !== undefined) values.actualEndAt = data.actualEndAt;
-
+  async update({ id, data }: { id: string; data: UpdateSessionDto }) {
     const [session] = await this.db
       .update(sessions)
-      .set(values)
+      .set({
+        lessonId: data.lessonId,
+        tutorId: data.tutorId,
+        title: data.title,
+        description: data.description,
+        sessionNumber: data.sessionNumber,
+        theoryUrls: data.theoryUrls,
+        exerciseUrls: data.exerciseUrls,
+        startAt: data.startAt,
+        endAt: data.endAt,
+        location: data.location,
+        status: data.status,
+        note: data.note,
+        actualStartAt: data.actualStartAt,
+        actualEndAt: data.actualEndAt,
+        updatedAt: new Date(),
+      })
       .where(eq(sessions.id, id))
       .returning();
-    return session ? this.serialize(session) : null;
+    return session;
   }
 
-  async delete(id: string) {
+  async del({ id }: { id: string }) {
     const [session] = await this.db.delete(sessions).where(eq(sessions.id, id)).returning();
     return !!session;
-  }
-
-  private serialize(s: typeof sessions.$inferSelect) {
-    const toIso = (d: Date | null | undefined) =>
-      d instanceof Date ? d.toISOString() : d ? String(d) : null;
-    return {
-      id: s.id,
-      classId: s.classId,
-      lessonId: s.lessonId ?? null,
-      tutorId: s.tutorId ?? null,
-      title: s.title ?? null,
-      description: s.description ?? null,
-      sessionNumber: s.sessionNumber,
-      theoryUrls: (s.theoryUrls as { name: string; url: string; key: string }[]) ?? [],
-      exerciseUrls: (s.exerciseUrls as { name: string; url: string; key: string }[]) ?? [],
-      startAt: toIso(s.startAt)!,
-      endAt: toIso(s.endAt)!,
-      location: s.location ?? null,
-      status: s.status,
-      note: s.note ?? null,
-      actualStartAt: toIso(s.actualStartAt),
-      actualEndAt: toIso(s.actualEndAt),
-      createdAt: toIso(s.createdAt)!,
-      updatedAt: toIso(s.updatedAt)!,
-    };
   }
 }

@@ -1,16 +1,6 @@
 import { z } from 'zod';
 
-export const dayOfWeekEnum = z.enum([
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-  'SUNDAY',
-]);
-export const sessionFormatEnum = z.enum(['ONLINE', 'OFFLINE']);
-export const sessionStatusEnum = z.enum([
+export const classSessionStatusEnum = z.enum([
   'SCHEDULED',
   'ONGOING',
   'COMPLETED',
@@ -18,69 +8,65 @@ export const sessionStatusEnum = z.enum([
   'POSTPONED',
 ]);
 
-export const createScheduleSchema = z.object({
-  classId: z.string().uuid('Invalid class ID'),
-  dayOfWeek: dayOfWeekEnum,
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:mm)'),
-  format: sessionFormatEnum.default('ONLINE'),
-  location: z.string().optional(),
-});
-
-export const updateScheduleSchema = createScheduleSchema.partial().omit({ classId: true });
-
-const fileUrlSchema = z.object({
-  name: z.string(),
-  url: z.string(),
-  key: z.string(),
+const sessionResourceSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  url: z.string().url('Invalid URL'),
+  key: z.string().min(1, 'Key is required'),
 });
 
 export const createSessionSchema = z.object({
   classId: z.string().uuid('Invalid class ID'),
   lessonId: z.string().uuid('Invalid lesson ID').optional().nullable(),
   tutorId: z.string().uuid('Invalid tutor ID').optional().nullable(),
-  title: z.string().max(255).optional(),
+  title: z.string().max(255, 'Title too long').optional(),
   description: z.string().optional(),
-  sessionNumber: z.coerce.number().int().min(1, 'Session number must be at least 1'),
-  theoryUrls: z.array(fileUrlSchema).optional().default([]),
-  exerciseUrls: z.array(fileUrlSchema).optional().default([]),
-  startAt: z.coerce.date({ message: 'Start time is required' }),
-  endAt: z.coerce.date({ message: 'End time is required' }),
+  sessionNumber: z.coerce.number().int().min(1, 'Session number must be >= 1'),
+  theoryUrls: z.array(sessionResourceSchema).default([]),
+  exerciseUrls: z.array(sessionResourceSchema).default([]),
+  startAt: z.coerce.date({ message: 'Start time must be a valid date' }),
+  endAt: z.coerce.date({ message: 'End time must be a valid date' }),
   location: z.string().optional(),
-  status: sessionStatusEnum.default('SCHEDULED').optional(),
+  status: classSessionStatusEnum.default('SCHEDULED').optional(),
   note: z.string().optional(),
   actualStartAt: z.coerce.date().optional().nullable(),
   actualEndAt: z.coerce.date().optional().nullable(),
 });
 
+export const createSessionsSchema = z.object({
+  classId: z.string().uuid('Invalid class ID'),
+  sessions: z
+    .array(createSessionSchema.omit({ classId: true }))
+    .min(1, 'At least 1 session is required')
+    .max(50, 'At most 50 sessions allowed'),
+});
+
+export const getSessionsSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  search: z.string().optional(),
+  status: classSessionStatusEnum.optional(),
+  classId: z.string().uuid('Invalid class ID').optional(),
+});
+
 /**
- * Update schema. Defined explicitly WITHOUT defaults: with `.partial()` on the
- * create schema, Zod would fill absent fields with their defaults (theoryUrls/
- * exerciseUrls → [], status → 'SCHEDULED'), which the repository then writes —
- * silently wiping existing materials/status on a partial update.
+ * Update schema defined explicitly (not `.partial()` on the create schema): with
+ * `.partial()`, Zod would still fill absent fields with their defaults
+ * (theoryUrls/exerciseUrls -> [], status -> 'SCHEDULED'), which the repository then
+ * writes, silently wiping existing materials/status on a partial update.
  */
 export const updateSessionSchema = z.object({
   lessonId: z.string().uuid('Invalid lesson ID').optional().nullable(),
   tutorId: z.string().uuid('Invalid tutor ID').optional().nullable(),
-  title: z.string().max(255).optional(),
+  title: z.string().max(255, 'Title too long').optional(),
   description: z.string().optional(),
-  sessionNumber: z.coerce.number().int().min(1).optional(),
-  theoryUrls: z.array(fileUrlSchema).optional(),
-  exerciseUrls: z.array(fileUrlSchema).optional(),
+  sessionNumber: z.coerce.number().int().min(1, 'Session number must be >= 1').optional(),
+  theoryUrls: z.array(sessionResourceSchema).optional(),
+  exerciseUrls: z.array(sessionResourceSchema).optional(),
   startAt: z.coerce.date().optional(),
   endAt: z.coerce.date().optional(),
   location: z.string().optional(),
-  status: sessionStatusEnum.optional(),
+  status: classSessionStatusEnum.optional(),
   note: z.string().optional(),
   actualStartAt: z.coerce.date().optional().nullable(),
   actualEndAt: z.coerce.date().optional().nullable(),
-});
-
-export const getSessionsQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
-  classId: z.string().uuid().optional(),
-  status: sessionStatusEnum.optional(),
-  from: z.coerce.date().optional(),
-  to: z.coerce.date().optional(),
 });

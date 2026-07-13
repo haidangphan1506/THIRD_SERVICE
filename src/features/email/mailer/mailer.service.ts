@@ -2,7 +2,6 @@ import {
   Injectable,
   Logger,
   OnModuleDestroy,
-  OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -43,7 +42,7 @@ export function useGmailTransport(config: ConfigService): boolean {
 }
 
 @Injectable()
-export class MailerService implements OnModuleInit, OnModuleDestroy {
+export class MailerService implements  OnModuleDestroy {
   private readonly logger = new Logger(MailerService.name);
   private transporter: MailTransport | null = null;
 
@@ -93,19 +92,19 @@ export class MailerService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async onModuleInit(): Promise<void> {
-    if (!this.transporter) {
-      return;
-    }
-    try {
-      await this.transporter.verify();
-      this.logger.log('SMTP verify(): kết nối và xác thực thành công');
-    } catch (err) {
-      this.logger.error(
-        `SMTP verify() thất bại — mail sẽ không gửi được cho đến khi sửa cấu hình: ${err instanceof Error ? err.message : err}`,
-      );
-    }
-  }
+  // async onModuleInit(): Promise<void> {
+  //   if (!this.transporter) {
+  //     return;
+  //   }
+  //   try {
+  //     await this.transporter.verify();
+  //     this.logger.log('SMTP verify(): kết nối và xác thực thành công');
+  //   } catch (err) {
+  //     this.logger.error(
+  //       `SMTP verify() thất bại — mail sẽ không gửi được cho đến khi sửa cấu hình: ${err instanceof Error ? err.message : err}`,
+  //     );
+  //   }
+  // }
 
   isReady(): boolean {
     return this.transporter !== null;

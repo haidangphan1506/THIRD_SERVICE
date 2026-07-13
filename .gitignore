@@ -45,6 +45,9 @@ lerna-debug.log*
 .temp
 .tmp
 
+# Claude Code local cache (hook sentinels, etc.)
+.claude/.cache/
+
 # Runtime data
 pids
 *.pid

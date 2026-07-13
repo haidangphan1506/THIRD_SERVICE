@@ -3,23 +3,27 @@ import {
   ApiTags,
   ApiOperation,
   ApiBody,
-  ApiQuery,
-  ApiParam,
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
 import { CurrentUser } from '@packages/decorators';
 import {
   createSessionSchema,
+  createSessionsSchema,
+  getSessionsSchema,
   updateSessionSchema,
-  getSessionsQuerySchema,
   type CreateSessionDto,
-  type UpdateSessionDto,
+  type CreateSessionsDto,
   type GetSessionsQueryDto,
+  type UpdateSessionDto,
 } from '@packages/entities/session';
 import { SessionService } from './session.service';
+import { SESSION_SWAGGER_MESSAGES } from 'src/data/swaggers/messages';
+import { SESSION_SWAGGERS_DATA } from 'src/data/swaggers/data/session.swagger';
 
 @ApiTags('Sessions')
 @ApiBearerAuth('access-token')
@@ -27,162 +31,135 @@ import { SessionService } from './session.service';
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
 
+  // todo : create a single class session ...
   @Post()
   @HttpCode(StatusCodes.CREATED)
-  @ApiOperation({ summary: 'Create session', description: 'Create a new class session' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['classId', 'sessionNumber', 'startAt', 'endAt'],
-      properties: {
-        classId: { type: 'string', format: 'uuid' },
-        lessonId: { type: 'string', format: 'uuid', nullable: true },
-        tutorId: {
-          type: 'string',
-          format: 'uuid',
-          nullable: true,
-          description: 'Substitute tutor',
-        },
-        title: { type: 'string', maxLength: 255 },
-        description: { type: 'string' },
-        sessionNumber: { type: 'integer', minimum: 1, example: 1 },
-        theoryUrls: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              url: { type: 'string' },
-              key: { type: 'string' },
-            },
-          },
-        },
-        exerciseUrls: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              url: { type: 'string' },
-              key: { type: 'string' },
-            },
-          },
-        },
-        startAt: { type: 'string', format: 'date-time', example: '2026-07-10T08:00:00.000Z' },
-        endAt: { type: 'string', format: 'date-time', example: '2026-07-10T10:00:00.000Z' },
-        location: { type: 'string' },
-        status: {
-          type: 'string',
-          enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
-          default: 'SCHEDULED',
-        },
-        note: { type: 'string' },
-        actualStartAt: { type: 'string', format: 'date-time', nullable: true },
-        actualEndAt: { type: 'string', format: 'date-time', nullable: true },
-      },
-    },
+  @ApiOperation({
+    summary: SESSION_SWAGGER_MESSAGES.CREATE_SESSION_SUCCESS,
+    description: 'Create a single class session',
   })
-  @SwaggerResponse({ status: 201, description: 'Session created' })
-  async create(
+  @ApiBody({ schema: SESSION_SWAGGERS_DATA.CREATE_SESSION_SCHEMA })
+  @SwaggerResponse({ status: StatusCodes.CREATED, description: 'Session created' })
+  create(
     @Body(new ZodValidationPipe<CreateSessionDto>(createSessionSchema))
     dto: CreateSessionDto,
     @CurrentUser() user: Record<string, string>,
   ) {
-    return this.sessionService.create(dto, user.id);
+    return this.sessionService.createSessionService({ userId: user?.id, data: dto });
   }
 
+  // todo : bulk create class sessions for a class ...
+  @Post('bulk')
+  @HttpCode(StatusCodes.CREATED)
+  @ApiOperation({
+    summary: SESSION_SWAGGER_MESSAGES.CREATE_SESSIONS_SUCCESS,
+    description: 'Create up to 50 class sessions at once',
+  })
+  @ApiBody({ schema: SESSION_SWAGGERS_DATA.CREATE_SESSIONS_SCHEMA })
+  @SwaggerResponse({ status: StatusCodes.CREATED, description: 'Sessions created' })
+  createBulk(
+    @Body(new ZodValidationPipe<CreateSessionsDto>(createSessionsSchema))
+    dto: CreateSessionsDto,
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return this.sessionService.createSessionsService({ userId: user?.id, data: dto });
+  }
+
+  // todo : list all sessions the current user can access (owned or enrolled classes) ...
   @Get()
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'List sessions', description: 'Get paginated sessions for a class' })
-  @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiOperation({
+    summary: SESSION_SWAGGER_MESSAGES.GET_SESSIONS_SUCCESSFULLY,
+    description: 'List sessions across the classes the current user owns or is enrolled in',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({
     name: 'status',
     required: false,
     enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
   })
-  @ApiQuery({ name: 'from', required: false, type: String, description: 'ISO date string' })
-  @ApiQuery({ name: 'to', required: false, type: String, description: 'ISO date string' })
-  @SwaggerResponse({ status: 200, description: 'Sessions fetched' })
-  async findAll(
-    @CurrentUser() user: Record<string, string>,
-    @Query(new ZodValidationPipe<GetSessionsQueryDto>(getSessionsQuerySchema))
-    query: GetSessionsQueryDto,
-  ) {
-    return this.sessionService.findAll(user.id, query);
-  }
-
-  @Get('my')
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({
-    summary: 'List my sessions (student)',
-    description: 'Danh sách buổi học của tất cả lớp mà học sinh đang tham gia.',
-  })
   @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: SESSION_SWAGGER_MESSAGES.GET_SESSIONS_SUCCESSFULLY,
   })
-  @ApiQuery({ name: 'from', required: false, type: String, description: 'ISO date string' })
-  @ApiQuery({ name: 'to', required: false, type: String, description: 'ISO date string' })
-  @SwaggerResponse({ status: 200, description: 'My sessions fetched' })
-  async findMy(
+  getAll(
     @CurrentUser() user: Record<string, string>,
-    @Query(new ZodValidationPipe<GetSessionsQueryDto>(getSessionsQuerySchema))
+    @Query(new ZodValidationPipe<GetSessionsQueryDto>(getSessionsSchema))
     query: GetSessionsQueryDto,
   ) {
-    return this.sessionService.findAllForStudent(user.id, query);
+    return this.sessionService.getSessionsService({ userId: user?.id, query });
   }
 
-  @Get('my/:id')
+  // todo : list all sessions of a class ...
+  @Get('class/:classId')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({
-    summary: 'Get my session detail (student)',
-    description: 'Chi tiết buổi học cho học sinh đang tham gia lớp.',
+    summary: SESSION_SWAGGER_MESSAGES.GET_SESSIONS_SUCCESSFULLY,
+    description: 'List sessions of a class',
   })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Session detail' })
-  @SwaggerResponse({ status: 404, description: 'Session not found' })
-  async findMyById(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
-    return this.sessionService.findByIdForStudent(id, user.id);
+  @ApiParam({ name: 'classId', type: String, format: 'uuid' })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: SESSION_SWAGGER_MESSAGES.GET_SESSIONS_SUCCESSFULLY,
+  })
+  getByClass(@CurrentUser() user: Record<string, string>, @Param('classId') classId: string) {
+    return this.sessionService.getSessionsByClassService({ userId: user?.id, classId });
   }
 
+  // todo : get session detail ...
   @Get(':id')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Get session detail' })
+  @ApiOperation({
+    summary: SESSION_SWAGGER_MESSAGES.GET_SESSION_SUCCESSFULLY,
+    description: 'Get a session by id',
+  })
   @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Session detail' })
-  @SwaggerResponse({ status: 404, description: 'Session not found' })
-  async findById(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
-    return this.sessionService.findById(id, user.id);
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: SESSION_SWAGGER_MESSAGES.GET_SESSION_SUCCESSFULLY,
+  })
+  getDetail(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.sessionService.getSessionService({ userId: user?.id, id });
   }
 
+  // todo : update session ...
   @Put(':id')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Update session' })
+  @ApiOperation({
+    summary: SESSION_SWAGGER_MESSAGES.UPDATE_SESSION_SUCCESSFULLY,
+    description: 'Update a session by id',
+  })
   @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Session updated' })
-  @SwaggerResponse({ status: 404, description: 'Session not found' })
-  async update(
+  @ApiBody({ schema: SESSION_SWAGGERS_DATA.UPDATE_SESSION_SCHEMA })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: SESSION_SWAGGER_MESSAGES.UPDATE_SESSION_SUCCESSFULLY,
+  })
+  update(
     @CurrentUser() user: Record<string, string>,
     @Param('id') id: string,
     @Body(new ZodValidationPipe<UpdateSessionDto>(updateSessionSchema))
     dto: UpdateSessionDto,
   ) {
-    return this.sessionService.update(id, dto, user.id);
+    return this.sessionService.updateSessionService({ userId: user?.id, id, data: dto });
   }
 
+  // todo : delete session ...
   @Delete(':id')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Delete session' })
+  @ApiOperation({
+    summary: SESSION_SWAGGER_MESSAGES.DEL_SESSION_SUCCESSFULLY,
+    description: 'Delete a session by id',
+  })
   @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Session deleted' })
-  @SwaggerResponse({ status: 404, description: 'Session not found' })
-  async delete(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
-    return this.sessionService.delete(id, user.id);
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: SESSION_SWAGGER_MESSAGES.DEL_SESSION_SUCCESSFULLY,
+  })
+  del(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.sessionService.delSessionService({ userId: user?.id, id });
   }
 }

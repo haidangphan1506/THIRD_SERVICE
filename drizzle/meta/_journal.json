@@ -113,6 +113,34 @@
       "when": 1783518686108,
       "tag": "0015_careful_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1783824205007,
+      "tag": "0016_green_stardust",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1783865470823,
+      "tag": "0017_open_black_bird",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1783865559734,
+      "tag": "0018_jazzy_excalibur",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1783908277617,
+      "tag": "0019_shocking_rockslide",
+      "breakpoints": true
     }
   ]
 }

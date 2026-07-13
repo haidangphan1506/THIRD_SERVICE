@@ -1,25 +1,27 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiBody,
-  ApiQuery,
-  ApiParam,
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
 import { CurrentUser } from '@packages/decorators';
 import {
   createClassSchema,
-  type CreateClassDto,
-  getClassesQuerySchema,
   type GetClassesQueryDto,
-  updateClassSchema,
-  type UpdateClassDto,
+  getClassesQuerySchema,
+  type CreateClassDto,
+  addStudentsSchema,
+  type AddStudentsDto,
 } from '@packages/entities/class';
 import { ClassService } from './class.service';
+import { CLASS_SWAGGER_MESSAGES } from 'src/data/swaggers/messages';
+import { CLASS_SWAGGERS_DATA } from 'src/data/swaggers/data/class.swagger';
 
 @ApiTags('Classes')
 @ApiBearerAuth('access-token')
@@ -27,193 +29,144 @@ import { ClassService } from './class.service';
 export class ClassController {
   constructor(private readonly classService: ClassService) {}
 
+  // todo : create new class controller ...
   @Post()
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({
     summary: 'Create class',
     description: 'Create a new class (Stage 1: class info)',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['name', 'subject', 'tutorId', 'startTime', 'endTime'],
-      properties: {
-        name: { type: 'string', maxLength: 255, example: 'Toan 12 - Co Ban' },
-        code: {
-          type: 'string',
-          maxLength: 50,
-          example: 'T12CB',
-          description: 'Auto-generated if omitted',
-        },
-        subject: { type: 'string', maxLength: 255, example: 'Toan' },
-        tuition: { type: 'number', minimum: 0, default: 0, example: 1500000 },
-        description: { type: 'string', example: 'Lop toan 12 co ban, hoc 2 buoi/tuan' },
-        status: { type: 'string', enum: ['OPEN', 'CLOSED', 'UPCOMING'], default: 'OPEN' },
-        format: {
-          type: 'string',
-          enum: ['ONLINE', 'OFFLINE'],
-          default: 'ONLINE',
-          description: 'Hinh thuc hoc',
-        },
-        location: {
-          type: 'string',
-          example: 'https://meet.google.com/abc-defg-hij',
-          description: 'Link hoc (ONLINE) hoac dia chi hoc (OFFLINE)',
-        },
-        startTime: {
-          type: 'date',
-          example: '2026-07-01T00:00:00.000Z',
-          description: 'Thời gian bắt đầu  khóa học',
-        },
-        endTime: {
-          type: 'date',
-          example: '2026-10-01T00:00:00.000Z',
-          description: 'Thời gian kết thúc khóa học',
-        },
-        curriculumId: { type: 'string', format: 'uuid', description: 'Optional curriculum ID' },
-        tutorId: { type: 'string', format: 'uuid', description: 'Tutor (user) ID' },
-        studentIds: {
-          type: 'array',
-          items: { type: 'string', format: 'uuid' },
-          description: 'Optional list of student IDs to enroll',
-        },
-      },
-    },
-  })
+  @ApiBody({ schema: CLASS_SWAGGERS_DATA.CREATE_CLASS_SCHEMA })
   @SwaggerResponse({ status: 201, description: 'Class created' })
-  async create(
+  create(
     @Body(new ZodValidationPipe<CreateClassDto>(createClassSchema))
     dto: CreateClassDto,
     @CurrentUser() user: Record<string, string>,
   ) {
-    return this.classService.create(dto, user.id);
+    return this.classService.createClassService({ data: dto, userId: user.id });
   }
 
-  @Get()
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({
-    summary: 'List classes',
-    description: 'Get paginated classes for the current tutor',
-  })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({
-    name: 'search',
-    required: false,
-    type: String,
-    description: 'Search by name/code/subject',
-  })
-  @ApiQuery({ name: 'status', required: false, enum: ['OPEN', 'CLOSED', 'UPCOMING'] })
-  @ApiQuery({ name: 'subject', required: false, type: String })
-  @SwaggerResponse({ status: 200, description: 'Classes fetched' })
-  async findAll(
-    @CurrentUser() user: Record<string, string>,
-    @Query(new ZodValidationPipe<GetClassesQueryDto>(getClassesQuerySchema))
-    query: GetClassesQueryDto,
-  ) {
-    return this.classService.findAll(user.id, query);
-  }
-
+  // todo : generate a unique class code ...
   @Get('generate-code')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Generate class code', description: 'Generate a unique class code' })
-  @SwaggerResponse({ status: 200, description: 'Generated code' })
-  async generateCode() {
-    return this.classService.generateCode();
+  @ApiOperation({
+    summary: 'Generate class code',
+    description: 'Generate a unique, unused class code',
+  })
+  @SwaggerResponse({ status: StatusCodes.OK, description: 'Class code generated' })
+  async generateCodeController() {
+    const code = await this.classService.generateNewCodeService();
+    return { code };
   }
 
-  @Get(':id')
+  //todo : get and filter classes controller ...
+  @Get('')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({
-    summary: 'Get class detail',
-    description: 'Get class detail with student count and session counts',
+    summary: CLASS_SWAGGER_MESSAGES.GET_CLASSES_SUCCESSFULLY,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASSES_SUCCESSFULLY,
   })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Class detail' })
-  @SwaggerResponse({ status: 404, description: 'Class not found' })
-  async findById(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
-    return this.classService.findById(id, user.id);
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_CLASSES_SCHEMA[0])
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_CLASSES_SCHEMA[1])
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_CLASSES_SCHEMA[2])
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASSES_SUCCESSFULLY,
+  })
+  async getClassesController(
+    @Query(new ZodValidationPipe<GetClassesQueryDto>(getClassesQuerySchema))
+    query: GetClassesQueryDto,
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return this.classService.getClassesService({ userId: user?.id, query });
   }
 
-  @Put(':id')
+  // todo : get detail class controller ...
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Update class', description: 'Update class information' })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string', maxLength: 255, example: 'Toan 12 - Nang Cao' },
-        code: { type: 'string', maxLength: 50, example: 'T12NC' },
-        subject: { type: 'string', example: 'Toan' },
-        tuition: { type: 'number', minimum: 0 },
-        description: { type: 'string' },
-        status: { type: 'string', enum: ['OPEN', 'CLOSED', 'UPCOMING'] },
-        format: { type: 'string', enum: ['ONLINE', 'OFFLINE'] },
-        location: { type: 'string' },
-        curriculumId: { type: 'string', format: 'uuid' },
-      },
-    },
+  @ApiOperation({
+    summary: CLASS_SWAGGER_MESSAGES.GET_CLASS_SUCCESSFULLY,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASS_SUCCESSFULLY,
   })
-  @SwaggerResponse({ status: 200, description: 'Class updated' })
-  async update(
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_DETAIL_CLASS)
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASS_SUCCESSFULLY,
+  })
+  @Get('/:id')
+  getDetailClassController(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.classService.getClassService({ userId: user?.id, id });
+  }
+
+  // todo : add one student or bulk students to a class ...
+  @Post(':id/students')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: CLASS_SWAGGER_MESSAGES.ADD_STUDENTS_SUCCESSFULLY,
+    description: 'Enroll one student or many students into a single class',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @ApiBody({ schema: CLASS_SWAGGERS_DATA.ADD_STUDENTS_SCHEMA })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.ADD_STUDENTS_SUCCESSFULLY,
+  })
+  addStudents(
     @CurrentUser() user: Record<string, string>,
     @Param('id') id: string,
-    @Body(new ZodValidationPipe<UpdateClassDto>(updateClassSchema))
-    dto: UpdateClassDto,
+    @Body(new ZodValidationPipe<AddStudentsDto>(addStudentsSchema))
+    dto: AddStudentsDto,
   ) {
-    return this.classService.update(id, dto, user.id);
+    return this.classService.addStudentsService({ userId: user?.id, classId: id, data: dto });
   }
 
+  // todo : get list student in class ...
+  @Get('/:id/students')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: CLASS_SWAGGER_MESSAGES.GET_STUDENTS_SUCCESSFULLY,
+    description: CLASS_SWAGGER_MESSAGES.GET_STUDENTS_SUCCESSFULLY,
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.GET_STUDENTS_SUCCESSFULLY,
+  })
+  async getAllStudentController(
+    @CurrentUser() user: Record<string, string>,
+    @Param('id') id: string,
+  ) {
+    return await this.classService.getAllStudentsService({ userId: user?.id, id });
+  }
+
+  // todo : get class materials (theory + exercise files) ...
+  @Get('/:id/materials')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Get class materials',
+    description: 'List theory & exercise files of a class, resolved via its curriculum lessons',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @SwaggerResponse({ status: StatusCodes.OK, description: 'Class materials retrieved' })
+  async getClassMaterialsController(
+    @CurrentUser() user: Record<string, string>,
+    @Param('id') id: string,
+  ) {
+    return this.classService.getClassMaterialsService({ userId: user?.id, id });
+  }
+
+  // todo : delete class ...
   @Delete(':id')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Delete class', description: 'Delete a class by ID' })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Class deleted' })
-  async delete(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
-    return this.classService.delete(id, user.id);
-  }
-
-  @Post(':classId/students/:studentId')
-  @HttpCode(StatusCodes.CREATED)
   @ApiOperation({
-    summary: 'Add student to class',
-    description: 'Add an existing student to a class (Stage 2)',
+    summary: CLASS_SWAGGER_MESSAGES.DEL_CLASS_SUCCESSFULLY,
+    description: CLASS_SWAGGER_MESSAGES.DEL_CLASS_SUCCESSFULLY,
   })
-  @ApiParam({ name: 'classId', type: String, format: 'uuid' })
-  @ApiParam({ name: 'studentId', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 201, description: 'Student added to class' })
-  async addStudent(
-    @CurrentUser() user: Record<string, string>,
-    @Param('classId') classId: string,
-    @Param('studentId') studentId: string,
-  ) {
-    return this.classService.addStudent(classId, studentId, user.id);
-  }
-
-  @Delete(':classId/students/:studentId')
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Remove student from class' })
-  @ApiParam({ name: 'classId', type: String, format: 'uuid' })
-  @ApiParam({ name: 'studentId', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Student removed from class' })
-  async removeStudent(
-    @CurrentUser() user: Record<string, string>,
-    @Param('classId') classId: string,
-    @Param('studentId') studentId: string,
-  ) {
-    return this.classService.removeStudent(classId, studentId, user.id);
-  }
-
-  @Get(':classId/students')
-  @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'List students in class' })
-  @ApiParam({ name: 'classId', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Students list' })
-  async getStudents(
-    @CurrentUser() user: Record<string, string>,
-    @Param('classId') classId: string,
-  ) {
-    return this.classService.getStudents(classId, user.id);
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.DEL_CLASS_SUCCESSFULLY,
+  })
+  async delClassController(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.classService.delClassService({ userId: user?.id, id });
   }
 }

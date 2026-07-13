@@ -1,93 +1,102 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { DRIZZLE } from '../../database/database.module';
-import { classes } from '../../database/schema';
-import type {
+import {
   CreateScheduleDto,
   CreateSchedulesDto,
+  GetSchedulesQueryDto,
   UpdateScheduleDto,
 } from '@packages/entities/schedule';
-import { ScheduleRepository } from './schedule.repository';
 import { checkUuidValid } from '@packages/helpers';
+import { ScheduleRepository } from './schedule.repository';
+import { ClassService } from '../class/class.service';
 
 @Injectable()
 export class ScheduleService {
   private readonly logger = new Logger(ScheduleService.name);
   constructor(
     private readonly repo: ScheduleRepository,
-    @Inject(DRIZZLE)
-    private readonly db: ReturnType<typeof drizzle>,
+    private readonly classService: ClassService,
   ) {}
 
-  private async verifyClassOwner(classId: string, tutorId: string) {
-    const [cls] = await this.db.select().from(classes).where(eq(classes.id, classId));
-    if (!cls || cls.tutorId !== tutorId) {
-      throw new NotFoundException('Class not found');
-    }
-    return cls;
-  }
-
-  async createBulk(dto: CreateSchedulesDto, tutorId: string) {
-    if (!tutorId || !checkUuidValid({ data: tutorId }))
-      throw new BadRequestException('tutorId must be uuid ...');
-    if (!dto.classId || !checkUuidValid({ data: dto.classId }))
-      throw new BadRequestException('classId must be uuid ...');
-    await this.verifyClassOwner(dto.classId, tutorId);
-    const items = dto.schedules.map((s) => ({ ...s, classId: dto.classId }));
-    const created = await this.repo.createBulk(items);
-    return { count: created.length, schedules: created };
-  }
-
-  async findByClass(classId: string, tutorId: string) {
+  // todo : ensure the acting user owns the target class ...
+  private async assertClassOwner({ userId, classId }: { userId: string; classId: string }) {
     if (!classId || !checkUuidValid({ data: classId }))
-      throw new BadRequestException('classId must be uuid ...');
-    if (!tutorId || !checkUuidValid({ data: tutorId }))
-      throw new BadRequestException('tutorId must be uuid ...');
-    await this.verifyClassOwner(classId, tutorId);
-    return this.repo.findByClass(classId);
+      throw new BadRequestException('Class Id must be uuid ...');
+
+    const classData = await this.classService.getClassService({ userId, id: classId });
+    if (!classData || (Array.isArray(classData) && classData.length === 0))
+      throw new NotFoundException('Class not found ...');
+    if (classData.tutorId !== userId) throw new NotFoundException('Class not found ...');
+
+    return classData;
   }
 
-  async findAll(tutorId: string, classId?: string) {
-    if (classId) {
-      return this.findByClass(classId, tutorId);
-    }
-    return this.repo.findByTutor(tutorId);
+  private async loadOwnedSchedule({ userId, id }: { userId: string; id: string }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException('Schedule Id must be uuid ...');
+
+    const schedule = await this.repo.getById({ id });
+    if (!schedule) throw new NotFoundException('Schedule not found ...');
+
+    await this.assertClassOwner({ userId, classId: schedule.classId });
+    return schedule;
   }
 
-  async update(id: string, dto: UpdateScheduleDto, tutorId: string) {
-    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
-    if (!tutorId || !checkUuidValid({ data: tutorId }))
-      throw new BadRequestException('tutorId must be uuid ...');
-    const sched = await this.repo.findById(id);
-    if (!sched) throw new NotFoundException('Schedule not found');
-    await this.verifyClassOwner(sched.classId, tutorId);
-    const updated = await this.repo.update(id, dto);
-    return updated;
+  async createScheduleService({ userId, data }: { userId: string; data: CreateScheduleDto }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+
+    await this.assertClassOwner({ userId, classId: data.classId });
+    return this.repo.create({ data });
   }
 
-  async delete(id: string, tutorId: string) {
-    if (!id || !checkUuidValid({ data: id })) throw new BadRequestException('id must be uuid ...');
-    if (!tutorId || !checkUuidValid({ data: tutorId }))
-      throw new BadRequestException('tutorId must be uuid ...');
-    const sched = await this.repo.findById(id);
-    if (!sched) throw new NotFoundException('Schedule not found');
-    await this.verifyClassOwner(sched.classId, tutorId);
-    await this.repo.delete(id);
+  async createSchedulesService({ userId, data }: { userId: string; data: CreateSchedulesDto }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+
+    await this.assertClassOwner({ userId, classId: data.classId });
+    return this.repo.createMany({ classId: data.classId, items: data.schedules });
+  }
+
+  async getSchedulesService({ userId, query }: { userId: string; query: GetSchedulesQueryDto }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+
+    return this.repo.getAll({ userId, query });
+  }
+
+  async getSchedulesByClassService({ userId, classId }: { userId: string; classId: string }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+
+    await this.assertClassOwner({ userId, classId });
+    return this.repo.getByClass({ classId });
+  }
+
+  async getScheduleService({ userId, id }: { userId: string; id: string }) {
+    return this.loadOwnedSchedule({ userId, id });
+  }
+
+  async updateScheduleService({
+    userId,
+    id,
+    data,
+  }: {
+    userId: string;
+    id: string;
+    data: UpdateScheduleDto;
+  }) {
+    await this.loadOwnedSchedule({ userId, id });
+    return this.repo.update({ id, data });
+  }
+
+  async delScheduleService({ userId, id }: { userId: string; id: string }) {
+    await this.loadOwnedSchedule({ userId, id });
+
+    const deleted = await this.repo.del({ id });
+    if (!deleted) throw new NotFoundException('Schedule not found ...');
+
     return { id };
-  }
-
-  async replaceByClass(classId: string, schedules: CreateScheduleDto[], tutorId: string) {
-    if (!classId || !checkUuidValid({ data: classId }))
-      throw new BadRequestException('classId must be uuid ...');
-    if (!tutorId || !checkUuidValid({ data: tutorId }))
-      throw new BadRequestException('tutorId must be uuid ...');
-    await this.verifyClassOwner(classId, tutorId);
-    await this.repo.deleteByClass(classId);
-    if (schedules.length === 0) return { count: 0, schedules: [] };
-    const items = schedules.map((s) => ({ ...s, classId }));
-    const created = await this.repo.createBulk(items);
-    return { count: created.length, schedules: created };
   }
 }

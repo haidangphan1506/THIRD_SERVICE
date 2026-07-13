@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
 import { SessionController } from './session.controller';
-import { SessionService } from './session.service';
 import { SessionRepository } from './session.repository';
-import { ClassRepository } from '../class/class.repository';
+import { SessionService } from './session.service';
+import { ClassModule } from '../class/class.module';
+import { LessonModule } from '../lesson/lesson.module';
+import { UserModule } from '../user/user.module';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [NotificationModule],
+  imports: [ClassModule, LessonModule, UserModule, NotificationModule],
   controllers: [SessionController],
-  providers: [SessionService, SessionRepository, ClassRepository],
+  providers: [SessionService, SessionRepository],
   exports: [SessionService],
 })
 export class SessionModule {}

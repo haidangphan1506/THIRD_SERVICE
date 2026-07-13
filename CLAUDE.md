@@ -240,3 +240,25 @@ origin: https://gitlab.com/finance_tracker_phandanghai/backends.git
 - `src/packages/guards/jwt-auth.guard.ts` — Global JWT auth guard
 - `src/packages/decorators/public.decorator.ts` — `@Public()` decorator
 - `src/packages/entities/` — All DTOs and validation schemas
+
+## Project Rules
+
+The following rule files are loaded as part of these instructions and must be followed:
+
+@.claude/rules/nestjs-feature-pattern.md
+@.claude/rules/database.md
+@.claude/rules/conventions.md
+
+## Automated Hooks
+
+Configured in `.claude/settings.json` (scripts in `.claude/hooks/`):
+
+- **PreToolUse (Write|Edit)** → `guard-paths.mjs` blocks edits to `.env*` and generated
+  `drizzle/**` files.
+- **PostToolUse (Write|Edit)** → `format-ts.mjs` runs prettier + eslint `--fix` on the
+  touched `.ts/.js` file.
+- **Stop** → `review-skills.mjs` runs after each task that changed `src/`, and asks Claude to
+  review/update `.claude/rules/**`, `.claude/skills/**`, and memory (`MEMORY.md` + memory
+  files) so they stay in sync with new or changed patterns/facts. Fires once per distinct
+  `src/` change state (loop-safe: the review turn edits only skill/rule/memory files, not
+  `src/`); the last-reviewed state is cached in `.claude/.cache/skill-review-state` (gitignored).

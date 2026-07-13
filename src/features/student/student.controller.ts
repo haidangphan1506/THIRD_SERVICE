@@ -28,6 +28,7 @@ import { StudentService } from './student.service';
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
+  //TODO: generate unique code controller ...
   @Get('get-student-code')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({
@@ -38,6 +39,8 @@ export class StudentController {
   async generateStudentCodeController() {
     return await this.studentService.generateStudentCodeService();
   }
+
+  //todo : create new student and parent controller ...
   @Post()
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({
@@ -48,51 +51,57 @@ export class StudentController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['password', 'studentName'],
+      required: ['studentName'],
       properties: {
         email: {
           type: 'string',
           format: 'email',
           example: 'student@example.com',
-          description: 'Auto-generated if not provided',
         },
-        password: { type: 'string', minLength: 8, maxLength: 14, example: 'Pass1234!' },
-        studentName: { type: 'string', maxLength: 255, example: 'Nguyen Van A' },
-        parentName: { type: 'string', maxLength: 255, example: 'Tran Thi B' },
-        userCode: { type: 'string', maxLength: 50, example: 'HS001' },
-        studentPhone: { type: 'string', example: '0912345678' },
-        gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'], example: 'MALE' },
-        birthday: {
+        studentName: {
           type: 'string',
-          format: 'date-time',
-          example: '2008-05-20T00:00:00.000Z',
-          description: 'Student date of birth (ISO 8601)',
+          example: 'Nguyen Van A',
         },
-        school: { type: 'string', maxLength: 255, example: 'THPT Quang Trung' },
-        className: {
+        userCode: {
           type: 'string',
-          maxLength: 255,
-          example: 'Toan 12A1',
-          description: "Enroll immediately if it matches one of the tutor's class names",
+          example: 'STU001',
         },
-        parentPhone: { type: 'string', example: '0987654321' },
-        parentEmail: { type: 'string', format: 'email', example: 'phuhuynh@gmail.com' },
+        gender: {
+          type: 'string',
+          enum: ['MALE', 'FEMALE', 'OTHER'],
+          example: 'MALE',
+        },
+        studentPhone: {
+          type: 'string',
+          example: '0987654321',
+        },
+        school: {
+          type: 'string',
+          example: 'ABC High School',
+        },
+        parentName: {
+          type: 'string',
+          example: 'Nguyen Van B',
+        },
         parentRelationship: {
           type: 'string',
           enum: ['FATHER', 'MOTHER', 'GUARDIAN'],
           example: 'FATHER',
         },
-        avatar: { type: 'string', format: 'url', nullable: true },
-        classId: {
+        parentPhone: {
           type: 'string',
-          format: 'uuid',
-          description: 'Enroll in class immediately',
+          example: '0912345678',
+        },
+        parentEmail: {
+          type: 'string',
+          format: 'email',
+          example: 'parent@example.com',
         },
       },
     },
   })
   @SwaggerResponse({ status: 201, description: 'Student created' })
-  async create(
+  create(
     @Body(new ZodValidationPipe(createStudentSchema))
     dto: CreateStudentDto & { classId?: string },
     @CurrentUser() currentUser: JwtGuardUser,

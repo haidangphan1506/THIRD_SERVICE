@@ -1,21 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  and,
-  arrayContains,
-  arrayOverlaps,
-  count,
-  desc,
-  eq,
-  ilike,
-  inArray,
-  or,
-  type SQL,
-} from 'drizzle-orm';
+import { and, asc, eq, count, inArray } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { classes, classStudents, sessions } from '../../database/schema';
-import type { CreateClassDto, GetClassesQueryDto } from '@packages/entities/class';
-import { checkUuidValid } from '@packages/helpers';
+import { CreateClassDto, GetClassesQueryDto } from '@packages/entities/class';
+import { chapters, classes, classStudents, lessons, users } from 'src/database/schema';
+import { buildListWhereClause } from '@packages/helpers';
 
 @Injectable()
 export class ClassRepository {
@@ -24,191 +14,209 @@ export class ClassRepository {
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
 
-  async create(
-    data: Omit<CreateClassDto, 'code' | 'studentIds' | 'schedules'> & {
-      code: string;
-      tutorId: string;
-      studentsId?: string[];
-    },
-  ) {
-    const [cls] = await this.db
+  async getClassByField({ field, value }: { field: string; value: string }) {
+    const fieldMaps = {
+      id: classes.id,
+      name: classes.name,
+      code: classes.code,
+    } as const;
+
+    const [result] = await this.db
+      .select()
+      .from(classes)
+      .where(eq(fieldMaps[field], value ?? ''));
+    return result;
+  }
+
+  async create({ data }: { data: CreateClassDto }) {
+    const [classData] = await this.db
       .insert(classes)
       .values({
         name: data.name,
         code: data.code,
         subject: data.subject,
-        tuition: data.tuition != null ? String(data.tuition) : '0',
-        description: data.description ?? null,
-        status: data.status ?? 'OPEN',
-        format: data.format ?? 'ONLINE',
+        tuition: data.tuition?.toString(),
+        description: data.description,
+        status: data.status,
+        format: data.format,
         startTime: data.startTime,
         endTime: data.endTime,
-        location: data.location ?? null,
-        curriculumId: data.curriculumId ?? null,
+        location: data.location,
+        curriculumId: data.curriculumId,
         tutorId: data.tutorId,
-        studentsId: data.studentsId ?? [],
       })
       .returning();
-    return cls;
+    return classData;
   }
 
-  async findAll({ userId, query }: { userId: string; query: GetClassesQueryDto }) {
-    const { page, limit, search, status, subject, studentsId } = query;
+  async getClasses({
+    userId,
+    role,
+    query,
+  }: {
+    userId: string;
+    role?: string;
+    query: GetClassesQueryDto;
+  }) {
+    const { page = 1, limit = 10, search, status, subject, studentsId } = query;
 
-    // Return classes where the caller is the tutor OR is enrolled as a student
-    const userCond = or(eq(classes.tutorId, userId), arrayContains(classes.studentsId, [userId]))!;
-    const conditions: SQL[] = [userCond];
+    const searchWhere = buildListWhereClause({
+      search,
+      searchableColumns: {
+        name: { column: classes.name },
+        code: { column: classes.code },
+        subject: { column: classes.subject },
+      },
+      filters: { status, subject },
+      filterColumns: {
+        status: { column: classes.status },
+        subject: { column: classes.subject },
+      },
+    });
 
+    // scope by role: a STUDENT only sees classes they're enrolled in, a PARENT only sees
+    // classes one of their children is enrolled in, everyone else (TUTOR/ADMIN) sees the
+    // classes they own (tutorId).
+    let scopeWhere;
+    if (role === 'STUDENT') {
+      const enrolledClassIds = this.db
+        .select({ classId: classStudents.classId })
+        .from(classStudents)
+        .where(eq(classStudents.studentId, userId));
+      scopeWhere = inArray(classes.id, enrolledClassIds);
+    } else if (role === 'PARENT') {
+      const childClassIds = this.db
+        .select({ classId: classStudents.classId })
+        .from(classStudents)
+        .innerJoin(users, eq(users.id, classStudents.studentId))
+        .where(eq(users.parentId, userId));
+      scopeWhere = inArray(classes.id, childClassIds);
+    } else {
+      scopeWhere = eq(classes.tutorId, userId);
+    }
+
+    const conditions = [searchWhere, scopeWhere];
     if (studentsId) {
-      const ids = Array.isArray(studentsId) ? studentsId : [studentsId];
-      const validIds = ids.filter((id) => typeof id === 'string' && checkUuidValid({ data: id }));
-      if (validIds.length) conditions.push(arrayOverlaps(classes.studentsId, validIds));
+      const studentClassIds = this.db
+        .select({ classId: classStudents.classId })
+        .from(classStudents)
+        .where(eq(classStudents.studentId, studentsId));
+      conditions.push(inArray(classes.id, studentClassIds));
     }
+    const whereClause = and(...conditions.filter((c) => c !== undefined));
 
-    if (search?.trim()) {
-      const pattern = `%${search.trim()}%`;
-      const searchCond = or(
-        ilike(classes.name, pattern),
-        ilike(classes.code, pattern),
-        ilike(classes.subject, pattern),
-      );
-      if (searchCond) conditions.push(searchCond);
-    }
-    if (status) conditions.push(eq(classes.status, status));
-    if (subject) conditions.push(eq(classes.subject, subject));
-
-    const where = and(...conditions);
-    const offset = (page - 1) * limit;
-
-    const [totalRow] = await this.db.select({ total: count() }).from(classes).where(where);
+    const [totalRow] = await this.db.select({ total: count() }).from(classes).where(whereClause);
     const total = Number(totalRow?.total ?? 0);
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const offset = (pageNumber - 1) * limitNumber;
 
-    const rows = await this.db
+    const classesRow = await this.db
       .select()
       .from(classes)
-      .where(where)
-      .orderBy(desc(classes.createdAt))
-      .limit(limit)
+      .where(whereClause)
+      .limit(limitNumber)
       .offset(offset);
-
-    const classIds = rows.map((r) => r.id);
-
-    let studentCountMap = new Map<string, number>();
-    let sessionCountMap = new Map<string, number>();
-
-    if (classIds.length > 0) {
-      const [studentCounts, sessionCounts] = await Promise.all([
-        this.db
-          .select({ classId: classStudents.classId, n: count() })
-          .from(classStudents)
-          .where(inArray(classStudents.classId, classIds))
-          .groupBy(classStudents.classId),
-        this.db
-          .select({ classId: sessions.classId, n: count() })
-          .from(sessions)
-          .where(inArray(sessions.classId, classIds))
-          .groupBy(sessions.classId),
-      ]);
-      studentCountMap = new Map(
-        studentCounts.map((r: { classId: string; n: number }) => [r.classId, Number(r.n)]),
-      );
-      sessionCountMap = new Map(
-        sessionCounts.map((r: { classId: string; n: number }) => [r.classId, Number(r.n)]),
-      );
-    }
-
-    const data = rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      code: r.code,
-      subject: r.subject,
-      tuition: r.tuition != null ? String(r.tuition) : '0',
-      description: r.description,
-      status: r.status,
-      format: r.format,
-      startTime: r.startTime instanceof Date ? r.startTime.toISOString() : String(r.startTime),
-      endTime: r.endTime instanceof Date ? r.endTime.toISOString() : String(r.endTime),
-      location: r.location,
-      curriculumId: r.curriculumId,
-      tutorId: r.tutorId,
-      studentCount: studentCountMap.get(r.id) ?? 0,
-      sessionCount: sessionCountMap.get(r.id) ?? 0,
-      createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
-      updatedAt: r.updatedAt instanceof Date ? r.updatedAt.toISOString() : String(r.updatedAt),
-    }));
-
     return {
-      data,
+      classes: classesRow,
       pagination: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
       },
     };
   }
 
-  async findById(id: string) {
-    const [cls] = await this.db.select().from(classes).where(eq(classes.id, id));
-    return cls ?? null;
-  }
-
-  async update(id: string, data: Record<string, unknown>) {
-    const allowed = new Set([
-      'name',
-      'code',
-      'subject',
-      'tuition',
-      'description',
-      'status',
-      'format',
-      'startTime',
-      'endTime',
-      'location',
-      'curriculumId',
-    ]);
-    const safe: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(data)) {
-      if (allowed.has(k)) safe[k] = v;
-    }
-    const [cls] = await this.db
-      .update(classes)
-      .set({ ...safe, updatedAt: new Date() })
-      .where(eq(classes.id, id))
+  // enroll one or many students into a class; duplicates (already enrolled) are skipped
+  // via the (class_id, student_id) unique index and simply not returned.
+  async addStudents({ classId, studentIds }: { classId: string; studentIds: string[] }) {
+    if (studentIds.length === 0) return [];
+    const rows = await this.db
+      .insert(classStudents)
+      .values(studentIds.map((studentId) => ({ classId, studentId })))
+      .onConflictDoNothing()
       .returning();
-    return cls ?? null;
+    return rows;
   }
 
-  async delete(id: string) {
-    const [cls] = await this.db.delete(classes).where(eq(classes.id, id)).returning();
-    return !!cls;
-  }
+  //todo : get detail class by id (with enrolled students) ...
+  async getClass({ id }: { id: string }) {
+    const [classData] = await this.db.select().from(classes).where(eq(classes.id, id)).limit(1);
+    if (!classData) return null;
 
-  async getStudentCount(classId: string): Promise<number> {
-    const [row] = await this.db
-      .select({ n: count() })
+    const students = await this.db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        avatar: users.avatar,
+        userCode: users.userCode,
+        gender: users.gender,
+        school: users.school,
+        enrolledAt: classStudents.createdAt,
+      })
       .from(classStudents)
-      .where(eq(classStudents.classId, classId));
-    return Number(row?.n ?? 0);
+      .innerJoin(users, eq(users.id, classStudents.studentId))
+      .where(eq(classStudents.classId, id))
+      .orderBy(classStudents.createdAt);
+
+    return { ...classData, students };
   }
 
-  async getSessionCount(classId: string): Promise<{ total: number; upcoming: number }> {
-    const [totalRow] = await this.db
-      .select({ n: count() })
-      .from(sessions)
-      .where(eq(sessions.classId, classId));
-    const [upcomingRow] = await this.db
-      .select({ n: count() })
-      .from(sessions)
-      .where(and(eq(sessions.classId, classId), eq(sessions.status, 'SCHEDULED')));
-    return {
-      total: Number(totalRow?.n ?? 0),
-      upcoming: Number(upcomingRow?.n ?? 0),
-    };
+  async delClass({ id }: { id: string }) {
+    const [classData] = await this.db.delete(classes).where(eq(classes.id, id)).returning();
+    return !!classData;
   }
 
-  async findByCode(code: string) {
-    const [cls] = await this.db.select().from(classes).where(eq(classes.code, code));
-    return cls ?? null;
+  // list every lesson of a curriculum, joined with its chapter title, ordered for display.
+  // Each lesson carries its theoryUrls / exerciseUrls — the service derives the two material lists.
+  async getMaterials({ curriculumId }: { curriculumId: string }) {
+    return await this.db
+      .select({
+        id: lessons.id,
+        title: lessons.title,
+        description: lessons.description,
+        order: lessons.order,
+        chapterId: lessons.chapterId,
+        chapterTitle: chapters.title,
+        theoryUrls: lessons.theoryUrls,
+        exerciseUrls: lessons.exerciseUrls,
+        createdAt: lessons.createdAt,
+      })
+      .from(lessons)
+      .leftJoin(chapters, eq(chapters.id, lessons.chapterId))
+      .where(eq(lessons.curriculumId, curriculumId))
+      .orderBy(asc(lessons.order), asc(lessons.createdAt));
+  }
+
+  async getAllStudent({ id }: { id: string }) {
+    const parents = alias(users, 'parents');
+    return await this.db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        avatar: users.avatar,
+        phone: users.phone,
+        role: users.role,
+        userCode: users.userCode,
+        parent: {
+          id: parents.id,
+          firstName: parents.firstName,
+          lastName: parents.lastName,
+          email: parents.email,
+          avatar: parents.avatar,
+          phone: parents.phone,
+          relationship: parents.relationship,
+        },
+      })
+      .from(classStudents)
+      .innerJoin(users, eq(users.id, classStudents.studentId))
+      .leftJoin(parents, eq(parents.id, users.parentId))
+      .where(eq(classStudents.classId, id));
   }
 }

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "declarationDir": "./dist",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
@@ -12,18 +13,19 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
     "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "./",
     "paths": {
-      "@packages/*": ["src/packages/*"],
-      "src/*": ["src/*"]
+      "@packages/*": ["./src/packages/*"],
+      "src/*": ["./src/*"]
     },
-    "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

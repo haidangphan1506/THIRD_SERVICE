@@ -26,7 +26,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { StatusCodes } from 'http-status-codes';
 import {
   changePasswordSchema,
-  getUserDetailQuerySchema,
   getUsersQuerySchema,
   type ChangePasswordValues,
   type CreateUserDto,
@@ -46,14 +45,9 @@ import { ApiResponse, CurrentUser, Roles } from '@packages/decorators';
 import { JwtAuthGuard, RolesGuard } from '@packages/guards';
 import { ZodValidationPipe } from '@packages/pipes';
 import { type MulterFile } from '../cloudinary/cloudinary.interface';
-import { type GetDetailUserQuery, UserService } from './user.service';
+import { UserService } from './user.service';
 type GetUsersResponse = Awaited<ReturnType<UserService['getUsersService']>>;
 
-/**
- * Swagger request body for the update-user endpoints.
- * Mirrors every updatable column of the `users` table (password excluded — use
- * the change-password endpoint). All fields are optional.
- */
 const UPDATE_USER_BODY_SCHEMA = {
   type: 'object',
   properties: {
@@ -95,7 +89,12 @@ const UPDATE_USER_BODY_SCHEMA = {
       nullable: true,
       example: 'https://google.com/john',
     },
-    school: { type: 'string', maxLength: 255, nullable: true, example: 'Le Hong Phong High School' },
+    school: {
+      type: 'string',
+      maxLength: 255,
+      nullable: true,
+      example: 'Le Hong Phong High School',
+    },
     relationship: { type: 'string', maxLength: 50, nullable: true, example: 'FATHER' },
     classId: {
       type: 'string',
@@ -165,32 +164,13 @@ export class UserController {
   @Get('/detail-user')
   @ApiOperation({
     summary: 'Get current user detail',
-    description:
-      'Get detailed info about the authenticated user, optionally including wallets, transactions, categories',
-  })
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    type: String,
-    description: 'Comma-separated: wallets,transactions,categories',
-    example: 'wallets,transactions',
-  })
-  @ApiQuery({
-    name: 'transactionLimit',
-    required: false,
-    type: Number,
-    example: 50,
-    description: 'Max transactions to return',
+    description: 'Get detailed info about the authenticated user',
   })
   @SwaggerResponse({ status: 200, description: 'User detail fetched successfully' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Get detail user successfully ...' })
-  async getDetailUserController(
-    @CurrentUser() user: Record<string, string>,
-    @Query(new ZodValidationPipe<GetDetailUserQuery>(getUserDetailQuerySchema))
-    detailQuery: GetDetailUserQuery,
-  ) {
+  async getDetailUserController(@CurrentUser() user: Record<string, string>) {
     this.logger.log('Data user :', user);
-    return await this.userService.getDetailUserService({ id: user.id, query: detailQuery });
+    return await this.userService.getDetailUserService({ id: user.id });
   }
 
   @Get('/get-by-field')
