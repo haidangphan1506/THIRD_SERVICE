@@ -7,7 +7,6 @@ import {
   boolean,
   pgEnum,
   uniqueIndex,
-  index,
   type AnyPgColumn,
   numeric,
   integer,
@@ -56,82 +55,82 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const categories = pgTable(
-  'categories',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    name: varchar('name', { length: 100 }).notNull(),
-    type: categoryTypeEnum('type').notNull(),
-    parentId: uuid('parent_id').references((): AnyPgColumn => categories.id, {
-      onDelete: 'set null',
-    }),
-    icon: varchar('icon', { length: 50 }),
-    color: varchar('color', { length: 7 }).default('#FFFFFF'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => [
-    uniqueIndex('categories_name_type_parent_unique').on(table.name, table.type, table.parentId),
-  ],
-);
+// export const categories = pgTable(
+//   'categories',
+//   {
+//     id: uuid('id').defaultRandom().primaryKey(),
+//     name: varchar('name', { length: 100 }).notNull(),
+//     type: categoryTypeEnum('type').notNull(),
+//     parentId: uuid('parent_id').references((): AnyPgColumn => categories.id, {
+//       onDelete: 'set null',
+//     }),
+//     icon: varchar('icon', { length: 50 }),
+//     color: varchar('color', { length: 7 }).default('#FFFFFF'),
+//     createdAt: timestamp('created_at').defaultNow().notNull(),
+//     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+//   },
+//   (table) => [
+//     uniqueIndex('categories_name_type_parent_unique').on(table.name, table.type, table.parentId),
+//   ],
+// );
 
-export const wallets = pgTable(
-  'wallets',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, {
-        onDelete: 'cascade',
-      }),
-    name: varchar('name', { length: 100 }).notNull(),
-    type: walletTypeEnum('type').notNull().default('CASH'),
-    currency: varchar('currency', { length: 3 }).notNull().default('VND'),
-    categoriesId: uuid('categories_id').array().notNull().default([]),
-    balance: numeric('balance', { precision: 14, scale: 2 }).notNull().default('0'),
-    note: text('note'),
-    isDefault: boolean('is_default').notNull().default(false),
-    isActive: boolean('is_active').notNull().default(true),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => [uniqueIndex('wallets_user_name_unique').on(table.userId, table.name)],
-);
+// export const wallets = pgTable(
+//   'wallets',
+//   {
+//     id: uuid('id').defaultRandom().primaryKey(),
+//     userId: uuid('user_id')
+//       .notNull()
+//       .references(() => users.id, {
+//         onDelete: 'cascade',
+//       }),
+//     name: varchar('name', { length: 100 }).notNull(),
+//     type: walletTypeEnum('type').notNull().default('CASH'),
+//     currency: varchar('currency', { length: 3 }).notNull().default('VND'),
+//     categoriesId: uuid('categories_id').array().notNull().default([]),
+//     balance: numeric('balance', { precision: 14, scale: 2 }).notNull().default('0'),
+//     note: text('note'),
+//     isDefault: boolean('is_default').notNull().default(false),
+//     isActive: boolean('is_active').notNull().default(true),
+//     createdAt: timestamp('created_at').defaultNow().notNull(),
+//     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+//   },
+//   (table) => [uniqueIndex('wallets_user_name_unique').on(table.userId, table.name)],
+// );
 
-export const transactions = pgTable(
-  'transactions',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    name: varchar('name', { length: 100 }).notNull(),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, {
-        onDelete: 'cascade',
-      }),
-    walletId: uuid('wallet_id')
-      .notNull()
-      .references(() => wallets.id, {
-        onDelete: 'cascade',
-      }),
-    categoryId: uuid('category_id')
-      .notNull()
-      .references(() => categories.id, {
-        onDelete: 'cascade',
-      }),
-    amount: numeric('amount', { precision: 14, scale: 2 }).notNull(),
-    note: text('note'),
-    type: transactionTypeEnum('type').notNull(),
-    status: transactionStatusEnum('status').notNull().default('COMPLETED'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => [
-    index('transactions_user_id_idx').on(table.userId),
-    index('transactions_wallet_id_idx').on(table.walletId),
-    index('transactions_category_id_idx').on(table.categoryId),
-    index('transactions_created_at_idx').on(table.createdAt),
-  ],
-);
+// export const transactions = pgTable(
+//   'transactions',
+//   {
+//     id: uuid('id').defaultRandom().primaryKey(),
+//     name: varchar('name', { length: 100 }).notNull(),
+//     userId: uuid('user_id')
+//       .notNull()
+//       .references(() => users.id, {
+//         onDelete: 'cascade',
+//       }),
+//     walletId: uuid('wallet_id')
+//       .notNull()
+//       .references(() => wallets.id, {
+//         onDelete: 'cascade',
+//       }),
+//     categoryId: uuid('category_id')
+//       .notNull()
+//       .references(() => categories.id, {
+//         onDelete: 'cascade',
+//       }),
+//     amount: numeric('amount', { precision: 14, scale: 2 }).notNull(),
+//     note: text('note'),
+//     type: transactionTypeEnum('type').notNull(),
+//     status: transactionStatusEnum('status').notNull().default('COMPLETED'),
+//     createdAt: timestamp('created_at').defaultNow().notNull(),
+//     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+//   },
+//   (table) => [
+//     index('transactions_user_id_idx').on(table.userId),
+//     index('transactions_wallet_id_idx').on(table.walletId),
+//     index('transactions_category_id_idx').on(table.categoryId),
+//     index('transactions_created_at_idx').on(table.createdAt),
+//   ],
+// );
 
 // ─── Education Management ────────────────────────────────────────────
 
@@ -200,8 +199,6 @@ export const classes = pgTable('classes', {
   endTime: timestamp('end_time').defaultNow().notNull(),
   location: text('location'),
   curriculumId: uuid('curriculum_id').references(() => curriculums.id, { onDelete: 'set null' }),
-  studentsId: uuid('students_id').array().notNull().default([]),
-  parentsId: uuid('parents_id').array().notNull().default([]),
   tutorId: uuid('tutor_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
@@ -338,29 +335,6 @@ export const lessons = pgTable('lessons', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
-
-// ── Assignments ──────────────────────────────────────────────────────
-export const assignments = pgTable(
-  'assignments',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    classId: uuid('class_id')
-      .notNull()
-      .references(() => classes.id, { onDelete: 'cascade' }),
-    curriculumId: uuid('curriculum_id').references(() => curriculums.id, { onDelete: 'set null' }),
-    lesson: integer('lesson').notNull(),
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-    requirement: text('requirement'),
-    status: assignmentStatusEnum('status').default('IN_PROGRESS'),
-    score: numeric('score', { precision: 5, scale: 2 }),
-    comment: text('comment'),
-    isHidden: boolean('is_hidden').default(false),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => [index('assignments_class_id_idx').on(table.classId)],
-);
 
 // ── Tuitions ─────────────────────────────────────────────────────────
 export const tuitions = pgTable('tuitions', {

@@ -1,46 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { and, desc, eq, inArray, sql, type SQL } from 'drizzle-orm';
-import { assignments, classes, studentScores, users } from 'src/database/schema';
+import { classes, studentScores, users } from 'src/database/schema';
 
-/** Read-only queries about assignments and recorded scores. */
+/** Read-only queries about recorded scores. */
 @Injectable()
 export class ExerciseContextService {
   constructor(
     @Inject('DRIZZLE')
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
-
-  /** Assignments for the user's classes, optionally filtered by status. */
-  async getMyAssignments(classIds: string[], status?: string) {
-    if (classIds.length === 0) return { count: 0, assignments: [] };
-
-    const conditions: SQL[] = [
-      inArray(assignments.classId, classIds),
-      eq(assignments.isHidden, false),
-    ];
-    if (status) {
-      conditions.push(eq(assignments.status, status.toUpperCase() as never));
-    }
-
-    const rows = await this.db
-      .select({
-        id: assignments.id,
-        className: classes.name,
-        name: assignments.name,
-        lesson: assignments.lesson,
-        status: assignments.status,
-        score: assignments.score,
-        comment: assignments.comment,
-      })
-      .from(assignments)
-      .innerJoin(classes, eq(classes.id, assignments.classId))
-      .where(and(...conditions))
-      .orderBy(desc(assignments.createdAt))
-      .limit(100);
-
-    return { count: rows.length, assignments: rows };
-  }
 
   /** Recorded scores/feedback for the relevant student(s), with an average. */
   async getMyScores(params: { classIds: string[]; studentIds: string[]; byClass: boolean }) {

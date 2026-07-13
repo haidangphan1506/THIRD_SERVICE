@@ -9,6 +9,16 @@ export const dayOfWeekEnum = z.enum([
   'SATURDAY',
   'SUNDAY',
 ]);
+
+export const dayOfWeeks = [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+] as const;
 export const sessionFormatEnum = z.enum(['ONLINE', 'OFFLINE']);
 
 export const createScheduleSchema = z.object({

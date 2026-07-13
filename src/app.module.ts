@@ -6,12 +6,8 @@ import { AuthModule } from './features/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { MailerModule } from './features/email/mailer/mailer.module';
 import { RedisModule } from './features/redis/redis.module';
-import { EmailModule } from './features/email/email.module';
-import { TransactionModule } from './features/transaction/transaction.module';
+// import { EmailModule } from './features/email/email.module';
 import { UserModule } from './features/user/user.module';
-import { WalletModule } from './features/wallet/wallet.module';
-import { CategoryModule } from './features/category/category.module';
-import { ReportModule } from './features/report/report.module';
 import { ClassModule } from './features/class/class.module';
 import { StudentModule } from './features/student/student.module';
 import { CurriculumModule } from './features/curriculum/curriculum.module';
@@ -26,7 +22,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { CloudinaryModule } from './features/cloudinary/cloudinary.module';
 import { UploadModule } from './features/uploads/upload.module';
-import { ExerciseModule } from './features/exercises/exercise.module';
+// import { ExerciseModule } from './features/exercises/exercise.module';
 import { AiModule } from './features/ai/ai.module';
 
 @Module({
@@ -38,12 +34,8 @@ import { AiModule } from './features/ai/ai.module';
     MailerModule,
     RedisModule,
     UserModule,
-    CategoryModule,
     AuthModule,
-    WalletModule,
-    TransactionModule,
-    EmailModule,
-    ReportModule,
+    // EmailModule,
     ClassModule,
     StudentModule,
     CurriculumModule,
@@ -55,7 +47,7 @@ import { AiModule } from './features/ai/ai.module';
     SessionModule,
     CloudinaryModule,
     UploadModule,
-    ExerciseModule,
+    // ExerciseModule,
     AiModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,

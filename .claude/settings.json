@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/guard-paths.mjs",
+            "timeout": 10,
+            "statusMessage": "Checking protected paths..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/format-ts.mjs",
+            "timeout": 30,
+            "statusMessage": "Formatting with prettier + eslint..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/review-skills.mjs",
+            "timeout": 15,
+            "statusMessage": "Checking if skills/rules need updating..."
+          }
+        ]
+      }
+    ]
+  }
+}

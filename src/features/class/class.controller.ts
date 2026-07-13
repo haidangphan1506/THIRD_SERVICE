@@ -1,16 +1,25 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiBody,
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
 import { CurrentUser } from '@packages/decorators';
-import { createClassSchema, type CreateClassDto } from '@packages/entities/class';
+import {
+  createClassSchema,
+  type GetClassesQueryDto,
+  getClassesQuerySchema,
+  type CreateClassDto,
+} from '@packages/entities/class';
 import { ClassService } from './class.service';
+import { CLASS_SWAGGER_MESSAGES } from 'src/data/swaggers/messages';
+import { CLASS_SWAGGERS_DATA } from 'src/data/swaggers/data/class.swagger';
 
 @ApiTags('Classes')
 @ApiBearerAuth('access-token')
@@ -18,64 +27,14 @@ import { ClassService } from './class.service';
 export class ClassController {
   constructor(private readonly classService: ClassService) {}
 
+  // todo : create new class controller ...
   @Post()
   @HttpCode(StatusCodes.CREATED)
   @ApiOperation({
     summary: 'Create class',
     description: 'Create a new class (Stage 1: class info)',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['name', 'subject', 'tutorId', 'startTime', 'endTime'],
-      properties: {
-        name: { type: 'string', maxLength: 255, example: 'Toan 12 - Co Ban' },
-        code: {
-          type: 'string',
-          maxLength: 50,
-          example: 'T12CB',
-          description: 'Auto-generated if omitted',
-        },
-        subject: { type: 'string', maxLength: 255, example: 'Toan' },
-        tuition: { type: 'number', minimum: 0, default: 0, example: 1500000 },
-        description: { type: 'string', example: 'Lop toan 12 co ban, hoc 2 buoi/tuan' },
-        status: { type: 'string', enum: ['OPEN', 'CLOSED', 'UPCOMING'], default: 'OPEN' },
-        format: {
-          type: 'string',
-          enum: ['ONLINE', 'OFFLINE'],
-          default: 'ONLINE',
-          description: 'Hinh thuc hoc',
-        },
-        location: {
-          type: 'string',
-          example: 'https://meet.google.com/abc-defg-hij',
-          description: 'Link hoc (ONLINE) hoac dia chi hoc (OFFLINE)',
-        },
-        startTime: {
-          type: 'date',
-          example: '2026-07-01T00:00:00.000Z',
-          description: 'Thời gian bắt đầu  khóa học',
-        },
-        endTime: {
-          type: 'date',
-          example: '2026-10-01T00:00:00.000Z',
-          description: 'Thời gian kết thúc khóa học',
-        },
-        curriculumId: { type: 'string', format: 'uuid', description: 'Optional curriculum ID' },
-        tutorId: { type: 'string', format: 'uuid', description: 'Tutor (user) ID' },
-        studentIds: {
-          type: 'array',
-          items: { type: 'string', format: 'uuid' },
-          description: 'Optional list of student IDs to enroll',
-        },
-        parentsIds: {
-          type: 'array',
-          items: { type: 'string', format: 'uuid' },
-          description: 'Optional list of parent IDs linked to the class',
-        },
-      },
-    },
-  })
+  @ApiBody({ schema: CLASS_SWAGGERS_DATA.CREATE_CLASS_SCHEMA })
   @SwaggerResponse({ status: 201, description: 'Class created' })
   create(
     @Body(new ZodValidationPipe<CreateClassDto>(createClassSchema))
@@ -83,5 +42,58 @@ export class ClassController {
     @CurrentUser() user: Record<string, string>,
   ) {
     return this.classService.createClassService({ data: dto, userId: user.id });
+  }
+
+  //todo : get and filter classes controller ...
+  @Get('')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: CLASS_SWAGGER_MESSAGES.GET_CLASSES_SUCCESSFULLY,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASSES_SUCCESSFULLY,
+  })
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_CLASSES_SCHEMA[0])
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_CLASSES_SCHEMA[1])
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_CLASSES_SCHEMA[2])
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASSES_SUCCESSFULLY,
+  })
+  async getClassesController(
+    @Query(new ZodValidationPipe<GetClassesQueryDto>(getClassesQuerySchema))
+    query: GetClassesQueryDto,
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return this.classService.getClassesService({ userId: user?.id, query });
+  }
+
+  // todo : get detail class controller ...
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: CLASS_SWAGGER_MESSAGES.GET_CLASS_SUCCESSFULLY,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASS_SUCCESSFULLY,
+  })
+  @ApiQuery(CLASS_SWAGGERS_DATA.GET_DETAIL_CLASS)
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.GET_CLASS_SUCCESSFULLY,
+  })
+  @Get('/:id')
+  getDetailClassController(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.classService.getClassService({ userId: user?.id, id });
+  }
+
+  @Delete(':id')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: CLASS_SWAGGER_MESSAGES.DEL_CLASS_SUCCESSFULLY,
+    description: CLASS_SWAGGER_MESSAGES.DEL_CLASS_SUCCESSFULLY,
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: CLASS_SWAGGER_MESSAGES.DEL_CLASS_SUCCESSFULLY,
+  })
+  delClassController(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.classService.delClassService({ userId: user?.id, id });
   }
 }
