@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import {
   CreateScheduleDto,
   CreateSchedulesDto,
+  GetSchedulesQueryDto,
   UpdateScheduleDto,
 } from '@packages/entities/schedule';
 import { checkUuidValid } from '@packages/helpers';
@@ -56,6 +57,13 @@ export class ScheduleService {
 
     await this.assertClassOwner({ userId, classId: data.classId });
     return this.repo.createMany({ classId: data.classId, items: data.schedules });
+  }
+
+  async getSchedulesService({ userId, query }: { userId: string; query: GetSchedulesQueryDto }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+
+    return this.repo.getAll({ userId, query });
   }
 
   async getSchedulesByClassService({ userId, classId }: { userId: string; classId: string }) {

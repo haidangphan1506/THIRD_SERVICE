@@ -40,6 +40,14 @@ export const createSessionsSchema = z.object({
     .max(50, 'At most 50 sessions allowed'),
 });
 
+export const getSessionsSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  search: z.string().optional(),
+  status: classSessionStatusEnum.optional(),
+  classId: z.string().uuid('Invalid class ID').optional(),
+});
+
 /**
  * Update schema defined explicitly (not `.partial()` on the create schema): with
  * `.partial()`, Zod would still fill absent fields with their defaults

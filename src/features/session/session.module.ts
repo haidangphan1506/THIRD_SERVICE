@@ -5,9 +5,10 @@ import { SessionService } from './session.service';
 import { ClassModule } from '../class/class.module';
 import { LessonModule } from '../lesson/lesson.module';
 import { UserModule } from '../user/user.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [ClassModule, LessonModule, UserModule],
+  imports: [ClassModule, LessonModule, UserModule, NotificationModule],
   controllers: [SessionController],
   providers: [SessionService, SessionRepository],
   exports: [SessionService],

@@ -1,10 +1,16 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreateSessionDto, CreateSessionsDto, UpdateSessionDto } from '@packages/entities/session';
+import {
+  CreateSessionDto,
+  CreateSessionsDto,
+  GetSessionsQueryDto,
+  UpdateSessionDto,
+} from '@packages/entities/session';
 import { checkUuidValid } from '@packages/helpers';
 import { SessionRepository } from './session.repository';
 import { ClassService } from '../class/class.service';
 import { LessonService } from '../lesson/lesson.service';
 import { UserService } from '../user/user.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class SessionService {
@@ -14,7 +20,42 @@ export class SessionService {
     private readonly classService: ClassService,
     private readonly lessonService: LessonService,
     private readonly userService: UserService,
+    private readonly notificationService: NotificationService,
   ) {}
+
+  // fan-out a notification to every student enrolled in the class
+  private async notifyClassStudents({
+    userId,
+    classId,
+    className,
+    content,
+  }: {
+    userId: string;
+    classId: string;
+    className: string;
+    content: string;
+  }) {
+    try {
+      const students = await this.classService.getAllStudentsService({ userId, id: classId });
+      for (const student of students) {
+        void this.notificationService.createInternal({
+          type: 'SYSTEM',
+          senderId: userId,
+          userId: student.id,
+          studentId: student.id,
+          classId,
+          title: `Buổi học mới · ${className}`,
+          content,
+          actionType: 'VIEW',
+          actionLabel: 'Xem buổi học',
+        });
+      }
+    } catch (err) {
+      this.logger.warn(
+        `Failed to notify class students: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
 
   // todo : validate optional lesson/tutor FKs before insert, defaulting tutor to the acting user ...
   private async resolveSessionRefs({
@@ -54,6 +95,22 @@ export class SessionService {
     return classData;
   }
 
+  // a session counts as "ended" only once the tutor marks it COMPLETED — students and parents
+  // may see the assigned exercises (bài tập) only after this point (a SCHEDULED/ONGOING session
+  // whose planned end time has merely passed does NOT unlock them).
+  private isSessionEnded(session: { status: string }) {
+    return session.status === 'COMPLETED';
+  }
+
+  // hide session.exerciseUrls from non-owners (student/parent) until the session has ended
+  private gateExercises<T extends { status: string; exerciseUrls?: unknown }>(
+    session: T,
+    isOwner: boolean,
+  ): T {
+    if (isOwner || this.isSessionEnded(session)) return session;
+    return { ...session, exerciseUrls: [] };
+  }
+
   private async loadOwnedSession({ userId, id }: { userId: string; id: string }) {
     if (!userId || !checkUuidValid({ data: userId }))
       throw new BadRequestException('User Id must be uuid ...');
@@ -71,20 +128,27 @@ export class SessionService {
     if (!userId || !checkUuidValid({ data: userId }))
       throw new BadRequestException('User Id must be uuid ...');
 
-    await this.assertClassOwner({ userId, classId: data.classId });
+    const classData = await this.assertClassOwner({ userId, classId: data.classId });
     const refs = await this.resolveSessionRefs({
       userId,
       lessonId: data.lessonId,
       tutorId: data.tutorId,
     });
-    return this.repo.create({ data: { ...data, ...refs } });
+    const created = await this.repo.create({ data: { ...data, ...refs } });
+    void this.notifyClassStudents({
+      userId,
+      classId: data.classId,
+      className: classData.name,
+      content: `Lớp ${classData.name} vừa có buổi học mới. Xem lịch để không bỏ lỡ.`,
+    });
+    return created;
   }
 
   async createSessionsService({ userId, data }: { userId: string; data: CreateSessionsDto }) {
     if (!userId || !checkUuidValid({ data: userId }))
       throw new BadRequestException('User Id must be uuid ...');
 
-    await this.assertClassOwner({ userId, classId: data.classId });
+    const classData = await this.assertClassOwner({ userId, classId: data.classId });
     const items = await Promise.all(
       data.sessions.map(async (session) => ({
         ...session,
@@ -95,7 +159,27 @@ export class SessionService {
         })),
       })),
     );
-    return this.repo.createMany({ classId: data.classId, items });
+    const created = await this.repo.createMany({ classId: data.classId, items });
+    void this.notifyClassStudents({
+      userId,
+      classId: data.classId,
+      className: classData.name,
+      content: `Lớp ${classData.name} vừa được thêm ${items.length} buổi học mới. Xem lịch để không bỏ lỡ.`,
+    });
+    return created;
+  }
+
+  async getSessionsService({ userId, query }: { userId: string; query: GetSessionsQueryDto }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+
+    const result = await this.repo.getAll({ userId, query });
+    return {
+      ...result,
+      sessions: result.sessions.map((session) =>
+        this.gateExercises(session, session.class?.tutorId === userId),
+      ),
+    };
   }
 
   async getSessionsByClassService({ userId, classId }: { userId: string; classId: string }) {
@@ -106,8 +190,26 @@ export class SessionService {
     return this.repo.getByClass({ classId });
   }
 
+  // detail read is allowed for the class tutor (owner) OR an enrolled student
   async getSessionService({ userId, id }: { userId: string; id: string }) {
-    return this.loadOwnedSession({ userId, id });
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException('User Id must be uuid ...');
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException('Session Id must be uuid ...');
+
+    const detail = await this.repo.getDetailById({ id });
+    if (!detail) throw new NotFoundException('Session not found ...');
+
+    // access: class tutor (owner), an enrolled student, or a parent of an enrolled student
+    const isOwner = detail.class?.tutorId === userId;
+    const canAccess =
+      isOwner ||
+      (await this.repo.isEnrolled({ userId, classId: detail.classId })) ||
+      (await this.repo.isParentOfEnrolled({ userId, classId: detail.classId }));
+    if (!canAccess) throw new NotFoundException('Session not found ...');
+
+    // students & parents only see the assigned exercises after the session has ended
+    return this.gateExercises(detail, isOwner);
   }
 
   async updateSessionService({

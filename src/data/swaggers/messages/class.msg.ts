@@ -5,4 +5,6 @@ export const CLASS_SWAGGER_MESSAGES = {
   DEL_CLASS_SUCCESSFULLY: 'Delete class successfully ...',
   UPDATE_CLASS_SUCCESSFULLY: 'Update class successfully ...',
   DELETE_CLASS_SUCCESSFULLY: 'Update class successfully ...',
+  ADD_STUDENTS_SUCCESSFULLY: 'Add students to class successfully ...',
+  GET_STUDENTS_SUCCESSFULLY: 'Get all student in class successfully ...',
 };

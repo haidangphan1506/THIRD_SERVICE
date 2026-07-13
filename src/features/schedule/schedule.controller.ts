@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -6,6 +6,7 @@ import {
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
@@ -13,9 +14,11 @@ import { CurrentUser } from '@packages/decorators';
 import {
   createScheduleSchema,
   createSchedulesSchema,
+  getSchedulesSchema,
   updateScheduleSchema,
   type CreateScheduleDto,
   type CreateSchedulesDto,
+  type GetSchedulesQueryDto,
   type UpdateScheduleDto,
 } from '@packages/entities/schedule';
 import { ScheduleService } from './schedule.service';
@@ -56,6 +59,26 @@ export class ScheduleController {
     @CurrentUser() user: Record<string, string>,
   ) {
     return this.scheduleService.createSchedulesService({ userId: user?.id, data: dto });
+  }
+
+  // todo : list all schedules the current user can access (owned or enrolled classes) ...
+  @Get()
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Get schedules',
+    description: 'List schedules across the classes the current user owns or is enrolled in',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
+  @SwaggerResponse({ status: StatusCodes.OK, description: 'Schedules fetched' })
+  getAll(
+    @CurrentUser() user: Record<string, string>,
+    @Query(new ZodValidationPipe<GetSchedulesQueryDto>(getSchedulesSchema))
+    query: GetSchedulesQueryDto,
+  ) {
+    return this.scheduleService.getSchedulesService({ userId: user?.id, query });
   }
 
   // todo : list all schedules of a class ...

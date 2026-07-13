@@ -34,6 +34,13 @@ export const createClassSchema = z.object({
 
 export const updateClassSchema = createClassSchema.partial().omit({ tutorId: true });
 
+export const addStudentsSchema = z.object({
+  studentIds: z
+    .array(z.string().uuid('Invalid student ID'))
+    .min(1, 'At least 1 student is required')
+    .max(100, 'At most 100 students at once'),
+});
+
 export const getClassesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),

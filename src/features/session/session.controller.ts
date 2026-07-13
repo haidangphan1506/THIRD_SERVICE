@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -6,6 +6,7 @@ import {
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
@@ -13,9 +14,11 @@ import { CurrentUser } from '@packages/decorators';
 import {
   createSessionSchema,
   createSessionsSchema,
+  getSessionsSchema,
   updateSessionSchema,
   type CreateSessionDto,
   type CreateSessionsDto,
+  type GetSessionsQueryDto,
   type UpdateSessionDto,
 } from '@packages/entities/session';
 import { SessionService } from './session.service';
@@ -62,6 +65,34 @@ export class SessionController {
     return this.sessionService.createSessionsService({ userId: user?.id, data: dto });
   }
 
+  // todo : list all sessions the current user can access (owned or enrolled classes) ...
+  @Get()
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: SESSION_SWAGGER_MESSAGES.GET_SESSIONS_SUCCESSFULLY,
+    description: 'List sessions across the classes the current user owns or is enrolled in',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
+  })
+  @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: SESSION_SWAGGER_MESSAGES.GET_SESSIONS_SUCCESSFULLY,
+  })
+  getAll(
+    @CurrentUser() user: Record<string, string>,
+    @Query(new ZodValidationPipe<GetSessionsQueryDto>(getSessionsSchema))
+    query: GetSessionsQueryDto,
+  ) {
+    return this.sessionService.getSessionsService({ userId: user?.id, query });
+  }
+
   // todo : list all sessions of a class ...
   @Get('class/:classId')
   @HttpCode(StatusCodes.OK)
@@ -95,7 +126,7 @@ export class SessionController {
   }
 
   // todo : update session ...
-  @Patch(':id')
+  @Put(':id')
   @HttpCode(StatusCodes.OK)
   @ApiOperation({
     summary: SESSION_SWAGGER_MESSAGES.UPDATE_SESSION_SUCCESSFULLY,
