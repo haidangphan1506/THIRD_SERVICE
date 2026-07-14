@@ -44,8 +44,8 @@ import {
 import { ApiResponse, CurrentUser, Roles } from '@packages/decorators';
 import { JwtAuthGuard, RolesGuard } from '@packages/guards';
 import { ZodValidationPipe } from '@packages/pipes';
-import { type MulterFile } from '../cloudinary/cloudinary.interface';
 import { UserService } from './user.service';
+import { type MulterFile } from '../uploads/upload.interface';
 type GetUsersResponse = Awaited<ReturnType<UserService['getUsersService']>>;
 
 const UPDATE_USER_BODY_SCHEMA = {
@@ -223,7 +223,7 @@ export class UserController {
     @Body(new ZodValidationPipe(createUserSchema))
     createUserDto: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
-    return (await this.userService.createUserService(createUserDto)) as CreateUserResponseDto;
+    return this.userService.createUserService(createUserDto);
   }
 
   @Put('')
@@ -298,11 +298,11 @@ export class UserController {
   })
   @SwaggerResponse({ status: 201, description: 'Avatar uploaded successfully' })
   @ApiResponse({ statusCode: StatusCodes.CREATED, message: 'Upload avatar successfully ...' })
-  async uploadAvatarController(
+  uploadAvatarController(
     @CurrentUser() user: Record<string, string>,
     @UploadedFile() file: MulterFile,
   ) {
-    return await this.userService.uploadAvatarService(user.id, file);
+    return this.userService.uploadAvatarService(user.id, file);
   }
 
   @Get('grades')

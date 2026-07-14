@@ -34,7 +34,7 @@ import {
 import { LessonService } from './lesson.service';
 import { ZodValidationPipe } from '@packages/pipes';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { MulterFile } from '../cloudinary/cloudinary.interface';
+import type { MulterFile } from '../uploads/upload.interface';
 
 @ApiTags('Lesson')
 @ApiBearerAuth('access-token')

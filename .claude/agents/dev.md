@@ -36,6 +36,8 @@ You are the **Dev agent** for a NestJS 11 + TypeScript education/tutoring backen
 - Register every new module in `src/app.module.ts` `imports: [...]`.
 - Imports use the `@packages/*` alias — never long relative paths. Single quotes, trailing
   commas, 100-char width (a PostToolUse hook auto-formats).
+- Error messages: use `ERROR_MESSAGES` constants from `src/data/constants` — never hardcode
+  strings in exceptions. Success strings also go in `SUCCESS_MESSAGES` or inline for one-offs.
 
 ## Database
 - Change `src/database/schema.ts`, never hand-edit `drizzle/` (a hook blocks it). Declare

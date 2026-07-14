@@ -81,7 +81,7 @@ export class AuthService {
       throw new BadRequestException('Username already exists ...');
     }
 
-    const user = await this.userService.createUserService({
+    await this.userService.createUserService({
       email,
       username: username?.trim() || undefined,
       password,
@@ -90,14 +90,28 @@ export class AuthService {
       role: 'STUDENT',
     });
 
-    return user as RegisterResponseDto;
+    const createdRows = await this.userService.getUserByField({ field: 'email', value: email });
+    const createdUser = createdRows[0];
+    if (!createdUser) {
+      throw new BadRequestException('Failed to create user ...');
+    }
+
+    return {
+      user: {
+        id: createdUser.id,
+        email: createdUser.email,
+        username: createdUser.username,
+        firstName: createdUser.firstName,
+        lastName: createdUser.lastName,
+      },
+    };
   }
 
   async loginService(loginDto: LoginDto): Promise<LoginResponseDto> {
-    const rows = (await this.userService.getUserByField({
+    const rows = await this.userService.getUserByField({
       field: 'email',
       value: loginDto.email,
-    })) as User[];
+    });
 
     if (!Array.isArray(rows) || rows.length === 0) {
       throw new BadRequestException('User not found ...');
@@ -125,10 +139,10 @@ export class AuthService {
   }
 
   async loginByUserCodeService(dto: LoginByUserCodeDto): Promise<LoginResponseDto> {
-    const rows = (await this.userService.getUserByField({
+    const rows = await this.userService.getUserByField({
       field: 'userCode',
       value: dto.userCode,
-    })) as User[];
+    });
 
     const user = rows.find((u) => u.role === dto.role);
     if (!user) {
@@ -155,20 +169,28 @@ export class AuthService {
   }
 
   async googleLoginService(profile: GoogleProfile): Promise<LoginResponseDto> {
-    const rows = (await this.userService.getUserByField({
+    const rows = await this.userService.getUserByField({
       field: 'email',
       value: profile.email,
-    })) as User[];
+    });
 
     let user = rows[0];
     if (!user) {
-      user = (await this.userService.createUserService({
+      await this.userService.createUserService({
         email: profile.email,
         password: randomUUID(),
         firstName: profile.firstName,
         lastName: profile.lastName,
         role: 'STUDENT',
-      })) as User;
+      });
+      const createdRows = await this.userService.getUserByField({
+        field: 'email',
+        value: profile.email,
+      });
+      user = createdRows[0];
+      if (!user) {
+        throw new BadRequestException('Failed to create user ...');
+      }
     }
 
     const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
@@ -189,10 +211,10 @@ export class AuthService {
   async forgotPasswordService(
     forgotPasswordDto: ForgotPasswordDto,
   ): Promise<ForgotPasswordResponseDto> {
-    const rows = (await this.userService.getUserByField({
+    const rows = await this.userService.getUserByField({
       field: 'email',
       value: forgotPasswordDto.email,
-    })) as User[];
+    });
 
     if (!Array.isArray(rows) || rows.length === 0) {
       throw new BadRequestException('User not found ...');
@@ -245,10 +267,10 @@ export class AuthService {
   }
 
   async updateUserPasswordService({ userId, password }: { userId: string; password: string }) {
-    const user = (await this.userService.getUserByField({
+    const user = await this.userService.getUserByField({
       field: 'id',
       value: userId,
-    })) as User[];
+    });
 
     if (!Array.isArray(user) || user.length === 0) {
       throw new BadRequestException('User not found ...');
@@ -276,10 +298,10 @@ export class AuthService {
 
     const payload = parseRefreshTokenPayload(verified);
 
-    const rows = (await this.userService.getUserByField({
+    const rows = await this.userService.getUserByField({
       field: 'id',
       value: payload.sub,
-    })) as User[];
+    });
 
     if (!Array.isArray(rows) || rows.length === 0) {
       throw new UnauthorizedException('User no longer exists');
