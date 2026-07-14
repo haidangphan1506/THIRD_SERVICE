@@ -33,6 +33,17 @@ this is now an education / tutoring domain.)
   tutor and student. Build the two id sets with subqueries and `or(inArray(...), inArray(...))`,
   `leftJoin` the parent to nest its summary (`class { id, name, code, subject }`) on each row, and
   still return `{ <resource>, pagination }`. See `SessionRepository.getAll` (`GET /sessions`).
+- **Admin endpoints**: use `@Roles('ADMIN')` decorator (from `@packages/decorators`) +
+  `RolesGuard` (from `@packages/guards`) — not a non-existent `@Admin()` decorator.
+- **Error messages**: use `ERROR_MESSAGES` constants from `src/data/constants/error.constant.ts`.
+  Never hardcode strings in `BadRequestException` / `ConflictException` / etc. For messages with
+  dynamic values, compose via template literal: `` `${ERROR_MESSAGES.EMAIL_EXISTS}: ${email}` ``.
+- **Success responses**: use `ApiResponse` decorator from `@packages/decorators` for swagger
+  metadata. Response body `message` can come from `SUCCESS_MESSAGES` or be inline depending on
+  context.
+- **List query conditions**: `buildListWhereClause` from `@packages/helpers` is the standard
+  helper for search+filter list endpoints. For simple queries (≤2 filters), manual `and()`/`eq()`
+  in the repository is acceptable.
 - **M:N enrollment / linking** (e.g. add students to a class via `class_students`): expose a
   `POST /classes/:id/students` taking `{ studentIds: [...] }` (one route serves both single and
   bulk — a single is just a length-1 array). The service checks parent ownership

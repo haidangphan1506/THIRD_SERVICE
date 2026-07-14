@@ -10,7 +10,7 @@ import {
 import { checkUuidValid } from '@packages/helpers';
 import { UserService } from '../user/user.service';
 import { UploadService } from '../uploads/upload.service';
-import { MulterFile } from '../cloudinary/cloudinary.interface';
+import { MulterFile } from '../uploads/upload.interface';
 
 @Injectable()
 export class LessonService {

@@ -10,6 +10,15 @@
 - **Style**: single quotes, trailing commas, 100-char width, semicolons. Formatting/lint is
   auto-applied by a PostToolUse hook, so match surrounding code and let the hook normalize it.
 - **Auth**: routes are guarded globally by `JwtAuthGuard`; add `@Public()` only for
-  intentionally open endpoints, and `@Admin()` for admin-only ones. Read the acting user with
-  `@CurrentUser()` from `@packages/decorators` (returns the JWT payload; use `user.id`) — the
-  old `@User` decorator is gone.
+  intentionally open endpoints, and `@Roles('ADMIN')` (from `@packages/decorators`, paired with
+  `RolesGuard` from `@packages/guards`) for admin-only ones. `AdminRoleGuard` is also available
+  in `@packages/guards`. Read the acting user with `@CurrentUser()` from `@packages/decorators`
+  (returns the JWT payload; use `user.id`).
+- **Helpers** (`@packages/helpers`): `checkUuidValid` / `generateCode` (from `generate.helper`),
+  `hashData` / `compareData` (bcrypt from `hashingData.helper`), `buildListWhereClause` (for
+  paginated list queries), `signAccessToken` / `signRefreshToken` (from `jwt.helper`).
+- **Messages**: error strings in `ERROR_MESSAGES` (`src/data/constants`); success strings in
+  `SUCCESS_MESSAGES` (same barrel). Never hardcode message text in services.
+- **Swagger**: body/query schemas in `src/data/swaggers/data/{name}.swagger.ts`, response
+  messages in `src/data/swaggers/messages/{name}.msg.ts`. Use `@ApiResponse()` decorator from
+  `@packages/decorators` for success messages.

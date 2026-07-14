@@ -7,6 +7,12 @@ stages:
   - build
   - deploy
 
+# On the `develop` branch we only run the deploy job — all validation stages are skipped.
+.rules_not_develop: &rules_not_develop
+  - if: '$CI_COMMIT_BRANCH == "develop"'
+    when: never
+  - when: on_success
+
 install:
   stage: install
   script:
@@ -14,6 +20,7 @@ install:
   artifacts:
     paths:
       - node_modules/
+  rules: *rules_not_develop
 
 typecheck:
   stage: typecheck
@@ -21,6 +28,7 @@ typecheck:
     - install
   script:
     - npm run typecheck
+  rules: *rules_not_develop
 
 lint:
   stage: lint
@@ -29,6 +37,8 @@ lint:
     - install
   script:
     - npm run lint
+  rules: *rules_not_develop
+
 test:
   stage: test
   dependencies:
@@ -36,6 +46,8 @@ test:
   script:
     - npm run test
   rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: never
     - exists:
         - '**/*.spec.ts'
         - '**/*.test.ts'
@@ -47,6 +59,7 @@ build:
     - install
   script:
     - npm run build
+  rules: *rules_not_develop
 
 deploy:
   stage: deploy

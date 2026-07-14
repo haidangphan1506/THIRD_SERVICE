@@ -17,6 +17,10 @@ export default tseslint.config(
       '**/*.test.ts',
       'src/packages/interfaces/**',
       'test/packages/interfaces/**',
+      // Claude Code hook scripts live under .claude/ and are plain Node ESM, not part of the
+      // TypeScript project (tsconfig only includes src/**). Exclude them from type-aware linting
+      // so the project service does not fail to resolve them.
+      '.claude/**',
     ],
   },
   eslint.configs.recommended,

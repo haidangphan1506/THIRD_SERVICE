@@ -1,29 +1,27 @@
 import {
   BadRequestException,
   ConflictException,
-  Inject,
   Injectable,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { and, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { DRIZZLE } from '../../database/database.module';
-import { grades, users } from '../../database/schema';
-import {
-  type ChangePasswordValues,
-  type CreateUserInput,
-  type GetUsersQueryDto,
-  type UpdateGradeDto,
-  type UpdateUserDto,
-  type UpdateUserGradesDto,
-  type UserDataFieldDto,
+import { UserRepository } from './user.repository';
+import type {
+  ChangePasswordValues,
+  CreateUserInput,
+  CreateUserResponseDto,
+  GetUsersQueryDto,
+  UpdateGradeDto,
+  UpdateUserDto,
+  UpdateUserGradesDto,
+  UserDataFieldDto,
   User,
 } from '@packages/entities/user';
 import { checkUuidValid, compareData, hashData } from '@packages/helpers';
-import { type MulterFile } from '../cloudinary/cloudinary.interface';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { MulterFile, UploadResponse } from '../uploads/upload.interface';
+import { ERROR_MESSAGES } from 'src/data/constants';
+import { UploadService } from '../uploads/upload.service';
 
 function generateUserCode(): string {
   return randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
@@ -35,9 +33,8 @@ export class UserService {
   private readonly searchableFields = ['id', 'email', 'username', 'phone', 'userCode'] as const;
 
   constructor(
-    @Inject(DRIZZLE)
-    private readonly db: ReturnType<typeof drizzle>,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly userRepo: UserRepository,
+    private readonly upload: UploadService,
   ) {}
 
   async generateUsername(firstName: string, lastName: string): Promise<string> {
@@ -54,76 +51,20 @@ export class UserService {
     }
 
     throw new ConflictException(
-      `Cannot generate unique username for "${firstName} ${lastName}" after 10 attempts`,
+      `${ERROR_MESSAGES.UNABLE_TO_GENERATE_USERNAME} for "${firstName} ${lastName}" after 10 attempts`,
     );
   }
 
-  async getUsersService(query: GetUsersQueryDto): Promise<{
-    data: Array<{
-      id: string;
-      email: string;
-      name: string;
-      role: string;
-      status: string;
-      createdAt: string;
-    }>;
-    pagination: {
-      page: number;
-      pageSize: number;
-      total: number;
-      totalPages: number;
-    };
-  }> {
-    const { page, limit, search, role, isActive } = query;
+  async getUsersService(query: GetUsersQueryDto) {
+    const { page, limit } = query;
     const offset = (page - 1) * limit;
+    const whereClause = this.userRepo.buildUserListConditions(query);
 
-    const conditions: SQL[] = [];
-    if (search?.trim()) {
-      const pattern = `%${search.trim()}%`;
-      const searchCond = or(
-        ilike(users.email, pattern),
-        ilike(users.username, pattern),
-        ilike(users.firstName, pattern),
-        ilike(users.lastName, pattern),
-      );
-      if (searchCond) {
-        conditions.push(searchCond);
-      }
-    }
-    if (role !== undefined) {
-      conditions.push(eq(users.role, role));
-    }
-    if (isActive !== undefined) {
-      conditions.push(eq(users.isActive, isActive));
-    }
-
-    const whereClause =
-      conditions.length === 0
-        ? undefined
-        : conditions.length === 1
-          ? conditions[0]
-          : and(...conditions);
-
-    const [[totalRow], rows] = await Promise.all([
-      this.db.select({ total: count() }).from(users).where(whereClause),
-      this.db
-        .select({
-          id: users.id,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          role: users.role,
-          isActive: users.isActive,
-          createdAt: users.createdAt,
-        })
-        .from(users)
-        .where(whereClause)
-        .orderBy(desc(users.createdAt))
-        .limit(limit)
-        .offset(offset),
+    const [total, rows] = await Promise.all([
+      this.userRepo.countUsers(whereClause),
+      this.userRepo.paginateUsers(whereClause, limit, offset),
     ]);
 
-    const total = Number(totalRow?.total ?? 0);
     const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
 
     const data = rows.map((row) => ({
@@ -148,43 +89,23 @@ export class UserService {
   }
 
   async getDetailUserService({ id }: { id: string }): Promise<User | null> {
-    const [user] = await this.db.select().from(users).where(eq(users.id, id));
-    if (!user) {
-      return null;
-    }
-    return user;
+    return this.userRepo.findById(id);
   }
 
-  async getUserByField(userDataFieldDto: UserDataFieldDto): Promise<User[] | []> {
+  async getUserByField(userDataFieldDto: UserDataFieldDto): Promise<User[]> {
     if (
       !this.searchableFields.includes(
         userDataFieldDto.field as (typeof this.searchableFields)[number],
       )
     ) {
       this.logger.warn(`Status: 400 - Unsupported field: ${userDataFieldDto.field}`);
-      throw new BadRequestException(`Unsupported field: ${userDataFieldDto.field}`);
+      throw new BadRequestException(`${ERROR_MESSAGES.UNSUPPORTED_FIELD}: ${userDataFieldDto.field}`);
     }
 
-    const field = userDataFieldDto.field as (typeof this.searchableFields)[number];
-
-    const columnMap = {
-      id: users.id,
-      email: users.email,
-      username: users.username,
-      phone: users.phone,
-      userCode: users.userCode,
-    } as const;
-
-    const column = columnMap[field];
-    if (!column) {
-      throw new BadRequestException(`Unsupported field: ${field}`);
-    }
-
-    const user = await this.db.select().from(users).where(eq(column, userDataFieldDto.value));
-    return user;
+    return this.userRepo.findByField(userDataFieldDto.field, userDataFieldDto.value);
   }
 
-  async createUserService(createUserDto: CreateUserInput): Promise<unknown> {
+  async createUserService(createUserDto: CreateUserInput): Promise<CreateUserResponseDto> {
     this.logger.log(`Creating new user ...`);
 
     const { email, firstName, lastName, password, username } = createUserDto;
@@ -197,11 +118,11 @@ export class UserService {
 
     if (existingByEmail.length > 0) {
       this.logger.warn(`Status: 400 - Email already exists: ${email}`);
-      throw new BadRequestException(`Email already exists: ${email}`);
+      throw new BadRequestException(`${ERROR_MESSAGES.EMAIL_EXISTS}: ${email}`);
     }
     if (Array.isArray(existingByUsername) && existingByUsername.length > 0) {
       this.logger.warn(`Status: 400 - Username already exists: ${resolvedUsername}`);
-      throw new BadRequestException(`Username already exists: ${resolvedUsername}`);
+      throw new BadRequestException(`${ERROR_MESSAGES.USERNAME_EXISTS}: ${resolvedUsername}`);
     }
 
     const id = randomUUID();
@@ -211,12 +132,8 @@ export class UserService {
     if (role === 'TUTOR') {
       userCode = generateUserCode();
       for (let i = 0; i < 5; i++) {
-        const existing = await this.db
-          .select()
-          .from(users)
-          .where(eq(users.userCode, userCode))
-          .limit(1);
-        if (existing.length === 0) break;
+        const existing = await this.userRepo.findUserCode(userCode);
+        if (!existing) break;
         userCode = generateUserCode();
       }
     }
@@ -225,146 +142,94 @@ export class UserService {
       resolvedUsername = await this.generateUsername(firstName, lastName);
     }
 
-    const user = await this.db
-      .insert(users)
-      .values({
-        id,
-        ...(userCode ? { userCode } : {}),
-        email,
-        username: resolvedUsername!,
-        firstName,
-        lastName,
-        password: hashedPassword,
-        role,
-      })
-      .returning();
-    return user[0];
+    const user = await this.userRepo.create({
+      id,
+      ...(userCode ? { userCode } : {}),
+      email,
+      username: resolvedUsername!,
+      firstName,
+      lastName,
+      password: hashedPassword,
+      role,
+    });
+
+    return {
+      message: 'User created successfully',
+      data: {
+        email: user.email,
+        fullName: `${user.firstName} ${user.lastName}`.trim(),
+        password: user.password,
+      },
+    };
   }
 
   async updateUserPasswordService({ id, password }: { id: string; password: string }) {
     const hashedPassword = await hashData(password);
-    const updatedUser = await this.db
-      .update(users)
-      .set({ password: hashedPassword })
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser[0];
+    return this.userRepo.updatePassword(id, hashedPassword);
   }
 
   async updateUserService({ id, data }: { id: string; data: UpdateUserDto }) {
-    const user = await this.getUserByField({
-      field: 'id',
-      value: id,
-    });
+    const user = await this.getUserByField({ field: 'id', value: id });
     if (Array.isArray(user) && !user.length) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
-    const [updatedUser] = await this.db
-      .update(users)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser;
+    return this.userRepo.update(id, data);
   }
 
   async updateStatusUserService({ id }: { id: string }) {
-    const user = await this.getUserByField({
-      field: 'id',
-      value: id,
-    });
+    const user = await this.getUserByField({ field: 'id', value: id });
     if (Array.isArray(user) && !user.length) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
-    const updatedUser = await this.db
-      .update(users)
-      .set({ isActive: !user[0].isActive })
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser[0];
+    return this.userRepo.update(id, { isActive: !user[0].isActive });
   }
 
   async deleteUserByAdminService({ id }: { id: string }) {
-    const user = await this.getUserByField({
-      field: 'id',
-      value: id,
-    });
+    const user = await this.getUserByField({ field: 'id', value: id });
     if (Array.isArray(user) && !user.length) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
-    await this.db.delete(users).where(eq(users.id, id));
-    return { id: id };
+    await this.userRepo.delete(id);
+    return { id };
   }
 
   async getGradesService(userId: string) {
-    const [user] = await this.db
-      .select({ gradesId: users.gradesId })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
-
-    if (!user || !user.gradesId?.length) {
-      return [];
-    }
-
-    return this.db
-      .select()
-      .from(grades)
-      .where(inArray(grades.id, user.gradesId))
-      .orderBy(grades.level);
+    return this.userRepo.findGradesByUser(userId);
   }
 
   async updateGradeService(id: string, dto: UpdateGradeDto) {
-    const [existing] = await this.db.select().from(grades).where(eq(grades.id, id)).limit(1);
+    const existing = await this.userRepo.findGradeById(id);
     if (!existing) {
-      throw new BadRequestException('Grade not found');
+      throw new BadRequestException(ERROR_MESSAGES.GRADE_NOT_FOUND);
     }
-    const [updated] = await this.db
-      .update(grades)
-      .set({ name: dto.name, level: dto.level })
-      .where(eq(grades.id, id))
-      .returning();
-    return updated;
+    return this.userRepo.updateGrade(id, dto);
   }
 
   async updateUserGradesService(userId: string, dto: UpdateUserGradesDto) {
-    const [user] = await this.db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const user = await this.userRepo.findById(userId);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
-    const validGrades = await this.db
-      .select({ id: grades.id })
-      .from(grades)
-      .where(inArray(grades.id, dto.gradesId));
-
+    const validGrades = await this.userRepo.validateGradeIds(dto.gradesId);
     if (validGrades.length !== dto.gradesId.length) {
-      throw new BadRequestException('One or more grade IDs are invalid');
+      throw new BadRequestException(ERROR_MESSAGES.INVALID_GRADE_IDS);
     }
 
-    const [updated] = await this.db
-      .update(users)
-      .set({ gradesId: dto.gradesId })
-      .where(eq(users.id, userId))
-      .returning();
-    return updated;
+    return this.userRepo.update(userId, { gradesId: dto.gradesId });
   }
 
   async changePasswordService(userId: string, dto: ChangePasswordValues) {
-    const [user] = await this.db
-      .select({ id: users.id, password: users.password })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
-
+    const user = await this.userRepo.findWithPassword(userId);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const isMatch = await compareData(dto.currentPassword, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('Current password is incorrect');
+      throw new UnauthorizedException(ERROR_MESSAGES.CURRENT_PASSWORD_INCORRECT);
     }
 
     await this.updateUserPasswordService({ id: userId, password: dto.newPassword });
@@ -372,13 +237,18 @@ export class UserService {
   }
 
   async uploadAvatarService(userId: string, file: MulterFile) {
-    if (!userId || (userId && !checkUuidValid({ data: userId }))) {
-      throw new BadRequestException('UserId not found ...');
+    if (!userId || (userId && !checkUuidValid({ data: userId })))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
+
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+
+    const result: UploadResponse = await this.upload.upload(file, 'avatars');
+
+    if (result?.url) {
+      await this.userRepo.update(userId, { avatar: result.url });
     }
-    const result = await this.cloudinaryService.upload(file);
 
-    await this.db.update(users).set({ avatar: result.secure_url }).where(eq(users.id, userId));
-
-    return { avatar: result.secure_url };
+    return result;
   }
 }
