@@ -79,7 +79,11 @@ export class OpenRouterProvider implements AiProvider {
         return message?.content ?? 'Xin lỗi, tôi không thể trả lời ngay lúc này.';
       }
 
-      chatMessages.push({ role: 'assistant', content: message?.content ?? null, tool_calls: calls });
+      chatMessages.push({
+        role: 'assistant',
+        content: message?.content ?? null,
+        tool_calls: calls,
+      });
 
       const toolResults = await Promise.all(
         calls.map(async (call) => {

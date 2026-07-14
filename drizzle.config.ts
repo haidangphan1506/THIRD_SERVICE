@@ -9,7 +9,7 @@ function resolveDatabaseUrl(): string {
   }
 
   const host = process.env.POSTGRES_HOST?.trim() || 'localhost';
-  const port = process.env.POSTGRES_PORT?.trim() || '5433';
+  const port = process.env.POSTGRES_PORT?.trim() || '5432';
   const db = process.env.POSTGRES_DB?.trim() || 'backends_db';
   const user = process.env.POSTGRES_USER?.trim() || 'postgres';
   const password = process.env.POSTGRES_PASSWORD?.trim() || 'postgres';

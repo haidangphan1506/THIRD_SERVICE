@@ -1,34 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import type { AiMessage } from '../interfaces/ai-message.interface';
+import { Inject, Injectable } from '@nestjs/common';
+import { desc, eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { DRIZZLE } from '../../../database/database.module';
+import { aiMessages } from '../../../database/schema';
+import type { AiMessage, AiRole } from '../interfaces/ai-message.interface';
 
-interface StoredTurn extends AiMessage {
-  userId: string;
-  createdAt: Date;
-}
+const toDbRole = (role: AiRole): 'USER' | 'ASSISTANT' => (role === 'user' ? 'USER' : 'ASSISTANT');
+const toAiRole = (role: 'USER' | 'ASSISTANT'): AiRole => (role === 'USER' ? 'user' : 'assistant');
 
-/**
- * Placeholder chat persistence. Backed by an in-memory store for now; swap for a
- * Drizzle-backed table (e.g. `ai_chat_messages`) when durable history is needed.
- * Kept as a repository so the storage swap doesn't touch `ChatHistoryService`.
- */
+/** Drizzle-backed chat history, scoped per user. */
 @Injectable()
 export class ChatRepository {
-  private readonly store = new Map<string, StoredTurn[]>();
+  constructor(
+    @Inject(DRIZZLE)
+    private readonly db: ReturnType<typeof drizzle>,
+  ) {}
 
-  append(userId: string, message: AiMessage): Promise<void> {
-    const turns = this.store.get(userId) ?? [];
-    turns.push({ ...message, userId, createdAt: new Date() });
-    this.store.set(userId, turns);
-    return Promise.resolve();
+  async append(userId: string, message: AiMessage): Promise<void> {
+    await this.db.insert(aiMessages).values({
+      userId,
+      role: toDbRole(message.role),
+      content: message.content,
+    });
   }
 
-  findRecent(userId: string, limit = 20): Promise<AiMessage[]> {
-    const turns = this.store.get(userId) ?? [];
-    return Promise.resolve(turns.slice(-limit).map(({ role, content }) => ({ role, content })));
+  async findRecent(userId: string, limit = 20): Promise<AiMessage[]> {
+    const rows = await this.db
+      .select({ role: aiMessages.role, content: aiMessages.content })
+      .from(aiMessages)
+      .where(eq(aiMessages.userId, userId))
+      .orderBy(desc(aiMessages.createdAt))
+      .limit(limit);
+
+    return rows.reverse().map((row) => ({ role: toAiRole(row.role), content: row.content }));
   }
 
-  clear(userId: string): Promise<void> {
-    this.store.delete(userId);
-    return Promise.resolve();
+  async clear(userId: string): Promise<void> {
+    await this.db.delete(aiMessages).where(eq(aiMessages.userId, userId));
   }
 }

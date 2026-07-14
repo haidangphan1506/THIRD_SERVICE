@@ -1,2 +1,0 @@
-ALTER TABLE "classes" ADD COLUMN "users_id" uuid;--> statement-breakpoint
-ALTER TABLE "classes" ADD CONSTRAINT "classes_users_id_users_id_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;

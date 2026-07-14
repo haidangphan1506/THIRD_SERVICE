@@ -1,1 +1,0 @@
-ALTER TABLE "classes" ADD COLUMN "parents_id" uuid[] DEFAULT '{}' NOT NULL;

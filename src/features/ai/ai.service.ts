@@ -38,7 +38,8 @@ export class AiService {
       systemInstruction += `\n\nNgữ cảnh tham khảo:\n${snippets.join('\n')}`;
     }
 
-    const messages: AiMessage[] = [...(dto.history ?? []), { role: 'user', content: dto.message }];
+    const recent = await this.history.getRecent(user.userId);
+    const messages: AiMessage[] = [...recent, { role: 'user', content: dto.message }];
 
     const provider = this.providerFactory.getProvider();
 
@@ -50,14 +51,22 @@ export class AiService {
         executeTool: (name, args) => this.context.executeTool(name, args, user),
       });
 
-      // Best-effort history persistence — never fail the request over it.
-      void this.persist(user.userId, dto.message, reply);
+      // Persisted (not fire-and-forget) so the next turn's getRecent() sees this one.
+      await this.persist(user.userId, dto.message, reply);
 
       return { reply };
     } catch (error) {
       this.logger.error(`AI provider "${provider.name}" error`, error as Error);
       throw error;
     }
+  }
+
+  async getHistory(userId: string, limit?: number): Promise<AiMessage[]> {
+    return this.history.getRecent(userId, limit);
+  }
+
+  async clearHistory(userId: string): Promise<void> {
+    await this.history.clear(userId);
   }
 
   private async persist(userId: string, message: string, reply: string): Promise<void> {

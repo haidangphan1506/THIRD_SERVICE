@@ -7,6 +7,7 @@ import {
   boolean,
   pgEnum,
   uniqueIndex,
+  index,
   type AnyPgColumn,
   numeric,
   integer,
@@ -408,6 +409,23 @@ export const studentScores = pgTable('student_scores', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+// ── AI Chat History ──────────────────────────────────────────────────
+export const aiMessageRoleEnum = pgEnum('ai_message_role', ['USER', 'ASSISTANT']);
+
+export const aiMessages = pgTable(
+  'ai_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    role: aiMessageRoleEnum('role').notNull(),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [index('ai_messages_user_id_created_at_idx').on(table.userId, table.createdAt)],
+);
 
 // ── Exercises ─────────────────────────────────────────────
 export const exercise = pgTable('exercises', {

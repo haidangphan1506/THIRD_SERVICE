@@ -65,8 +65,8 @@ POST /ai-chat/chat  (JwtAuthGuard → @CurrentUser)
 | `context.service.ts` | **Trung tâm điều phối tool**: `getToolDeclarations()` (bộ tool cho model) + `executeTool()` (dispatch tới context service tương ứng). `resolveScope()` xác định `classIds`/`studentIds` mà user được phép xem dựa trên role (TUTOR/ADMIN theo lớp, STUDENT/PARENT theo học sinh). |
 | `class.context.ts` | Query về **lớp học, chương trình học (curriculum), học phí**: `getMyClasses`, `getMyCurriculums`, `getMyTuitions`. |
 | `schedule.context.ts` | Query **thời khóa biểu định kỳ** hàng tuần: `getMySchedule`. |
-| `session.context.ts` | Query **buổi học cụ thể theo ngày giờ**: `getUpcomingSessions`. |
-| `exercise.context.ts` | Query **bài tập & điểm số**: `getMyAssignments`, `getMyScores`. |
+| `session.context.ts` | Query **buổi học cụ thể theo ngày giờ**: `getUpcomingSessions({ period? \| fromIso?/toIso? })`. `period` (`today`/`tomorrow`/`this_week`/`next_week`) được `utils/date-range.ts` tính sẵn theo giờ VN (server-side, không để model tự tính ngày) — trả về `count` để model đọc thẳng cho các câu hỏi "bao nhiêu buổi". |
+| `exercise.context.ts` | Query **bài tập & điểm số**: `getMyAssignments` (scope theo `tutorId`/`studentId` trực tiếp trên bảng `exercises`, trả `count`), `getMyScores` (trả `average`). |
 
 > Mỗi context service inject token `'DRIZZLE'` và chỉ nhận `classIds`/`studentIds` đã resolve sẵn —
 > tách biệt rõ giữa "phân quyền" (ContextService) và "truy vấn" (các context con).
@@ -100,7 +100,7 @@ POST /ai-chat/chat  (JwtAuthGuard → @CurrentUser)
 | File | Chức năng |
 | --- | --- |
 | `chat-history.service.ts` | API cấp cao để ghi/đọc lịch sử chat (`record`, `getRecent`, `clear`) — ủy quyền lưu trữ cho repository. |
-| `chat.repository.ts` | **Lưu tạm in-memory** (Map theo userId). Giữ dạng repository để sau này thay bằng bảng DB mà không đụng `ChatHistoryService`. |
+| `chat.repository.ts` | **Lưu Drizzle** vào bảng `ai_messages` (scope theo `userId`), 1 lịch sử liên tục mỗi user (không phân "conversation"). `AiService.chat()` dùng `findRecent()` làm context cho lượt kế tiếp — client không còn tự gửi `history`. |
 
 ### `interfaces/` — Kiểu dùng chung
 
@@ -140,8 +140,8 @@ POST /ai-chat/chat  (JwtAuthGuard → @CurrentUser)
 - **OpenAI**: cài `openai`, hiện thực `OpenAiProvider.generate()`, đặt `AI_PROVIDER=openai`.
 - **Bật RAG**: đặt `enabled = true` trong `RagService`, nối `EmbeddingService` + `VectorSearchService`
   vào embedding model và vector store (vd pgvector).
-- **Lịch sử bền vững**: thêm bảng (vd `ai_chat_messages`) và thay phần in-memory trong
-  `ChatRepository` bằng Drizzle (theo `.claude/rules/database-changes.md`).
+- **Lịch sử bền vững**: đã xong — bảng `ai_messages` (Drizzle), `ChatRepository` đọc/ghi
+  qua đó. `GET /ai-chat/history` (query `limit?`) và `DELETE /ai-chat/history` để xem/xoá.
 - **Thêm tool mới**: thêm method vào context service phù hợp → khai báo trong
   `ContextService.getToolDeclarations()` → thêm nhánh `case` trong `executeTool()`.
 ```
