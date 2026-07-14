@@ -43,7 +43,7 @@ export const users = pgTable('users', {
   address: text('address'),
   district: varchar('district', { length: 30 }),
   province: varchar('province', { length: 30 }),
-  subjects: varchar('subjects', { length: 50 }),
+  subjects: varchar('subjects', { length: 255 }),
   facebookId: varchar('facebookUrl', { length: 200 }),
   googleId: varchar('googleUrl', { length: 200 }),
   school: varchar('school', { length: 255 }),

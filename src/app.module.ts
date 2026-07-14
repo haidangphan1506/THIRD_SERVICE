@@ -8,6 +8,7 @@ import { MailerModule } from './features/email/mailer/mailer.module';
 import { RedisModule } from './features/redis/redis.module';
 // import { EmailModule } from './features/email/email.module';
 import { UserModule } from './features/user/user.module';
+import { AdminModule } from './features/admin/admin.module';
 import { ClassModule } from './features/class/class.module';
 import { StudentModule } from './features/student/student.module';
 import { CurriculumModule } from './features/curriculum/curriculum.module';
@@ -35,6 +36,7 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
     MailerModule,
     RedisModule,
     UserModule,
+    AdminModule,
     AuthModule,
     // EmailModule,
     ClassModule,
