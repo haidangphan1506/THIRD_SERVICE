@@ -77,8 +77,8 @@ export const loginSchema = z.object({
 export const loginByUserCodeSchema = z.object({
   userCode: z
     .string({ message: 'User code is required' })
-    .min(1, { message: 'User code is required' })
-    .max(6, { message: 'User code must be at most 6 characters' }),
+    .min(6, { message: 'User code must be 6 characters' })
+    .max(6, { message: 'User code must be 6 characters' }),
   password: passwordFieldSchema,
   role: z.enum(['PARENT', 'STUDENT']),
 });

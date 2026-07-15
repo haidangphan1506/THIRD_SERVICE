@@ -1,0 +1,365 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/data/swaggers/data/class.swagger.ts",
+      "type": "file",
+      "name": "class.swagger.ts",
+      "filePath": "src/data/swaggers/data/class.swagger.ts",
+      "summary": "Defines the Swagger/OpenAPI documentation metadata (request/response examples and descriptions) for the class feature's endpoints.",
+      "tags": ["swagger", "documentation", "class", "api-docs"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/data/swaggers/data/schedule.swagger.ts",
+      "type": "file",
+      "name": "schedule.swagger.ts",
+      "filePath": "src/data/swaggers/data/schedule.swagger.ts",
+      "summary": "Defines Swagger/OpenAPI documentation metadata for the schedule feature's create, list, update, and delete endpoints.",
+      "tags": ["swagger", "documentation", "schedule", "api-docs"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/ai/ai.controller.ts",
+      "type": "file",
+      "name": "ai.controller.ts",
+      "filePath": "src/features/ai/ai.controller.ts",
+      "summary": "REST controller exposing AI chat endpoints — sending a chat message, fetching conversation history, and clearing history for the current user.",
+      "tags": ["api-handler", "controller", "ai", "chat"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/ai/dto/ai-chat.dto.ts",
+      "type": "file",
+      "name": "ai-chat.dto.ts",
+      "filePath": "src/features/ai/dto/ai-chat.dto.ts",
+      "summary": "Zod schemas validating AI chat request bodies and chat-history query parameters.",
+      "tags": ["validation", "dto", "zod", "ai"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/class/class.controller.ts",
+      "type": "file",
+      "name": "class.controller.ts",
+      "filePath": "src/features/class/class.controller.ts",
+      "summary": "REST controller for the class (tutoring group) feature — create class, generate join code, list/get classes, enroll students, fetch materials, and delete a class.",
+      "tags": ["api-handler", "controller", "class", "crud"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/class/class.module.ts",
+      "type": "file",
+      "name": "class.module.ts",
+      "filePath": "src/features/class/class.module.ts",
+      "summary": "NestJS module wiring the class feature's controller, service, and repository, and importing the notification and user modules it depends on.",
+      "tags": ["module", "dependency-injection", "class"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/class/class.repository.ts",
+      "type": "file",
+      "name": "class.repository.ts",
+      "filePath": "src/features/class/class.repository.ts",
+      "summary": "Drizzle ORM data-access layer for classes — CRUD queries, paginated listing with tutor/student access filters, student enrollment, and materials lookups joined against lessons/chapters.",
+      "tags": ["repository", "database", "drizzle", "class"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/class/class.service.ts",
+      "type": "file",
+      "name": "class.service.ts",
+      "filePath": "src/features/class/class.service.ts",
+      "summary": "Business logic for the class feature — validates ownership and foreign keys, generates unique join codes, creates/lists/deletes classes, enrolls students with notification side-effects, and aggregates class materials.",
+      "tags": ["service", "business-logic", "class", "validation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/schedule/schedule.controller.ts",
+      "type": "file",
+      "name": "schedule.controller.ts",
+      "filePath": "src/features/schedule/schedule.controller.ts",
+      "summary": "REST controller for class schedules — create single or bulk schedule slots, list schedules globally or by class, and update/delete a schedule.",
+      "tags": ["api-handler", "controller", "schedule", "crud"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/schedule/schedule.module.ts",
+      "type": "file",
+      "name": "schedule.module.ts",
+      "filePath": "src/features/schedule/schedule.module.ts",
+      "summary": "NestJS module wiring the schedule feature's controller, service, and repository, importing the class module for ownership checks.",
+      "tags": ["module", "dependency-injection", "schedule"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/schedule/schedule.repository.ts",
+      "type": "file",
+      "name": "schedule.repository.ts",
+      "filePath": "src/features/schedule/schedule.repository.ts",
+      "summary": "Drizzle ORM data-access layer for class schedules — create, bulk create, paginated listing with tutor/student access filters, per-class listing, update, and delete.",
+      "tags": ["repository", "database", "drizzle", "schedule"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/schedule/schedule.service.ts",
+      "type": "file",
+      "name": "schedule.service.ts",
+      "filePath": "src/features/schedule/schedule.service.ts",
+      "summary": "Business logic for schedules — verifies the acting user owns the parent class before creating, updating, or deleting any schedule slot.",
+      "tags": ["service", "business-logic", "schedule", "authorization"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/packages/decorators/roles.decorator.ts",
+      "type": "file",
+      "name": "roles.decorator.ts",
+      "filePath": "src/packages/decorators/roles.decorator.ts",
+      "summary": "Defines the `@Roles()` decorator and its metadata key, used together with `RolesGuard` to restrict routes to specific user roles.",
+      "tags": ["decorator", "authorization", "rbac"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/decorators/user.decorator.ts",
+      "type": "file",
+      "name": "user.decorator.ts",
+      "filePath": "src/packages/decorators/user.decorator.ts",
+      "summary": "Defines the `@CurrentUser()` param decorator that extracts the authenticated JWT user payload from the incoming request.",
+      "tags": ["decorator", "authentication", "request-context"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/entities/class/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/entities/class/index.ts",
+      "summary": "Barrel re-export for the class domain's Zod schemas and inferred DTO types.",
+      "tags": ["barrel", "entity", "class", "type-definition"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/entities/schedule/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/entities/schedule/index.ts",
+      "summary": "Barrel re-export for the schedule domain's Zod schemas and inferred DTO types.",
+      "tags": ["barrel", "entity", "schedule", "type-definition"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/helpers/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/helpers/index.ts",
+      "summary": "Barrel re-export for shared helper utilities (UUID validation, code generation, hashing, JWT signing, list-query building) used across feature services.",
+      "tags": ["barrel", "utility", "helpers"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/pipes/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/pipes/index.ts",
+      "summary": "Barrel re-export for the shared `ZodValidationPipe` used to validate controller request bodies and query parameters.",
+      "tags": ["barrel", "validation", "pipe"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/ai/ai.controller.ts:AiController",
+      "type": "class",
+      "name": "AiController",
+      "filePath": "src/features/ai/ai.controller.ts",
+      "lineRange": [25, 71],
+      "summary": "Controller class handling chat, getHistory, and clearHistory endpoints, delegating all logic to AiService.",
+      "tags": ["api-handler", "controller", "ai"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/class/class.controller.ts:ClassController",
+      "type": "class",
+      "name": "ClassController",
+      "filePath": "src/features/class/class.controller.ts",
+      "lineRange": [29, 172],
+      "summary": "Controller class exposing all class-feature HTTP routes (create, list, detail, enroll students, materials, delete) and delegating to ClassService.",
+      "tags": ["api-handler", "controller", "class"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/class/class.module.ts:ClassModule",
+      "type": "class",
+      "name": "ClassModule",
+      "filePath": "src/features/class/class.module.ts",
+      "lineRange": [14, 14],
+      "summary": "NestJS module class declaring ClassController, ClassService, and ClassRepository as the class feature's providers/controllers.",
+      "tags": ["module", "dependency-injection"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/class/class.repository.ts:ClassRepository",
+      "type": "class",
+      "name": "ClassRepository",
+      "filePath": "src/features/class/class.repository.ts",
+      "lineRange": [11, 222],
+      "summary": "Repository class encapsulating all Drizzle queries against the classes, classStudents, lessons, and chapters tables.",
+      "tags": ["repository", "database", "drizzle"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/class/class.service.ts:ClassService",
+      "type": "class",
+      "name": "ClassService",
+      "filePath": "src/features/class/class.service.ts",
+      "lineRange": [18, 242],
+      "summary": "Service class implementing class creation, listing, enrollment, deletion, and materials aggregation with FK/ownership validation before delegating to the repository.",
+      "tags": ["service", "business-logic", "validation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/schedule/schedule.controller.ts:ScheduleController",
+      "type": "class",
+      "name": "ScheduleController",
+      "filePath": "src/features/schedule/schedule.controller.ts",
+      "lineRange": [30, 129],
+      "summary": "Controller class exposing schedule CRUD and bulk-create routes, delegating to ScheduleService.",
+      "tags": ["api-handler", "controller", "schedule"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/schedule/schedule.module.ts:ScheduleModule",
+      "type": "class",
+      "name": "ScheduleModule",
+      "filePath": "src/features/schedule/schedule.module.ts",
+      "lineRange": [13, 13],
+      "summary": "NestJS module class declaring ScheduleController, ScheduleService, and ScheduleRepository as the schedule feature's providers/controllers.",
+      "tags": ["module", "dependency-injection"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/schedule/schedule.repository.ts:ScheduleRepository",
+      "type": "class",
+      "name": "ScheduleRepository",
+      "filePath": "src/features/schedule/schedule.repository.ts",
+      "lineRange": [15, 155],
+      "summary": "Repository class encapsulating Drizzle queries against the schedules table, joined with classes for access-filtered listing.",
+      "tags": ["repository", "database", "drizzle"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/schedule/schedule.service.ts:ScheduleService",
+      "type": "class",
+      "name": "ScheduleService",
+      "filePath": "src/features/schedule/schedule.service.ts",
+      "lineRange": [13, 102],
+      "summary": "Service class enforcing that only the owning tutor can create, update, or delete a class's schedule slots, via assertClassOwner/loadOwnedSchedule guard helpers.",
+      "tags": ["service", "business-logic", "authorization"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/packages/decorators/roles.decorator.ts:Roles",
+      "type": "function",
+      "name": "Roles",
+      "filePath": "src/packages/decorators/roles.decorator.ts",
+      "lineRange": [5, 5],
+      "summary": "Decorator factory that attaches an array of allowed roles as route metadata, consumed by RolesGuard for role-based authorization checks.",
+      "tags": ["decorator", "authorization", "rbac"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/packages/decorators/user.decorator.ts:currentUserFactory",
+      "type": "function",
+      "name": "currentUserFactory",
+      "filePath": "src/packages/decorators/user.decorator.ts",
+      "lineRange": [4, 8],
+      "summary": "Param decorator factory that pulls the authenticated user off the request object for injection via `@CurrentUser()`.",
+      "tags": ["decorator", "authentication"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    { "source": "file:src/features/ai/ai.controller.ts", "target": "class:src/features/ai/ai.controller.ts:AiController", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/class/class.controller.ts", "target": "class:src/features/class/class.controller.ts:ClassController", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/class/class.module.ts", "target": "class:src/features/class/class.module.ts:ClassModule", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/class/class.repository.ts", "target": "class:src/features/class/class.repository.ts:ClassRepository", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/class/class.service.ts", "target": "class:src/features/class/class.service.ts:ClassService", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/schedule/schedule.controller.ts", "target": "class:src/features/schedule/schedule.controller.ts:ScheduleController", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/schedule/schedule.module.ts", "target": "class:src/features/schedule/schedule.module.ts:ScheduleModule", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/schedule/schedule.repository.ts", "target": "class:src/features/schedule/schedule.repository.ts:ScheduleRepository", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/schedule/schedule.service.ts", "target": "class:src/features/schedule/schedule.service.ts:ScheduleService", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/packages/decorators/roles.decorator.ts", "target": "function:src/packages/decorators/roles.decorator.ts:Roles", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/packages/decorators/user.decorator.ts", "target": "function:src/packages/decorators/user.decorator.ts:currentUserFactory", "type": "contains", "direction": "forward", "weight": 1.0 },
+
+    { "source": "file:src/features/ai/ai.controller.ts", "target": "class:src/features/ai/ai.controller.ts:AiController", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/class/class.controller.ts", "target": "class:src/features/class/class.controller.ts:ClassController", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/class/class.module.ts", "target": "class:src/features/class/class.module.ts:ClassModule", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/class/class.repository.ts", "target": "class:src/features/class/class.repository.ts:ClassRepository", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/class/class.service.ts", "target": "class:src/features/class/class.service.ts:ClassService", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/schedule/schedule.controller.ts", "target": "class:src/features/schedule/schedule.controller.ts:ScheduleController", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/schedule/schedule.module.ts", "target": "class:src/features/schedule/schedule.module.ts:ScheduleModule", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/schedule/schedule.repository.ts", "target": "class:src/features/schedule/schedule.repository.ts:ScheduleRepository", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/schedule/schedule.service.ts", "target": "class:src/features/schedule/schedule.service.ts:ScheduleService", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/packages/decorators/roles.decorator.ts", "target": "function:src/packages/decorators/roles.decorator.ts:Roles", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/packages/decorators/user.decorator.ts", "target": "function:src/packages/decorators/user.decorator.ts:currentUserFactory", "type": "exports", "direction": "forward", "weight": 0.8 },
+
+    { "source": "file:src/features/ai/ai.controller.ts", "target": "file:src/features/ai/ai.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/ai/ai.controller.ts", "target": "file:src/features/ai/dto/ai-chat.dto.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/ai/ai.controller.ts", "target": "file:src/packages/decorators/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/ai/ai.controller.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/ai/ai.controller.ts", "target": "file:src/packages/pipes/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/class/class.controller.ts", "target": "file:src/data/swaggers/data/class.swagger.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.controller.ts", "target": "file:src/data/swaggers/messages/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.controller.ts", "target": "file:src/features/class/class.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.controller.ts", "target": "file:src/packages/decorators/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.controller.ts", "target": "file:src/packages/entities/class/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.controller.ts", "target": "file:src/packages/pipes/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/class/class.module.ts", "target": "file:src/features/class/class.controller.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.module.ts", "target": "file:src/features/class/class.repository.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.module.ts", "target": "file:src/features/class/class.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.module.ts", "target": "file:src/features/notification/notification.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.module.ts", "target": "file:src/features/user/user.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/class/class.repository.ts", "target": "file:src/database/database.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.repository.ts", "target": "file:src/database/schema.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.repository.ts", "target": "file:src/packages/entities/class/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.repository.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/class/class.service.ts", "target": "file:src/database/database.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.service.ts", "target": "file:src/features/class/class.repository.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.service.ts", "target": "file:src/features/notification/notification.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.service.ts", "target": "file:src/features/user/user.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.service.ts", "target": "file:src/packages/entities/class/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/class/class.service.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/schedule/schedule.controller.ts", "target": "file:src/data/swaggers/data/schedule.swagger.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.controller.ts", "target": "file:src/features/schedule/schedule.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.controller.ts", "target": "file:src/packages/decorators/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.controller.ts", "target": "file:src/packages/entities/schedule/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.controller.ts", "target": "file:src/packages/pipes/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/schedule/schedule.module.ts", "target": "file:src/features/class/class.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.module.ts", "target": "file:src/features/schedule/schedule.controller.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.module.ts", "target": "file:src/features/schedule/schedule.repository.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.module.ts", "target": "file:src/features/schedule/schedule.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/schedule/schedule.repository.ts", "target": "file:src/database/database.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.repository.ts", "target": "file:src/database/schema.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.repository.ts", "target": "file:src/packages/entities/schedule/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.repository.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/schedule/schedule.service.ts", "target": "file:src/features/class/class.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.service.ts", "target": "file:src/features/schedule/schedule.repository.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.service.ts", "target": "file:src/packages/entities/schedule/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/schedule/schedule.service.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/packages/decorators/roles.decorator.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/packages/decorators/user.decorator.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "class:src/features/ai/ai.controller.ts:AiController", "target": "class:src/features/ai/ai.service.ts:AiService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/class/class.controller.ts:ClassController", "target": "class:src/features/class/class.service.ts:ClassService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/class/class.service.ts:ClassService", "target": "class:src/features/class/class.repository.ts:ClassRepository", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/class/class.service.ts:ClassService", "target": "class:src/features/user/user.service.ts:UserService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/class/class.service.ts:ClassService", "target": "class:src/features/notification/notification.service.ts:NotificationService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/schedule/schedule.controller.ts:ScheduleController", "target": "class:src/features/schedule/schedule.service.ts:ScheduleService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/schedule/schedule.service.ts:ScheduleService", "target": "class:src/features/class/class.service.ts:ClassService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/schedule/schedule.service.ts:ScheduleService", "target": "class:src/features/schedule/schedule.repository.ts:ScheduleRepository", "type": "calls", "direction": "forward", "weight": 0.8 }
+  ]
+}

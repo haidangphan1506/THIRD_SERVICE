@@ -1,0 +1,293 @@
+{
+  "projectRoot": "/home/haidangphan/Documents/project/backends",
+  "batchFiles": [
+    {
+      "path": "src/features/ai/ai.module.ts",
+      "language": "typescript",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/ai.service.ts",
+      "language": "typescript",
+      "sizeLines": 80,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/chat/chat-history.service.ts",
+      "language": "typescript",
+      "sizeLines": 24,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/chat/chat.repository.ts",
+      "language": "typescript",
+      "sizeLines": 41,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/context/class.context.ts",
+      "language": "typescript",
+      "sizeLines": 118,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/context/context.service.ts",
+      "language": "typescript",
+      "sizeLines": 213,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/context/exercise.context.ts",
+      "language": "typescript",
+      "sizeLines": 84,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/context/schedule.context.ts",
+      "language": "typescript",
+      "sizeLines": 41,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/context/session.context.ts",
+      "language": "typescript",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/dto/ai-response.dto.ts",
+      "language": "typescript",
+      "sizeLines": 11,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/intent/intent.enum.ts",
+      "language": "typescript",
+      "sizeLines": 11,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/intent/intent.service.ts",
+      "language": "typescript",
+      "sizeLines": 39,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/intent/intent.type.ts",
+      "language": "typescript",
+      "sizeLines": 8,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/interfaces/ai-context.interface.ts",
+      "language": "typescript",
+      "sizeLines": 17,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/interfaces/ai-message.interface.ts",
+      "language": "typescript",
+      "sizeLines": 7,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/interfaces/ai-response.interface.ts",
+      "language": "typescript",
+      "sizeLines": 8,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/prompt/prompt.service.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/prompt/prompt.template.ts",
+      "language": "typescript",
+      "sizeLines": 17,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/prompt/system.prompt.ts",
+      "language": "typescript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/providers/ai-provider.interface.ts",
+      "language": "typescript",
+      "sizeLines": 24,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/providers/openai.provider.ts",
+      "language": "typescript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/providers/openrouter.provider.ts",
+      "language": "typescript",
+      "sizeLines": 140,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/providers/provider.factory.ts",
+      "language": "typescript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/rag/embedding.service.ts",
+      "language": "typescript",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/rag/rag.service.ts",
+      "language": "typescript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/rag/vector-search.service.ts",
+      "language": "typescript",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/utils/date-range.ts",
+      "language": "typescript",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/ai/utils/token-counter.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/features/ai/ai.module.ts": [
+      "src/features/ai/ai.controller.ts",
+      "src/features/ai/ai.service.ts",
+      "src/features/ai/chat/chat-history.service.ts",
+      "src/features/ai/chat/chat.repository.ts",
+      "src/features/ai/context/class.context.ts",
+      "src/features/ai/context/context.service.ts",
+      "src/features/ai/context/exercise.context.ts",
+      "src/features/ai/context/schedule.context.ts",
+      "src/features/ai/context/session.context.ts",
+      "src/features/ai/intent/intent.service.ts",
+      "src/features/ai/prompt/prompt.service.ts",
+      "src/features/ai/providers/openai.provider.ts",
+      "src/features/ai/providers/openrouter.provider.ts",
+      "src/features/ai/providers/provider.factory.ts",
+      "src/features/ai/rag/embedding.service.ts",
+      "src/features/ai/rag/rag.service.ts",
+      "src/features/ai/rag/vector-search.service.ts"
+    ],
+    "src/features/ai/ai.service.ts": [
+      "src/features/ai/chat/chat-history.service.ts",
+      "src/features/ai/context/context.service.ts",
+      "src/features/ai/dto/ai-chat.dto.ts",
+      "src/features/ai/dto/ai-response.dto.ts",
+      "src/features/ai/intent/intent.service.ts",
+      "src/features/ai/interfaces/ai-context.interface.ts",
+      "src/features/ai/interfaces/ai-message.interface.ts",
+      "src/features/ai/prompt/prompt.service.ts",
+      "src/features/ai/providers/provider.factory.ts",
+      "src/features/ai/rag/rag.service.ts"
+    ],
+    "src/features/ai/chat/chat-history.service.ts": [
+      "src/features/ai/chat/chat.repository.ts",
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/chat/chat.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/context/class.context.ts": [
+      "src/database/schema.ts"
+    ],
+    "src/features/ai/context/context.service.ts": [
+      "src/database/schema.ts",
+      "src/features/ai/context/class.context.ts",
+      "src/features/ai/context/exercise.context.ts",
+      "src/features/ai/context/schedule.context.ts",
+      "src/features/ai/context/session.context.ts",
+      "src/features/ai/interfaces/ai-context.interface.ts",
+      "src/features/ai/providers/ai-provider.interface.ts",
+      "src/features/ai/utils/date-range.ts"
+    ],
+    "src/features/ai/context/exercise.context.ts": [
+      "src/database/schema.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/ai/context/schedule.context.ts": [
+      "src/database/schema.ts"
+    ],
+    "src/features/ai/context/session.context.ts": [
+      "src/database/schema.ts",
+      "src/features/ai/utils/date-range.ts"
+    ],
+    "src/features/ai/dto/ai-response.dto.ts": [
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/intent/intent.enum.ts": [],
+    "src/features/ai/intent/intent.service.ts": [
+      "src/features/ai/intent/intent.enum.ts",
+      "src/features/ai/intent/intent.type.ts"
+    ],
+    "src/features/ai/intent/intent.type.ts": [
+      "src/features/ai/intent/intent.enum.ts"
+    ],
+    "src/features/ai/interfaces/ai-context.interface.ts": [
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/ai/interfaces/ai-message.interface.ts": [],
+    "src/features/ai/interfaces/ai-response.interface.ts": [
+      "src/features/ai/intent/intent.enum.ts"
+    ],
+    "src/features/ai/prompt/prompt.service.ts": [
+      "src/features/ai/intent/intent.enum.ts",
+      "src/features/ai/interfaces/ai-context.interface.ts",
+      "src/features/ai/prompt/prompt.template.ts",
+      "src/features/ai/prompt/system.prompt.ts"
+    ],
+    "src/features/ai/prompt/prompt.template.ts": [
+      "src/features/ai/intent/intent.enum.ts"
+    ],
+    "src/features/ai/prompt/system.prompt.ts": [
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/ai/providers/ai-provider.interface.ts": [
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/providers/openai.provider.ts": [
+      "src/features/ai/providers/ai-provider.interface.ts"
+    ],
+    "src/features/ai/providers/openrouter.provider.ts": [
+      "src/features/ai/providers/ai-provider.interface.ts"
+    ],
+    "src/features/ai/providers/provider.factory.ts": [
+      "src/features/ai/providers/ai-provider.interface.ts",
+      "src/features/ai/providers/openai.provider.ts",
+      "src/features/ai/providers/openrouter.provider.ts"
+    ],
+    "src/features/ai/rag/embedding.service.ts": [],
+    "src/features/ai/rag/rag.service.ts": [
+      "src/features/ai/rag/embedding.service.ts",
+      "src/features/ai/rag/vector-search.service.ts"
+    ],
+    "src/features/ai/rag/vector-search.service.ts": [],
+    "src/features/ai/utils/date-range.ts": [],
+    "src/features/ai/utils/token-counter.ts": [
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ]
+  }
+}

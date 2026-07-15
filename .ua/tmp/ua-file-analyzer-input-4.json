@@ -1,0 +1,208 @@
+{
+  "projectRoot": "/home/haidangphan/Documents/project/backends",
+  "batchFiles": [
+    {
+      "path": "src/data/swaggers/data/exercise.swagger.ts",
+      "language": "typescript",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/data/swaggers/data/session.swagger.ts",
+      "language": "typescript",
+      "sizeLines": 100,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/data/swaggers/messages/index.ts",
+      "language": "typescript",
+      "sizeLines": 4,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/exercise/exercise.controller.ts",
+      "language": "typescript",
+      "sizeLines": 135,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/exercise/exercise.module.ts",
+      "language": "typescript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/exercise/exercise.repository.ts",
+      "language": "typescript",
+      "sizeLines": 170,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/exercise/exercise.service.ts",
+      "language": "typescript",
+      "sizeLines": 207,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/notification/notification.controller.ts",
+      "language": "typescript",
+      "sizeLines": 114,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/notification/notification.module.ts",
+      "language": "typescript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/notification/notification.repository.ts",
+      "language": "typescript",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/notification/notification.service.ts",
+      "language": "typescript",
+      "sizeLines": 85,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/session/session.controller.ts",
+      "language": "typescript",
+      "sizeLines": 165,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/session/session.module.ts",
+      "language": "typescript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/session/session.repository.ts",
+      "language": "typescript",
+      "sizeLines": 233,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/session/session.service.ts",
+      "language": "typescript",
+      "sizeLines": 236,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/packages/entities/exercise/index.ts",
+      "language": "typescript",
+      "sizeLines": 2,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/packages/entities/notification/index.ts",
+      "language": "typescript",
+      "sizeLines": 2,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/packages/entities/session/index.ts",
+      "language": "typescript",
+      "sizeLines": 2,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/data/swaggers/data/exercise.swagger.ts": [],
+    "src/data/swaggers/data/session.swagger.ts": [],
+    "src/data/swaggers/messages/index.ts": [],
+    "src/features/exercise/exercise.controller.ts": [
+      "src/data/swaggers/data/exercise.swagger.ts",
+      "src/data/swaggers/messages/index.ts",
+      "src/features/exercise/exercise.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/exercise/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/exercise/exercise.module.ts": [
+      "src/features/exercise/exercise.controller.ts",
+      "src/features/exercise/exercise.repository.ts",
+      "src/features/exercise/exercise.service.ts",
+      "src/features/lesson/lesson.module.ts",
+      "src/features/notification/notification.module.ts",
+      "src/features/session/session.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/exercise/exercise.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/exercise/index.ts"
+    ],
+    "src/features/exercise/exercise.service.ts": [
+      "src/features/exercise/exercise.repository.ts",
+      "src/features/lesson/lesson.service.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/session/session.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/exercise/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/notification/notification.controller.ts": [
+      "src/features/notification/notification.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/notification/index.ts",
+      "src/packages/guards/jwt-auth.guard.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/notification/notification.module.ts": [
+      "src/features/notification/notification.controller.ts",
+      "src/features/notification/notification.repository.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/notification/notification.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/notification/index.ts"
+    ],
+    "src/features/notification/notification.service.ts": [
+      "src/features/notification/notification.repository.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/notification/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/session/session.controller.ts": [
+      "src/data/swaggers/data/session.swagger.ts",
+      "src/data/swaggers/messages/index.ts",
+      "src/features/session/session.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/session/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/session/session.module.ts": [
+      "src/features/class/class.module.ts",
+      "src/features/lesson/lesson.module.ts",
+      "src/features/notification/notification.module.ts",
+      "src/features/session/session.controller.ts",
+      "src/features/session/session.repository.ts",
+      "src/features/session/session.service.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/session/session.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/session/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/session/session.service.ts": [
+      "src/features/class/class.service.ts",
+      "src/features/lesson/lesson.service.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/session/session.repository.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/session/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/packages/entities/exercise/index.ts": [],
+    "src/packages/entities/notification/index.ts": [],
+    "src/packages/entities/session/index.ts": []
+  }
+}

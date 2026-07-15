@@ -3,11 +3,7 @@ import { and, asc, count, desc, eq, ilike, inArray, or, type SQL } from 'drizzle
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { grades, users } from '../../database/schema';
-import type {
-  GetUsersQueryDto,
-  UpdateGradeDto,
-  UserDataFieldDto,
-} from '@packages/entities/user';
+import type { GetUsersQueryDto, UpdateGradeDto, UserDataFieldDto } from '@packages/entities/user';
 
 @Injectable()
 export class UserRepository {

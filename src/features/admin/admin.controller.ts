@@ -102,9 +102,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Create tutor', description: 'Create a new TUTOR account (admin only)' })
   @ApiBody({ schema: CREATE_ACCOUNT_BODY_SCHEMA })
   @SwaggerResponse({ status: 201, description: 'Tutor created' })
-  createTutor(
-    @Body(new ZodValidationPipe(createManagedUserSchema)) dto: CreateManagedUserDto,
-  ) {
+  createTutor(@Body(new ZodValidationPipe(createManagedUserSchema)) dto: CreateManagedUserDto) {
     return this.adminService.createTutor(dto);
   }
 
@@ -113,7 +111,12 @@ export class AdminController {
   @ApiOperation({ summary: 'List tutors', description: 'Paginated list of tutors (admin only)' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search name/email/phone' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search name/email/phone',
+  })
   @ApiQuery({ name: 'isActive', required: false, enum: ['true', 'false'] })
   @SwaggerResponse({ status: 200, description: 'Tutors fetched' })
   listTutors(
@@ -164,18 +167,24 @@ export class AdminController {
   })
   @ApiBody({ schema: CREATE_ACCOUNT_BODY_SCHEMA })
   @SwaggerResponse({ status: 201, description: 'Student created' })
-  createStudent(
-    @Body(new ZodValidationPipe(createManagedUserSchema)) dto: CreateManagedUserDto,
-  ) {
+  createStudent(@Body(new ZodValidationPipe(createManagedUserSchema)) dto: CreateManagedUserDto) {
     return this.adminService.createStudent(dto);
   }
 
   @Get('students')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'List students', description: 'Paginated list of students (admin only)' })
+  @ApiOperation({
+    summary: 'List students',
+    description: 'Paginated list of students (admin only)',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search name/email/phone' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search name/email/phone',
+  })
   @ApiQuery({ name: 'isActive', required: false, enum: ['true', 'false'] })
   @SwaggerResponse({ status: 200, description: 'Students fetched' })
   listStudents(

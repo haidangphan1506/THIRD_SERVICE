@@ -26,7 +26,7 @@ import { getJwtTokensConfig } from '@packages/configs/jwt-sign.config';
 import type { User } from '@packages/entities/user';
 import { randomUUID } from 'node:crypto';
 import { RedisService } from 'src/features/redis/redis.service';
-import { checkUuidValid } from '@packages/helpers';
+import { checkUuidValid, type JwtUserRole } from '@packages/helpers';
 import { CurrentUser } from '@packages/decorators';
 import type { GoogleProfile } from '@packages/strategy';
 
@@ -60,6 +60,7 @@ export class AuthService {
     this.jwtTokensConfig = getJwtTokensConfig(configService);
   }
 
+  //todo: register tutor ...
   async registerService(registerDto: RegisterDto): Promise<RegisterResponseDto> {
     const { email, username, password, firstName, lastName } = registerDto;
 
@@ -87,7 +88,7 @@ export class AuthService {
       password,
       firstName,
       lastName,
-      role: 'STUDENT',
+      role: 'TUTOR',
     });
 
     const createdRows = await this.userService.getUserByField({ field: 'email', value: email });
@@ -107,23 +108,23 @@ export class AuthService {
     };
   }
 
+  // TODO:  login by email + password ...
   async loginService(loginDto: LoginDto): Promise<LoginResponseDto> {
-    const rows = await this.userService.getUserByField({
+    const [user] = await this.userService.getUserByField({
       field: 'email',
       value: loginDto.email,
     });
 
-    if (!Array.isArray(rows) || rows.length === 0) {
+    if (!user) {
       throw new BadRequestException('User not found ...');
     }
 
-    const user = rows[0];
     const isPasswordOk = await compareData(loginDto.password, user.password);
     if (!isPasswordOk) {
       throw new BadRequestException('Invalid password ...');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
+    const payload = { sub: user.id, email: user.email, role: user.role as JwtUserRole };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -138,6 +139,7 @@ export class AuthService {
     };
   }
 
+  // TODO: login with userCode + password ...
   async loginByUserCodeService(dto: LoginByUserCodeDto): Promise<LoginResponseDto> {
     const rows = await this.userService.getUserByField({
       field: 'userCode',
@@ -153,7 +155,7 @@ export class AuthService {
       throw new BadRequestException('Invalid password ...');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
+    const payload = { sub: user.id, email: user.email, role: user.role as JwtUserRole };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -168,6 +170,7 @@ export class AuthService {
     };
   }
 
+  // TODO: login with google account ...
   async googleLoginService(profile: GoogleProfile): Promise<LoginResponseDto> {
     const rows = await this.userService.getUserByField({
       field: 'email',
@@ -193,7 +196,7 @@ export class AuthService {
       }
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
+    const payload = { sub: user.id, email: user.email, role: user.role as JwtUserRole };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
       signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
@@ -211,18 +214,16 @@ export class AuthService {
   async forgotPasswordService(
     forgotPasswordDto: ForgotPasswordDto,
   ): Promise<ForgotPasswordResponseDto> {
-    const rows = await this.userService.getUserByField({
+    const [user] = await this.userService.getUserByField({
       field: 'email',
       value: forgotPasswordDto.email,
     });
-
-    if (!Array.isArray(rows) || rows.length === 0) {
+    if (!user) {
       throw new BadRequestException('User not found ...');
     }
 
-    const user = rows[0];
     const resetToken = randomUUID();
-    await this.redis.set(`${this.PASSWORD_RESET_REDIS_PREFIX}${resetToken}`, user.id, 3600);
+    await this.redis.set(`${this.PASSWORD_RESET_REDIS_PREFIX}${resetToken}`, user.id, 300);
     const displayName = `${user.firstName} ${user.lastName}`.trim() || user.email;
     await this.emailService.sendForgotPasswordMail({
       to: user.email,
@@ -238,7 +239,6 @@ export class AuthService {
   ): Promise<ResetPasswordResponseDto> {
     const { jti, password } = resetPasswordDto;
     const userId = await this.redis.get(`${this.PASSWORD_RESET_REDIS_PREFIX}${jti}`);
-    console.log(userId);
     if (!userId) {
       throw new BadRequestException('Invalid reset password token ...');
     }
@@ -308,7 +308,7 @@ export class AuthService {
     }
 
     const user = rows[0];
-    const accessPayload = { sub: user.id, email: user.email, role: user.role ?? 'STUDENT' };
+    const accessPayload = { sub: user.id, email: user.email, role: user.role as JwtUserRole };
     const refreshPayload = { sub: user.id, email: user.email };
     const [accessToken, refreshToken] = await Promise.all([
       signAccessToken(this.jwtService, accessPayload, this.jwtTokensConfig),
@@ -322,13 +322,13 @@ export class AuthService {
     };
   }
 
+  // TODO: logout user ...
   async logoutService(@CurrentUser() user: Record<string, string>) {
     if (!user.id || !checkUuidValid({ data: user.id })) {
       throw new BadRequestException('Invalid user ID ...');
     }
     const blackListToken = await this.redis.get(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`);
     if (blackListToken) {
-      // TODO: Write log vào file audit và send notification đến admin and user ...
       throw new BadRequestException('User already logged out ...');
     }
     await this.redis.set(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`, user.id, 604800);

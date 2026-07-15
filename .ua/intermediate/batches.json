@@ -1,0 +1,5871 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 273,
+  "totalBatches": 21,
+  "exportsByPath": {
+    ".claude/hooks/format-ts.mjs": [],
+    ".claude/hooks/guard-paths.mjs": [],
+    ".claude/hooks/review-skills.mjs": [],
+    ".gitattributes": [],
+    ".prettierignore": [],
+    ".railwayignore": [],
+    ".ua/.understandignore": [],
+    "drizzle.config.ts": [],
+    "eslint.config.mjs": [],
+    "jest.config.js": [],
+    "scripts/recreate-db.ts": [],
+    "scripts/seed-categories.ts": [],
+    "scripts/seed-curriculum-demo.ts": [],
+    "scripts/seed-dashboard.ts": [],
+    "scripts/seed-edu-flow.ts": [],
+    "scripts/seed-grades.ts": [],
+    "scripts/seed-user.ts": [],
+    "scripts/seed-users-bulk.ts": [],
+    "scripts/seed-wallet.ts": [],
+    "scripts/test-db.ts": [],
+    "src/app.controller.ts": [
+      "AppController"
+    ],
+    "src/app.module.ts": [
+      "AppModule"
+    ],
+    "src/app.service.spec.ts": [],
+    "src/app.service.ts": [
+      "AppService"
+    ],
+    "src/data/constants/error.constant.ts": [
+      "ERROR_MESSAGES"
+    ],
+    "src/data/constants/index.ts": [],
+    "src/data/constants/success.constant.ts": [
+      "SUCCESS_MESSAGES"
+    ],
+    "src/data/swaggers/data/class.swagger.ts": [
+      "CLASS_SWAGGERS_DATA"
+    ],
+    "src/data/swaggers/data/exercise.swagger.ts": [
+      "EXERCISE_SWAGGERS_DATA"
+    ],
+    "src/data/swaggers/data/index.ts": [],
+    "src/data/swaggers/data/schedule.swagger.ts": [
+      "SCHEDULE_SWAGGERS_DATA"
+    ],
+    "src/data/swaggers/data/session.swagger.ts": [
+      "SESSION_SWAGGERS_DATA"
+    ],
+    "src/data/swaggers/data/user.swagger.ts": [
+      "USER_SWAGGERS_DATA"
+    ],
+    "src/data/swaggers/index.ts": [],
+    "src/data/swaggers/messages/class.msg.ts": [
+      "CLASS_SWAGGER_MESSAGES"
+    ],
+    "src/data/swaggers/messages/exercise.msg.ts": [
+      "EXERCISE_SWAGGER_MESSAGES"
+    ],
+    "src/data/swaggers/messages/index.ts": [],
+    "src/data/swaggers/messages/session.msg.ts": [
+      "SESSION_SWAGGER_MESSAGES"
+    ],
+    "src/data/swaggers/messages/user.msg.ts": [
+      "USER_SWAGGER_MESSAGES"
+    ],
+    "src/database/database.module.ts": [
+      "DRIZZLE",
+      "DatabaseModule"
+    ],
+    "src/database/schema.ts": [
+      "userRoleEnum",
+      "genderEnum",
+      "categoryTypeEnum",
+      "walletTypeEnum",
+      "transactionTypeEnum",
+      "transactionStatusEnum",
+      "users",
+      "classStatusEnum",
+      "sessionFormatEnum",
+      "sessionStatusEnum",
+      "classSessionStatusEnum",
+      "dayOfWeekEnum",
+      "curriculumStatusEnum",
+      "assignmentStatusEnum",
+      "exerciseStatusEnum",
+      "tuitionStatusEnum",
+      "notificationTypeEnum",
+      "notificationActionEnum",
+      "grades",
+      "classes",
+      "classStudents",
+      "schedules",
+      "sessions",
+      "curriculums",
+      "chapters",
+      "lessons",
+      "tuitions",
+      "notifications",
+      "studentScores",
+      "aiMessageRoleEnum",
+      "aiMessages",
+      "exercise"
+    ],
+    "src/features/admin/admin.controller.ts": [
+      "AdminController"
+    ],
+    "src/features/admin/admin.module.ts": [
+      "AdminModule"
+    ],
+    "src/features/admin/admin.repository.ts": [
+      "AdminRepository"
+    ],
+    "src/features/admin/admin.service.ts": [
+      "AdminService"
+    ],
+    "src/features/ai/ai.controller.ts": [
+      "AiController"
+    ],
+    "src/features/ai/ai.module.ts": [
+      "AiModule"
+    ],
+    "src/features/ai/ai.service.ts": [
+      "AiService"
+    ],
+    "src/features/ai/chat/chat-history.service.ts": [
+      "ChatHistoryService"
+    ],
+    "src/features/ai/chat/chat.repository.ts": [
+      "ChatRepository"
+    ],
+    "src/features/ai/context/class.context.ts": [
+      "ClassContextService"
+    ],
+    "src/features/ai/context/context.service.ts": [
+      "ContextService"
+    ],
+    "src/features/ai/context/exercise.context.ts": [
+      "ExerciseContextService"
+    ],
+    "src/features/ai/context/schedule.context.ts": [
+      "ScheduleContextService"
+    ],
+    "src/features/ai/context/session.context.ts": [
+      "SessionContextService"
+    ],
+    "src/features/ai/dto/ai-chat.dto.ts": [
+      "chatRequestSchema",
+      "getHistoryQuerySchema"
+    ],
+    "src/features/ai/dto/ai-response.dto.ts": [],
+    "src/features/ai/intent/intent.enum.ts": [],
+    "src/features/ai/intent/intent.service.ts": [
+      "IntentService"
+    ],
+    "src/features/ai/intent/intent.type.ts": [],
+    "src/features/ai/interfaces/ai-context.interface.ts": [],
+    "src/features/ai/interfaces/ai-message.interface.ts": [],
+    "src/features/ai/interfaces/ai-response.interface.ts": [],
+    "src/features/ai/prompt/prompt.service.ts": [
+      "PromptService"
+    ],
+    "src/features/ai/prompt/prompt.template.ts": [
+      "INTENT_HINTS"
+    ],
+    "src/features/ai/prompt/system.prompt.ts": [
+      "buildSystemPrompt"
+    ],
+    "src/features/ai/providers/ai-provider.interface.ts": [],
+    "src/features/ai/providers/openai.provider.ts": [
+      "OpenAiProvider"
+    ],
+    "src/features/ai/providers/openrouter.provider.ts": [
+      "OpenRouterProvider"
+    ],
+    "src/features/ai/providers/provider.factory.ts": [
+      "ProviderFactory"
+    ],
+    "src/features/ai/rag/embedding.service.ts": [
+      "EmbeddingService"
+    ],
+    "src/features/ai/rag/rag.service.ts": [
+      "RagService"
+    ],
+    "src/features/ai/rag/vector-search.service.ts": [
+      "VectorSearchService"
+    ],
+    "src/features/ai/utils/date-range.ts": [
+      "resolveSessionPeriod"
+    ],
+    "src/features/ai/utils/markdown.ts": [
+      "stripMarkdown",
+      "normalizeWhitespace"
+    ],
+    "src/features/ai/utils/token-counter.ts": [
+      "estimateTokens",
+      "estimateMessagesTokens"
+    ],
+    "src/features/auth/auth.controller.ts": [
+      "AuthController"
+    ],
+    "src/features/auth/auth.module.ts": [
+      "AuthModule"
+    ],
+    "src/features/auth/auth.service.ts": [
+      "AuthService"
+    ],
+    "src/features/chapter/chapter.controller.ts": [
+      "ChapterController"
+    ],
+    "src/features/chapter/chapter.module.ts": [
+      "ChapterModule"
+    ],
+    "src/features/chapter/chapter.repository.ts": [
+      "ChapterRepository"
+    ],
+    "src/features/chapter/chapter.service.ts": [
+      "ChapterService"
+    ],
+    "src/features/class/class.controller.ts": [
+      "ClassController"
+    ],
+    "src/features/class/class.module.ts": [
+      "ClassModule"
+    ],
+    "src/features/class/class.repository.ts": [
+      "ClassRepository"
+    ],
+    "src/features/class/class.service.ts": [
+      "ClassService"
+    ],
+    "src/features/curriculum/curriculum.controller.ts": [
+      "CurriculumController"
+    ],
+    "src/features/curriculum/curriculum.module.ts": [
+      "CurriculumModule"
+    ],
+    "src/features/curriculum/curriculum.repository.ts": [
+      "CurriculumRepository"
+    ],
+    "src/features/curriculum/curriculum.service.ts": [
+      "CurriculumService"
+    ],
+    "src/features/dashboard/dashboard.controller.ts": [
+      "DashboardController"
+    ],
+    "src/features/dashboard/dashboard.module.ts": [
+      "DashboardModule"
+    ],
+    "src/features/dashboard/dashboard.repository.ts": [
+      "DashboardRepository"
+    ],
+    "src/features/dashboard/dashboard.service.ts": [
+      "DashboardService"
+    ],
+    "src/features/email/email.controller.ts": [
+      "EmailController"
+    ],
+    "src/features/email/email.module.ts": [
+      "EmailModule"
+    ],
+    "src/features/email/email.service.ts": [
+      "EmailService"
+    ],
+    "src/features/email/mailer/mailer.module.ts": [
+      "MailerModule"
+    ],
+    "src/features/email/mailer/mailer.service.ts": [
+      "useGmailTransport",
+      "MailerService"
+    ],
+    "src/features/exercise/exercise.controller.ts": [
+      "ExerciseController"
+    ],
+    "src/features/exercise/exercise.module.ts": [
+      "ExerciseModule"
+    ],
+    "src/features/exercise/exercise.repository.ts": [
+      "ExerciseRepository"
+    ],
+    "src/features/exercise/exercise.service.ts": [
+      "ExerciseService"
+    ],
+    "src/features/lesson/lesson.controller.ts": [
+      "LessonController"
+    ],
+    "src/features/lesson/lesson.module.ts": [
+      "LessonModule"
+    ],
+    "src/features/lesson/lesson.repository.ts": [
+      "LessonRepository"
+    ],
+    "src/features/lesson/lesson.service.ts": [
+      "LessonService"
+    ],
+    "src/features/notification/notification.controller.ts": [
+      "NotificationController"
+    ],
+    "src/features/notification/notification.module.ts": [
+      "NotificationModule"
+    ],
+    "src/features/notification/notification.repository.ts": [
+      "NotificationRepository"
+    ],
+    "src/features/notification/notification.service.ts": [
+      "NotificationService"
+    ],
+    "src/features/redis/redis.controller.ts": [
+      "RedisController"
+    ],
+    "src/features/redis/redis.module.ts": [
+      "RedisModule"
+    ],
+    "src/features/redis/redis.service.ts": [
+      "RedisService"
+    ],
+    "src/features/schedule/schedule.controller.ts": [
+      "ScheduleController"
+    ],
+    "src/features/schedule/schedule.module.ts": [
+      "ScheduleModule"
+    ],
+    "src/features/schedule/schedule.repository.ts": [
+      "ScheduleRepository"
+    ],
+    "src/features/schedule/schedule.service.ts": [
+      "ScheduleService"
+    ],
+    "src/features/session/session.controller.ts": [
+      "SessionController"
+    ],
+    "src/features/session/session.module.ts": [
+      "SessionModule"
+    ],
+    "src/features/session/session.repository.ts": [
+      "SessionRepository"
+    ],
+    "src/features/session/session.service.ts": [
+      "SessionService"
+    ],
+    "src/features/student/student.controller.ts": [
+      "StudentController"
+    ],
+    "src/features/student/student.module.ts": [
+      "StudentModule"
+    ],
+    "src/features/student/student.repository.ts": [
+      "StudentRepository"
+    ],
+    "src/features/student/student.service.ts": [
+      "StudentService"
+    ],
+    "src/features/tuition/tuition.controller.ts": [
+      "TuitionController"
+    ],
+    "src/features/tuition/tuition.module.ts": [
+      "TuitionModule"
+    ],
+    "src/features/tuition/tuition.repository.ts": [
+      "TuitionRepository"
+    ],
+    "src/features/tuition/tuition.service.ts": [
+      "TuitionService"
+    ],
+    "src/features/uploads/upload.constant.ts": [
+      "S3_CLIENT",
+      "UPLOAD_DIR"
+    ],
+    "src/features/uploads/upload.controller.ts": [
+      "UploadController"
+    ],
+    "src/features/uploads/upload.interface.ts": [],
+    "src/features/uploads/upload.module.ts": [
+      "UploadModule"
+    ],
+    "src/features/uploads/upload.provider.ts": [
+      "S3ClientProvider"
+    ],
+    "src/features/uploads/upload.service.ts": [
+      "UploadService"
+    ],
+    "src/features/user/user.controller.ts": [
+      "UserController"
+    ],
+    "src/features/user/user.module.ts": [
+      "UserModule"
+    ],
+    "src/features/user/user.repository.ts": [
+      "UserRepository"
+    ],
+    "src/features/user/user.service.ts": [
+      "UserService"
+    ],
+    "src/main.ts": [],
+    "src/packages/configs/jwt-sign.config.ts": [
+      "getJwtTokensConfig",
+      "getJwtModuleOptionsFromConfig"
+    ],
+    "src/packages/decorators/api-success-response.decorator.ts": [
+      "API_RESPONSE_KEY",
+      "ApiResponse"
+    ],
+    "src/packages/decorators/index.ts": [],
+    "src/packages/decorators/public.decorator.ts": [
+      "IS_PUBLIC_KEY",
+      "Public"
+    ],
+    "src/packages/decorators/roles.decorator.ts": [
+      "ROLES_KEY",
+      "Roles"
+    ],
+    "src/packages/decorators/user.decorator.ts": [
+      "currentUserFactory",
+      "CurrentUser"
+    ],
+    "src/packages/entities/admin/admin.dto.ts": [],
+    "src/packages/entities/admin/admin.schema.ts": [
+      "createManagedUserSchema",
+      "updateManagedUserSchema",
+      "listManagedUsersQuerySchema"
+    ],
+    "src/packages/entities/admin/index.ts": [],
+    "src/packages/entities/auth/auth.dto.ts": [],
+    "src/packages/entities/auth/auth.schema.ts": [
+      "AUTH_MESSAGES",
+      "emailFieldSchema",
+      "passwordFieldSchema",
+      "registerSchema",
+      "loginSchema",
+      "loginByUserCodeSchema",
+      "refreshTokenBodySchema",
+      "forgotPasswordSchema",
+      "resetPasswordSchema"
+    ],
+    "src/packages/entities/auth/index.ts": [],
+    "src/packages/entities/category/category.dto.ts": [
+      "updateCategorySchema"
+    ],
+    "src/packages/entities/category/category.schema.ts": [
+      "CategoryTypeEnum",
+      "createCategorySchema",
+      "getCategoriesQuerySchema"
+    ],
+    "src/packages/entities/category/index.ts": [],
+    "src/packages/entities/class/class.dto.ts": [],
+    "src/packages/entities/class/class.schema.ts": [
+      "classStatusEnum",
+      "sessionFormatEnum",
+      "createClassSchema",
+      "updateClassSchema",
+      "addStudentsSchema",
+      "getClassesQuerySchema"
+    ],
+    "src/packages/entities/class/index.ts": [],
+    "src/packages/entities/curriculum/curriculum.dto.ts": [],
+    "src/packages/entities/curriculum/curriculum.schema.ts": [
+      "curriculumStatusEnum",
+      "createCurriculumSchema",
+      "updateCurriculumSchema",
+      "getCurriculumsQuerySchema",
+      "lessonFileSchema",
+      "createChapterSchema",
+      "updateChapterSchema",
+      "createLessonSchema",
+      "updateLessonSchema",
+      "createLessonBodySchema",
+      "getChaptersQuerySchema",
+      "getLessonsQuerySchema",
+      "assignmentStatusEnum",
+      "createAssignmentSchema",
+      "updateAssignmentSchema",
+      "getAssignmentsQuerySchema",
+      "removeLessonFileSchema"
+    ],
+    "src/packages/entities/curriculum/index.ts": [],
+    "src/packages/entities/exercise/exercise.dto.ts": [],
+    "src/packages/entities/exercise/exercise.schema.ts": [
+      "exerciseStatusEnum",
+      "createExerciseSchema",
+      "submitExerciseSchema",
+      "gradeExerciseSchema",
+      "getExerciseQuerySchema"
+    ],
+    "src/packages/entities/exercise/index.ts": [],
+    "src/packages/entities/index.ts": [],
+    "src/packages/entities/notification/index.ts": [],
+    "src/packages/entities/notification/notification.dto.ts": [],
+    "src/packages/entities/notification/notification.schema.ts": [
+      "notificationTypeEnum",
+      "notificationActionEnum",
+      "createNotificationSchema",
+      "getNotificationsQuerySchema"
+    ],
+    "src/packages/entities/report/index.ts": [],
+    "src/packages/entities/report/report.dto.ts": [],
+    "src/packages/entities/report/report.schema.ts": [
+      "reportRangeSchema",
+      "reportByCategorySchema",
+      "reportTrendSchema"
+    ],
+    "src/packages/entities/schedule/index.ts": [],
+    "src/packages/entities/schedule/schedule.dto.ts": [],
+    "src/packages/entities/schedule/schedule.schema.ts": [
+      "dayOfWeekEnum",
+      "dayOfWeeks",
+      "sessionFormatEnum",
+      "createScheduleSchema",
+      "createSchedulesSchema",
+      "getSchedulesSchema",
+      "updateScheduleSchema"
+    ],
+    "src/packages/entities/session/index.ts": [],
+    "src/packages/entities/session/session.dto.ts": [],
+    "src/packages/entities/session/session.schema.ts": [
+      "classSessionStatusEnum",
+      "createSessionSchema",
+      "createSessionsSchema",
+      "getSessionsSchema",
+      "updateSessionSchema"
+    ],
+    "src/packages/entities/student/index.ts": [],
+    "src/packages/entities/student/student.dto.ts": [],
+    "src/packages/entities/student/student.schema.ts": [
+      "createStudentSchema",
+      "updateStudentSchema",
+      "getStudentsQuerySchema"
+    ],
+    "src/packages/entities/transactions/index.ts": [],
+    "src/packages/entities/transactions/transaction.dto.ts": [],
+    "src/packages/entities/transactions/transaction.schema.ts": [
+      "transactionTypeEnum",
+      "transactionStatusEnum",
+      "createTransactionSchema",
+      "updateTransactionSchema",
+      "getTransactionsQuerySchema"
+    ],
+    "src/packages/entities/tuition/index.ts": [],
+    "src/packages/entities/tuition/tuition.dto.ts": [],
+    "src/packages/entities/tuition/tuition.schema.ts": [
+      "tuitionStatusEnum",
+      "createTuitionSchema",
+      "updateTuitionSchema",
+      "getTuitionsQuerySchema"
+    ],
+    "src/packages/entities/user/index.ts": [],
+    "src/packages/entities/user/user.dto.ts": [],
+    "src/packages/entities/user/user.schema.ts": [
+      "getUserDetailQuerySchema",
+      "getUsersQuerySchema",
+      "changePasswordSchema",
+      "dataFieldSchema",
+      "updateUserGradesSchema",
+      "updateGradeSchema",
+      "updateUserSchema",
+      "createUserSchema"
+    ],
+    "src/packages/entities/wallet/index.ts": [],
+    "src/packages/entities/wallet/wallet.dto.ts": [
+      "updateWalletSchema"
+    ],
+    "src/packages/entities/wallet/wallet.schema.ts": [
+      "createWalletSchema",
+      "getWalletsQuerySchema"
+    ],
+    "src/packages/filters/http-exception.filter.ts": [
+      "HttpExceptionFilter"
+    ],
+    "src/packages/filters/index.ts": [],
+    "src/packages/guards/admin-role.guard.ts": [
+      "AdminRoleGuard"
+    ],
+    "src/packages/guards/index.ts": [],
+    "src/packages/guards/jwt-auth.guard.ts": [
+      "JwtAuthGuard"
+    ],
+    "src/packages/guards/roles.guard.ts": [
+      "RolesGuard"
+    ],
+    "src/packages/helpers/generate.helper.ts": [
+      "generateCode",
+      "checkUuidValid"
+    ],
+    "src/packages/helpers/hashingData.helper.ts": [
+      "hashData",
+      "compareData"
+    ],
+    "src/packages/helpers/index.ts": [],
+    "src/packages/helpers/jwt.helper.ts": [
+      "DEFAULT_JWT_ACCESS_EXPIRES_SECONDS",
+      "DEFAULT_JWT_REFRESH_EXPIRES_SECONDS",
+      "signAccessToken",
+      "signRefreshToken"
+    ],
+    "src/packages/helpers/queryList.helper.ts": [
+      "buildListWhereClause"
+    ],
+    "src/packages/index.ts": [],
+    "src/packages/interceptor/error.interceptor.ts": [
+      "ErrorInterceptor"
+    ],
+    "src/packages/interceptor/index.ts": [],
+    "src/packages/interceptor/logger.interceptor.ts": [
+      "LoggerInterceptor"
+    ],
+    "src/packages/interceptor/response.interceptor.ts": [
+      "ResponseInterceptor"
+    ],
+    "src/packages/interfaces/index.ts": [],
+    "src/packages/interfaces/interceptor.interface.ts": [],
+    "src/packages/pipes/index.ts": [],
+    "src/packages/pipes/zod-validation.pipe.ts": [
+      "ZodValidationPipe"
+    ],
+    "src/packages/strategy/google.strategy.ts": [
+      "GoogleStrategy"
+    ],
+    "src/packages/strategy/index.ts": [],
+    "src/packages/strategy/jwt-user.strategy.ts": [
+      "JwtUserStrategy"
+    ]
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "src/features/ai/ai.module.ts",
+          "language": "typescript",
+          "sizeLines": 52,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/ai.service.ts",
+          "language": "typescript",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/chat/chat-history.service.ts",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/chat/chat.repository.ts",
+          "language": "typescript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/context/class.context.ts",
+          "language": "typescript",
+          "sizeLines": 118,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/context/context.service.ts",
+          "language": "typescript",
+          "sizeLines": 213,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/context/exercise.context.ts",
+          "language": "typescript",
+          "sizeLines": 84,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/context/schedule.context.ts",
+          "language": "typescript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/context/session.context.ts",
+          "language": "typescript",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/dto/ai-response.dto.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/intent/intent.enum.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/intent/intent.service.ts",
+          "language": "typescript",
+          "sizeLines": 39,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/intent/intent.type.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/interfaces/ai-context.interface.ts",
+          "language": "typescript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/interfaces/ai-message.interface.ts",
+          "language": "typescript",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/interfaces/ai-response.interface.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/prompt/prompt.service.ts",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/prompt/prompt.template.ts",
+          "language": "typescript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/prompt/system.prompt.ts",
+          "language": "typescript",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/providers/ai-provider.interface.ts",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/providers/openai.provider.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/providers/openrouter.provider.ts",
+          "language": "typescript",
+          "sizeLines": 140,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/providers/provider.factory.ts",
+          "language": "typescript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/rag/embedding.service.ts",
+          "language": "typescript",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/rag/rag.service.ts",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/rag/vector-search.service.ts",
+          "language": "typescript",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/utils/date-range.ts",
+          "language": "typescript",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/utils/token-counter.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/features/ai/ai.module.ts": [
+          "src/features/ai/ai.controller.ts",
+          "src/features/ai/ai.service.ts",
+          "src/features/ai/chat/chat-history.service.ts",
+          "src/features/ai/chat/chat.repository.ts",
+          "src/features/ai/context/class.context.ts",
+          "src/features/ai/context/context.service.ts",
+          "src/features/ai/context/exercise.context.ts",
+          "src/features/ai/context/schedule.context.ts",
+          "src/features/ai/context/session.context.ts",
+          "src/features/ai/intent/intent.service.ts",
+          "src/features/ai/prompt/prompt.service.ts",
+          "src/features/ai/providers/openai.provider.ts",
+          "src/features/ai/providers/openrouter.provider.ts",
+          "src/features/ai/providers/provider.factory.ts",
+          "src/features/ai/rag/embedding.service.ts",
+          "src/features/ai/rag/rag.service.ts",
+          "src/features/ai/rag/vector-search.service.ts"
+        ],
+        "src/features/ai/ai.service.ts": [
+          "src/features/ai/chat/chat-history.service.ts",
+          "src/features/ai/context/context.service.ts",
+          "src/features/ai/dto/ai-chat.dto.ts",
+          "src/features/ai/dto/ai-response.dto.ts",
+          "src/features/ai/intent/intent.service.ts",
+          "src/features/ai/interfaces/ai-context.interface.ts",
+          "src/features/ai/interfaces/ai-message.interface.ts",
+          "src/features/ai/prompt/prompt.service.ts",
+          "src/features/ai/providers/provider.factory.ts",
+          "src/features/ai/rag/rag.service.ts"
+        ],
+        "src/features/ai/chat/chat-history.service.ts": [
+          "src/features/ai/chat/chat.repository.ts",
+          "src/features/ai/interfaces/ai-message.interface.ts"
+        ],
+        "src/features/ai/chat/chat.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/features/ai/interfaces/ai-message.interface.ts"
+        ],
+        "src/features/ai/context/class.context.ts": [
+          "src/database/schema.ts"
+        ],
+        "src/features/ai/context/context.service.ts": [
+          "src/database/schema.ts",
+          "src/features/ai/context/class.context.ts",
+          "src/features/ai/context/exercise.context.ts",
+          "src/features/ai/context/schedule.context.ts",
+          "src/features/ai/context/session.context.ts",
+          "src/features/ai/interfaces/ai-context.interface.ts",
+          "src/features/ai/providers/ai-provider.interface.ts",
+          "src/features/ai/utils/date-range.ts"
+        ],
+        "src/features/ai/context/exercise.context.ts": [
+          "src/database/schema.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/ai/context/schedule.context.ts": [
+          "src/database/schema.ts"
+        ],
+        "src/features/ai/context/session.context.ts": [
+          "src/database/schema.ts",
+          "src/features/ai/utils/date-range.ts"
+        ],
+        "src/features/ai/dto/ai-response.dto.ts": [
+          "src/features/ai/interfaces/ai-message.interface.ts"
+        ],
+        "src/features/ai/intent/intent.enum.ts": [],
+        "src/features/ai/intent/intent.service.ts": [
+          "src/features/ai/intent/intent.enum.ts",
+          "src/features/ai/intent/intent.type.ts"
+        ],
+        "src/features/ai/intent/intent.type.ts": [
+          "src/features/ai/intent/intent.enum.ts"
+        ],
+        "src/features/ai/interfaces/ai-context.interface.ts": [
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/ai/interfaces/ai-message.interface.ts": [],
+        "src/features/ai/interfaces/ai-response.interface.ts": [
+          "src/features/ai/intent/intent.enum.ts"
+        ],
+        "src/features/ai/prompt/prompt.service.ts": [
+          "src/features/ai/intent/intent.enum.ts",
+          "src/features/ai/interfaces/ai-context.interface.ts",
+          "src/features/ai/prompt/prompt.template.ts",
+          "src/features/ai/prompt/system.prompt.ts"
+        ],
+        "src/features/ai/prompt/prompt.template.ts": [
+          "src/features/ai/intent/intent.enum.ts"
+        ],
+        "src/features/ai/prompt/system.prompt.ts": [
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/ai/providers/ai-provider.interface.ts": [
+          "src/features/ai/interfaces/ai-message.interface.ts"
+        ],
+        "src/features/ai/providers/openai.provider.ts": [
+          "src/features/ai/providers/ai-provider.interface.ts"
+        ],
+        "src/features/ai/providers/openrouter.provider.ts": [
+          "src/features/ai/providers/ai-provider.interface.ts"
+        ],
+        "src/features/ai/providers/provider.factory.ts": [
+          "src/features/ai/providers/ai-provider.interface.ts",
+          "src/features/ai/providers/openai.provider.ts",
+          "src/features/ai/providers/openrouter.provider.ts"
+        ],
+        "src/features/ai/rag/embedding.service.ts": [],
+        "src/features/ai/rag/rag.service.ts": [
+          "src/features/ai/rag/embedding.service.ts",
+          "src/features/ai/rag/vector-search.service.ts"
+        ],
+        "src/features/ai/rag/vector-search.service.ts": [],
+        "src/features/ai/utils/date-range.ts": [],
+        "src/features/ai/utils/token-counter.ts": [
+          "src/features/ai/interfaces/ai-message.interface.ts"
+        ]
+      },
+      "neighborMap": {
+        "src/features/ai/ai.module.ts": [
+          {
+            "path": "src/features/ai/ai.controller.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "AiController"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/ai/ai.service.ts": [
+          {
+            "path": "src/features/ai/dto/ai-chat.dto.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "chatRequestSchema",
+              "getHistoryQuerySchema"
+            ]
+          },
+          {
+            "path": "src/features/ai/ai.controller.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "AiController"
+            ]
+          }
+        ],
+        "src/features/ai/chat/chat.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/ai/context/class.context.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/ai/context/context.service.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/ai/context/exercise.context.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/ai/context/schedule.context.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/ai/context/session.context.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/ai/interfaces/ai-context.interface.ts": [
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/ai/prompt/system.prompt.ts": [
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "src/data/constants/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/data/user.swagger.ts",
+          "language": "typescript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/chapter/chapter.controller.ts",
+          "language": "typescript",
+          "sizeLines": 111,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/chapter/chapter.module.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/chapter/chapter.repository.ts",
+          "language": "typescript",
+          "sizeLines": 79,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/chapter/chapter.service.ts",
+          "language": "typescript",
+          "sizeLines": 64,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/curriculum/curriculum.controller.ts",
+          "language": "typescript",
+          "sizeLines": 160,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/curriculum/curriculum.module.ts",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/curriculum/curriculum.repository.ts",
+          "language": "typescript",
+          "sizeLines": 140,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/curriculum/curriculum.service.ts",
+          "language": "typescript",
+          "sizeLines": 184,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/lesson/lesson.controller.ts",
+          "language": "typescript",
+          "sizeLines": 200,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/lesson/lesson.module.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/lesson/lesson.repository.ts",
+          "language": "typescript",
+          "sizeLines": 93,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/lesson/lesson.service.ts",
+          "language": "typescript",
+          "sizeLines": 179,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/uploads/upload.constant.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/uploads/upload.controller.ts",
+          "language": "typescript",
+          "sizeLines": 117,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/uploads/upload.interface.ts",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/uploads/upload.module.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/uploads/upload.provider.ts",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/uploads/upload.service.ts",
+          "language": "typescript",
+          "sizeLines": 105,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/user/user.controller.ts",
+          "language": "typescript",
+          "sizeLines": 235,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/user/user.module.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/user/user.repository.ts",
+          "language": "typescript",
+          "sizeLines": 163,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/user/user.service.ts",
+          "language": "typescript",
+          "sizeLines": 270,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/index.ts",
+          "language": "typescript",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/user/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/data/constants/index.ts": [],
+        "src/data/swaggers/data/user.swagger.ts": [],
+        "src/features/chapter/chapter.controller.ts": [
+          "src/features/chapter/chapter.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/chapter/chapter.module.ts": [
+          "src/features/chapter/chapter.controller.ts",
+          "src/features/chapter/chapter.repository.ts",
+          "src/features/chapter/chapter.service.ts"
+        ],
+        "src/features/chapter/chapter.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/index.ts"
+        ],
+        "src/features/chapter/chapter.service.ts": [
+          "src/database/database.module.ts",
+          "src/features/chapter/chapter.repository.ts",
+          "src/packages/entities/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/curriculum/curriculum.controller.ts": [
+          "src/features/curriculum/curriculum.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/curriculum/curriculum.module.ts": [
+          "src/features/curriculum/curriculum.controller.ts",
+          "src/features/curriculum/curriculum.repository.ts",
+          "src/features/curriculum/curriculum.service.ts",
+          "src/features/uploads/upload.module.ts",
+          "src/features/user/user.module.ts"
+        ],
+        "src/features/curriculum/curriculum.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/curriculum/curriculum.service.ts": [
+          "src/database/database.module.ts",
+          "src/features/curriculum/curriculum.repository.ts",
+          "src/features/uploads/upload.service.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/entities/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/lesson/lesson.controller.ts": [
+          "src/features/lesson/lesson.service.ts",
+          "src/features/uploads/upload.interface.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/lesson/lesson.module.ts": [
+          "src/features/lesson/lesson.controller.ts",
+          "src/features/lesson/lesson.repository.ts",
+          "src/features/lesson/lesson.service.ts",
+          "src/features/uploads/upload.module.ts",
+          "src/features/user/user.module.ts"
+        ],
+        "src/features/lesson/lesson.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/index.ts"
+        ],
+        "src/features/lesson/lesson.service.ts": [
+          "src/database/database.module.ts",
+          "src/features/lesson/lesson.repository.ts",
+          "src/features/uploads/upload.interface.ts",
+          "src/features/uploads/upload.service.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/entities/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/uploads/upload.constant.ts": [],
+        "src/features/uploads/upload.controller.ts": [
+          "src/features/uploads/upload.interface.ts",
+          "src/features/uploads/upload.service.ts",
+          "src/packages/decorators/index.ts"
+        ],
+        "src/features/uploads/upload.interface.ts": [],
+        "src/features/uploads/upload.module.ts": [
+          "src/features/uploads/upload.controller.ts",
+          "src/features/uploads/upload.provider.ts",
+          "src/features/uploads/upload.service.ts"
+        ],
+        "src/features/uploads/upload.provider.ts": [
+          "src/features/uploads/upload.constant.ts"
+        ],
+        "src/features/uploads/upload.service.ts": [
+          "src/features/uploads/upload.constant.ts",
+          "src/features/uploads/upload.interface.ts"
+        ],
+        "src/features/user/user.controller.ts": [
+          "src/data/swaggers/data/user.swagger.ts",
+          "src/data/swaggers/messages/index.ts",
+          "src/features/uploads/upload.interface.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/user/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/user/user.module.ts": [
+          "src/features/uploads/upload.module.ts",
+          "src/features/user/user.controller.ts",
+          "src/features/user/user.repository.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/guards/index.ts"
+        ],
+        "src/features/user/user.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/user/index.ts"
+        ],
+        "src/features/user/user.service.ts": [
+          "src/data/constants/index.ts",
+          "src/features/uploads/upload.interface.ts",
+          "src/features/uploads/upload.service.ts",
+          "src/features/user/user.repository.ts",
+          "src/packages/entities/user/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/entities/index.ts": [],
+        "src/packages/entities/user/index.ts": []
+      },
+      "neighborMap": {
+        "src/features/chapter/chapter.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/chapter/chapter.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/chapter/chapter.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/chapter/chapter.service.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/curriculum/curriculum.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/curriculum/curriculum.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/curriculum/curriculum.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/curriculum/curriculum.service.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/lesson/lesson.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/lesson/lesson.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseModule"
+            ]
+          },
+          {
+            "path": "src/features/session/session.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionModule"
+            ]
+          }
+        ],
+        "src/features/lesson/lesson.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/lesson/lesson.service.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          },
+          {
+            "path": "src/features/exercise/exercise.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseService"
+            ]
+          },
+          {
+            "path": "src/features/session/session.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionService"
+            ]
+          }
+        ],
+        "src/features/uploads/upload.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          }
+        ],
+        "src/features/uploads/upload.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/user/user.controller.ts": [
+          {
+            "path": "src/data/swaggers/messages/index.ts",
+            "batchIndex": 4,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/user/user.module.ts": [
+          {
+            "path": "src/packages/guards/index.ts",
+            "batchIndex": 5,
+            "symbols": []
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          },
+          {
+            "path": "src/features/auth/auth.module.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthModule"
+            ]
+          },
+          {
+            "path": "src/features/class/class.module.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassModule"
+            ]
+          },
+          {
+            "path": "src/features/dashboard/dashboard.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DashboardModule"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseModule"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationModule"
+            ]
+          },
+          {
+            "path": "src/features/session/session.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionModule"
+            ]
+          }
+        ],
+        "src/features/user/user.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/user/user.service.ts": [
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          },
+          {
+            "path": "src/features/auth/auth.service.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthService"
+            ]
+          },
+          {
+            "path": "src/features/class/class.service.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassService"
+            ]
+          },
+          {
+            "path": "src/features/dashboard/dashboard.service.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DashboardService"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseService"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationService"
+            ]
+          },
+          {
+            "path": "src/features/session/session.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionService"
+            ]
+          }
+        ],
+        "src/packages/entities/user/index.ts": [
+          {
+            "path": "src/features/auth/auth.service.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthService"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "src/data/swaggers/data/class.swagger.ts",
+          "language": "typescript",
+          "sizeLines": 82,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/data/schedule.swagger.ts",
+          "language": "typescript",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/ai.controller.ts",
+          "language": "typescript",
+          "sizeLines": 71,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/dto/ai-chat.dto.ts",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/class/class.controller.ts",
+          "language": "typescript",
+          "sizeLines": 172,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/class/class.module.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/class/class.repository.ts",
+          "language": "typescript",
+          "sizeLines": 222,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/class/class.service.ts",
+          "language": "typescript",
+          "sizeLines": 242,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/schedule/schedule.controller.ts",
+          "language": "typescript",
+          "sizeLines": 129,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/schedule/schedule.module.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/schedule/schedule.repository.ts",
+          "language": "typescript",
+          "sizeLines": 155,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/schedule/schedule.service.ts",
+          "language": "typescript",
+          "sizeLines": 102,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/decorators/roles.decorator.ts",
+          "language": "typescript",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/decorators/user.decorator.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/class/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/schedule/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/helpers/index.ts",
+          "language": "typescript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/pipes/index.ts",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/data/swaggers/data/class.swagger.ts": [],
+        "src/data/swaggers/data/schedule.swagger.ts": [],
+        "src/features/ai/ai.controller.ts": [
+          "src/features/ai/ai.service.ts",
+          "src/features/ai/dto/ai-chat.dto.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/helpers/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/ai/dto/ai-chat.dto.ts": [],
+        "src/features/class/class.controller.ts": [
+          "src/data/swaggers/data/class.swagger.ts",
+          "src/data/swaggers/messages/index.ts",
+          "src/features/class/class.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/class/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/class/class.module.ts": [
+          "src/features/class/class.controller.ts",
+          "src/features/class/class.repository.ts",
+          "src/features/class/class.service.ts",
+          "src/features/notification/notification.module.ts",
+          "src/features/user/user.module.ts"
+        ],
+        "src/features/class/class.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/class/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/class/class.service.ts": [
+          "src/database/database.module.ts",
+          "src/features/class/class.repository.ts",
+          "src/features/notification/notification.service.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/entities/class/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/schedule/schedule.controller.ts": [
+          "src/data/swaggers/data/schedule.swagger.ts",
+          "src/features/schedule/schedule.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/schedule/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/schedule/schedule.module.ts": [
+          "src/features/class/class.module.ts",
+          "src/features/schedule/schedule.controller.ts",
+          "src/features/schedule/schedule.repository.ts",
+          "src/features/schedule/schedule.service.ts"
+        ],
+        "src/features/schedule/schedule.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/schedule/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/schedule/schedule.service.ts": [
+          "src/features/class/class.service.ts",
+          "src/features/schedule/schedule.repository.ts",
+          "src/packages/entities/schedule/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/decorators/roles.decorator.ts": [
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/decorators/user.decorator.ts": [
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/entities/class/index.ts": [],
+        "src/packages/entities/schedule/index.ts": [],
+        "src/packages/helpers/index.ts": [],
+        "src/packages/pipes/index.ts": []
+      },
+      "neighborMap": {
+        "src/features/ai/ai.controller.ts": [
+          {
+            "path": "src/features/ai/ai.service.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "AiService"
+            ]
+          },
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/features/ai/ai.module.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "AiModule"
+            ]
+          }
+        ],
+        "src/features/ai/dto/ai-chat.dto.ts": [
+          {
+            "path": "src/features/ai/ai.service.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "AiService"
+            ]
+          }
+        ],
+        "src/features/class/class.controller.ts": [
+          {
+            "path": "src/data/swaggers/messages/index.ts",
+            "batchIndex": 4,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          }
+        ],
+        "src/features/class/class.module.ts": [
+          {
+            "path": "src/features/notification/notification.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationModule"
+            ]
+          },
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          },
+          {
+            "path": "src/features/session/session.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionModule"
+            ]
+          }
+        ],
+        "src/features/class/class.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/class/class.service.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationService"
+            ]
+          },
+          {
+            "path": "src/features/user/user.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserService"
+            ]
+          },
+          {
+            "path": "src/features/session/session.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionService"
+            ]
+          }
+        ],
+        "src/features/schedule/schedule.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          }
+        ],
+        "src/features/schedule/schedule.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/schedule/schedule.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/packages/helpers/index.ts": [
+          {
+            "path": "src/features/admin/admin.repository.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AdminRepository"
+            ]
+          },
+          {
+            "path": "src/features/admin/admin.service.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AdminService"
+            ]
+          },
+          {
+            "path": "src/features/ai/context/exercise.context.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "ExerciseContextService"
+            ]
+          },
+          {
+            "path": "src/features/ai/interfaces/ai-context.interface.ts",
+            "batchIndex": 1,
+            "symbols": []
+          },
+          {
+            "path": "src/features/ai/prompt/system.prompt.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "buildSystemPrompt"
+            ]
+          },
+          {
+            "path": "src/features/auth/auth.service.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthService"
+            ]
+          },
+          {
+            "path": "src/features/chapter/chapter.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "ChapterService"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumRepository"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumService"
+            ]
+          },
+          {
+            "path": "src/features/dashboard/dashboard.service.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DashboardService"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseService"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonService"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationService"
+            ]
+          },
+          {
+            "path": "src/features/session/session.repository.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionRepository"
+            ]
+          },
+          {
+            "path": "src/features/session/session.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionService"
+            ]
+          },
+          {
+            "path": "src/features/student/student.service.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "StudentService"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.service.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionService"
+            ]
+          },
+          {
+            "path": "src/features/user/user.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserService"
+            ]
+          },
+          {
+            "path": "src/packages/configs/jwt-sign.config.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "getJwtTokensConfig",
+              "getJwtModuleOptionsFromConfig"
+            ]
+          },
+          {
+            "path": "src/packages/guards/jwt-auth.guard.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "JwtAuthGuard"
+            ]
+          }
+        ],
+        "src/packages/pipes/index.ts": [
+          {
+            "path": "src/features/admin/admin.controller.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AdminController"
+            ]
+          },
+          {
+            "path": "src/features/auth/auth.controller.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthController"
+            ]
+          },
+          {
+            "path": "src/features/chapter/chapter.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "ChapterController"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumController"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.controller.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseController"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.controller.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationController"
+            ]
+          },
+          {
+            "path": "src/features/session/session.controller.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionController"
+            ]
+          },
+          {
+            "path": "src/features/student/student.controller.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "StudentController"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.controller.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionController"
+            ]
+          },
+          {
+            "path": "src/features/user/user.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserController"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "src/data/swaggers/data/exercise.swagger.ts",
+          "language": "typescript",
+          "sizeLines": 59,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/data/session.swagger.ts",
+          "language": "typescript",
+          "sizeLines": 100,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/messages/index.ts",
+          "language": "typescript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/exercise/exercise.controller.ts",
+          "language": "typescript",
+          "sizeLines": 135,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/exercise/exercise.module.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/exercise/exercise.repository.ts",
+          "language": "typescript",
+          "sizeLines": 170,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/exercise/exercise.service.ts",
+          "language": "typescript",
+          "sizeLines": 207,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/notification/notification.controller.ts",
+          "language": "typescript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/notification/notification.module.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/notification/notification.repository.ts",
+          "language": "typescript",
+          "sizeLines": 86,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/notification/notification.service.ts",
+          "language": "typescript",
+          "sizeLines": 85,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/session/session.controller.ts",
+          "language": "typescript",
+          "sizeLines": 165,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/session/session.module.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/session/session.repository.ts",
+          "language": "typescript",
+          "sizeLines": 233,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/session/session.service.ts",
+          "language": "typescript",
+          "sizeLines": 236,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/exercise/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/notification/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/session/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/data/swaggers/data/exercise.swagger.ts": [],
+        "src/data/swaggers/data/session.swagger.ts": [],
+        "src/data/swaggers/messages/index.ts": [],
+        "src/features/exercise/exercise.controller.ts": [
+          "src/data/swaggers/data/exercise.swagger.ts",
+          "src/data/swaggers/messages/index.ts",
+          "src/features/exercise/exercise.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/exercise/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/exercise/exercise.module.ts": [
+          "src/features/exercise/exercise.controller.ts",
+          "src/features/exercise/exercise.repository.ts",
+          "src/features/exercise/exercise.service.ts",
+          "src/features/lesson/lesson.module.ts",
+          "src/features/notification/notification.module.ts",
+          "src/features/session/session.module.ts",
+          "src/features/user/user.module.ts"
+        ],
+        "src/features/exercise/exercise.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/exercise/index.ts"
+        ],
+        "src/features/exercise/exercise.service.ts": [
+          "src/features/exercise/exercise.repository.ts",
+          "src/features/lesson/lesson.service.ts",
+          "src/features/notification/notification.service.ts",
+          "src/features/session/session.service.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/entities/exercise/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/notification/notification.controller.ts": [
+          "src/features/notification/notification.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/notification/index.ts",
+          "src/packages/guards/jwt-auth.guard.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/notification/notification.module.ts": [
+          "src/features/notification/notification.controller.ts",
+          "src/features/notification/notification.repository.ts",
+          "src/features/notification/notification.service.ts",
+          "src/features/user/user.module.ts"
+        ],
+        "src/features/notification/notification.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/notification/index.ts"
+        ],
+        "src/features/notification/notification.service.ts": [
+          "src/features/notification/notification.repository.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/entities/notification/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/session/session.controller.ts": [
+          "src/data/swaggers/data/session.swagger.ts",
+          "src/data/swaggers/messages/index.ts",
+          "src/features/session/session.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/session/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/session/session.module.ts": [
+          "src/features/class/class.module.ts",
+          "src/features/lesson/lesson.module.ts",
+          "src/features/notification/notification.module.ts",
+          "src/features/session/session.controller.ts",
+          "src/features/session/session.repository.ts",
+          "src/features/session/session.service.ts",
+          "src/features/user/user.module.ts"
+        ],
+        "src/features/session/session.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/session/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/session/session.service.ts": [
+          "src/features/class/class.service.ts",
+          "src/features/lesson/lesson.service.ts",
+          "src/features/notification/notification.service.ts",
+          "src/features/session/session.repository.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/entities/session/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/entities/exercise/index.ts": [],
+        "src/packages/entities/notification/index.ts": [],
+        "src/packages/entities/session/index.ts": []
+      },
+      "neighborMap": {
+        "src/data/swaggers/messages/index.ts": [
+          {
+            "path": "src/features/class/class.controller.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassController"
+            ]
+          },
+          {
+            "path": "src/features/user/user.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserController"
+            ]
+          }
+        ],
+        "src/features/exercise/exercise.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/exercise/exercise.module.ts": [
+          {
+            "path": "src/features/lesson/lesson.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonModule"
+            ]
+          },
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/exercise/exercise.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/exercise/exercise.service.ts": [
+          {
+            "path": "src/features/lesson/lesson.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonService"
+            ]
+          },
+          {
+            "path": "src/features/user/user.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserService"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/notification/notification.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/guards/jwt-auth.guard.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "JwtAuthGuard"
+            ]
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/notification/notification.module.ts": [
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          },
+          {
+            "path": "src/features/class/class.module.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassModule"
+            ]
+          },
+          {
+            "path": "src/features/dashboard/dashboard.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DashboardModule"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.module.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionModule"
+            ]
+          }
+        ],
+        "src/features/notification/notification.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/notification/notification.service.ts": [
+          {
+            "path": "src/features/user/user.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserService"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          },
+          {
+            "path": "src/features/class/class.service.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassService"
+            ]
+          },
+          {
+            "path": "src/features/dashboard/dashboard.service.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DashboardService"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.service.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionService"
+            ]
+          }
+        ],
+        "src/features/session/session.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/session/session.module.ts": [
+          {
+            "path": "src/features/class/class.module.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassModule"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonModule"
+            ]
+          },
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/session/session.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/session/session.service.ts": [
+          {
+            "path": "src/features/class/class.service.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassService"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonService"
+            ]
+          },
+          {
+            "path": "src/features/user/user.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserService"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "src/app.controller.ts",
+          "language": "typescript",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app.module.ts",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app.service.spec.ts",
+          "language": "typescript",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app.service.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/admin/admin.controller.ts",
+          "language": "typescript",
+          "sizeLines": 228,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/admin/admin.module.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/admin/admin.repository.ts",
+          "language": "typescript",
+          "sizeLines": 132,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/admin/admin.service.ts",
+          "language": "typescript",
+          "sizeLines": 232,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/main.ts",
+          "language": "typescript",
+          "sizeLines": 94,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/decorators/api-success-response.decorator.ts",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/admin/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/filters/index.ts",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/guards/index.ts",
+          "language": "typescript",
+          "sizeLines": 3,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/interceptor/index.ts",
+          "language": "typescript",
+          "sizeLines": 3,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/interceptor/response.interceptor.ts",
+          "language": "typescript",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/interfaces/index.ts",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app.controller.ts": [
+          "src/app.service.ts"
+        ],
+        "src/app.module.ts": [
+          "src/app.controller.ts",
+          "src/app.service.ts",
+          "src/database/database.module.ts",
+          "src/features/admin/admin.module.ts",
+          "src/features/ai/ai.module.ts",
+          "src/features/auth/auth.module.ts",
+          "src/features/chapter/chapter.module.ts",
+          "src/features/class/class.module.ts",
+          "src/features/curriculum/curriculum.module.ts",
+          "src/features/dashboard/dashboard.module.ts",
+          "src/features/email/mailer/mailer.module.ts",
+          "src/features/exercise/exercise.module.ts",
+          "src/features/lesson/lesson.module.ts",
+          "src/features/notification/notification.module.ts",
+          "src/features/redis/redis.module.ts",
+          "src/features/schedule/schedule.module.ts",
+          "src/features/session/session.module.ts",
+          "src/features/student/student.module.ts",
+          "src/features/tuition/tuition.module.ts",
+          "src/features/uploads/upload.module.ts",
+          "src/features/user/user.module.ts",
+          "src/packages/guards/index.ts"
+        ],
+        "src/app.service.spec.ts": [
+          "src/app.service.ts"
+        ],
+        "src/app.service.ts": [],
+        "src/features/admin/admin.controller.ts": [
+          "src/features/admin/admin.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/admin/index.ts",
+          "src/packages/guards/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/admin/admin.module.ts": [
+          "src/features/admin/admin.controller.ts",
+          "src/features/admin/admin.repository.ts",
+          "src/features/admin/admin.service.ts"
+        ],
+        "src/features/admin/admin.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/admin/admin.service.ts": [
+          "src/features/admin/admin.repository.ts",
+          "src/packages/entities/admin/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/main.ts": [
+          "src/app.module.ts",
+          "src/packages/filters/index.ts",
+          "src/packages/interceptor/index.ts",
+          "src/packages/interceptor/response.interceptor.ts"
+        ],
+        "src/packages/decorators/api-success-response.decorator.ts": [
+          "src/packages/interfaces/index.ts"
+        ],
+        "src/packages/entities/admin/index.ts": [],
+        "src/packages/filters/index.ts": [],
+        "src/packages/guards/index.ts": [],
+        "src/packages/interceptor/index.ts": [],
+        "src/packages/interceptor/response.interceptor.ts": [
+          "src/packages/decorators/index.ts",
+          "src/packages/interfaces/index.ts"
+        ],
+        "src/packages/interfaces/index.ts": []
+      },
+      "neighborMap": {
+        "src/app.module.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/features/ai/ai.module.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "AiModule"
+            ]
+          },
+          {
+            "path": "src/features/auth/auth.module.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthModule"
+            ]
+          },
+          {
+            "path": "src/features/chapter/chapter.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "ChapterModule"
+            ]
+          },
+          {
+            "path": "src/features/class/class.module.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassModule"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumModule"
+            ]
+          },
+          {
+            "path": "src/features/dashboard/dashboard.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DashboardModule"
+            ]
+          },
+          {
+            "path": "src/features/email/mailer/mailer.module.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "MailerModule"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseModule"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonModule"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationModule"
+            ]
+          },
+          {
+            "path": "src/features/redis/redis.module.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "RedisModule"
+            ]
+          },
+          {
+            "path": "src/features/schedule/schedule.module.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ScheduleModule"
+            ]
+          },
+          {
+            "path": "src/features/session/session.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionModule"
+            ]
+          },
+          {
+            "path": "src/features/student/student.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "StudentModule"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.module.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionModule"
+            ]
+          },
+          {
+            "path": "src/features/uploads/upload.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UploadModule"
+            ]
+          },
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          }
+        ],
+        "src/features/admin/admin.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/admin/admin.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/admin/admin.service.ts": [
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/packages/guards/index.ts": [
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          }
+        ],
+        "src/packages/interceptor/response.interceptor.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": "src/database/database.module.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/dashboard/dashboard.controller.ts",
+          "language": "typescript",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/dashboard/dashboard.module.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/dashboard/dashboard.repository.ts",
+          "language": "typescript",
+          "sizeLines": 197,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/dashboard/dashboard.service.ts",
+          "language": "typescript",
+          "sizeLines": 135,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/student/student.controller.ts",
+          "language": "typescript",
+          "sizeLines": 198,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/student/student.module.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/student/student.repository.ts",
+          "language": "typescript",
+          "sizeLines": 276,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/student/student.service.ts",
+          "language": "typescript",
+          "sizeLines": 323,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/decorators/index.ts",
+          "language": "typescript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/student/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/guards/admin-role.guard.ts",
+          "language": "typescript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/guards/jwt-auth.guard.ts",
+          "language": "typescript",
+          "sizeLines": 111,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/guards/roles.guard.ts",
+          "language": "typescript",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/database/database.module.ts": [
+          "src/database/schema.ts"
+        ],
+        "src/features/dashboard/dashboard.controller.ts": [
+          "src/features/dashboard/dashboard.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/guards/jwt-auth.guard.ts"
+        ],
+        "src/features/dashboard/dashboard.module.ts": [
+          "src/features/dashboard/dashboard.controller.ts",
+          "src/features/dashboard/dashboard.repository.ts",
+          "src/features/dashboard/dashboard.service.ts",
+          "src/features/notification/notification.module.ts",
+          "src/features/user/user.module.ts"
+        ],
+        "src/features/dashboard/dashboard.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts"
+        ],
+        "src/features/dashboard/dashboard.service.ts": [
+          "src/features/dashboard/dashboard.repository.ts",
+          "src/features/notification/notification.service.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/features/student/student.controller.ts": [
+          "src/features/student/student.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/student/index.ts",
+          "src/packages/guards/jwt-auth.guard.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/student/student.module.ts": [
+          "src/features/student/student.controller.ts",
+          "src/features/student/student.repository.ts",
+          "src/features/student/student.service.ts"
+        ],
+        "src/features/student/student.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/student/index.ts"
+        ],
+        "src/features/student/student.service.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/features/student/student.repository.ts",
+          "src/packages/entities/student/index.ts",
+          "src/packages/guards/jwt-auth.guard.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/decorators/index.ts": [],
+        "src/packages/entities/student/index.ts": [],
+        "src/packages/guards/admin-role.guard.ts": [
+          "src/packages/guards/jwt-auth.guard.ts"
+        ],
+        "src/packages/guards/jwt-auth.guard.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/guards/roles.guard.ts": [
+          "src/packages/decorators/index.ts",
+          "src/packages/guards/jwt-auth.guard.ts"
+        ]
+      },
+      "neighborMap": {
+        "src/database/database.module.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          },
+          {
+            "path": "src/features/admin/admin.repository.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AdminRepository"
+            ]
+          },
+          {
+            "path": "src/features/ai/chat/chat.repository.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "ChatRepository"
+            ]
+          },
+          {
+            "path": "src/features/chapter/chapter.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "ChapterRepository"
+            ]
+          },
+          {
+            "path": "src/features/chapter/chapter.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "ChapterService"
+            ]
+          },
+          {
+            "path": "src/features/class/class.repository.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassRepository"
+            ]
+          },
+          {
+            "path": "src/features/class/class.service.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassService"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumRepository"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumService"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.repository.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseRepository"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonRepository"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonService"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.repository.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationRepository"
+            ]
+          },
+          {
+            "path": "src/features/schedule/schedule.repository.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ScheduleRepository"
+            ]
+          },
+          {
+            "path": "src/features/session/session.repository.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionRepository"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.repository.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionRepository"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.service.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionService"
+            ]
+          },
+          {
+            "path": "src/features/user/user.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserRepository"
+            ]
+          }
+        ],
+        "src/features/dashboard/dashboard.module.ts": [
+          {
+            "path": "src/features/notification/notification.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationModule"
+            ]
+          },
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/dashboard/dashboard.repository.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/dashboard/dashboard.service.ts": [
+          {
+            "path": "src/features/notification/notification.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationService"
+            ]
+          },
+          {
+            "path": "src/features/user/user.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserService"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/student/student.controller.ts": [
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/student/student.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/student/student.repository.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          }
+        ],
+        "src/features/student/student.service.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/packages/decorators/index.ts": [
+          {
+            "path": "src/features/admin/admin.controller.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AdminController"
+            ]
+          },
+          {
+            "path": "src/features/ai/ai.controller.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "AiController"
+            ]
+          },
+          {
+            "path": "src/features/auth/auth.controller.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthController"
+            ]
+          },
+          {
+            "path": "src/features/auth/auth.service.ts",
+            "batchIndex": 7,
+            "symbols": [
+              "AuthService"
+            ]
+          },
+          {
+            "path": "src/features/chapter/chapter.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "ChapterController"
+            ]
+          },
+          {
+            "path": "src/features/class/class.controller.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassController"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumController"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.controller.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseController"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.controller.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationController"
+            ]
+          },
+          {
+            "path": "src/features/schedule/schedule.controller.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ScheduleController"
+            ]
+          },
+          {
+            "path": "src/features/session/session.controller.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionController"
+            ]
+          },
+          {
+            "path": "src/features/tuition/tuition.controller.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "TuitionController"
+            ]
+          },
+          {
+            "path": "src/features/uploads/upload.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UploadController"
+            ]
+          },
+          {
+            "path": "src/features/user/user.controller.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserController"
+            ]
+          },
+          {
+            "path": "src/packages/interceptor/response.interceptor.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ResponseInterceptor"
+            ]
+          }
+        ],
+        "src/packages/guards/jwt-auth.guard.ts": [
+          {
+            "path": "src/database/schema.ts",
+            "batchIndex": 8,
+            "symbols": [
+              "userRoleEnum",
+              "genderEnum",
+              "categoryTypeEnum",
+              "walletTypeEnum",
+              "transactionTypeEnum",
+              "transactionStatusEnum",
+              "users",
+              "classStatusEnum",
+              "sessionFormatEnum",
+              "sessionStatusEnum",
+              "classSessionStatusEnum",
+              "dayOfWeekEnum",
+              "curriculumStatusEnum",
+              "assignmentStatusEnum",
+              "exerciseStatusEnum",
+              "tuitionStatusEnum",
+              "notificationTypeEnum",
+              "notificationActionEnum",
+              "grades",
+              "classes",
+              "classStudents",
+              "schedules",
+              "sessions",
+              "curriculums",
+              "chapters",
+              "lessons",
+              "tuitions",
+              "notifications",
+              "studentScores",
+              "aiMessageRoleEnum",
+              "aiMessages",
+              "exercise"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          },
+          {
+            "path": "src/features/notification/notification.controller.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationController"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": "src/features/auth/auth.controller.ts",
+          "language": "typescript",
+          "sizeLines": 294,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/auth/auth.module.ts",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/auth/auth.service.ts",
+          "language": "typescript",
+          "sizeLines": 337,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/email/email.controller.ts",
+          "language": "typescript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/email/email.module.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/email/email.service.ts",
+          "language": "typescript",
+          "sizeLines": 85,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/email/mailer/mailer.module.ts",
+          "language": "typescript",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/email/mailer/mailer.service.ts",
+          "language": "typescript",
+          "sizeLines": 155,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/redis/redis.controller.ts",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/redis/redis.module.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/redis/redis.service.ts",
+          "language": "typescript",
+          "sizeLines": 77,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/configs/jwt-sign.config.ts",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/auth/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/strategy/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/features/auth/auth.controller.ts": [
+          "src/features/auth/auth.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/auth/index.ts",
+          "src/packages/pipes/index.ts",
+          "src/packages/strategy/index.ts"
+        ],
+        "src/features/auth/auth.module.ts": [
+          "src/features/auth/auth.controller.ts",
+          "src/features/auth/auth.service.ts",
+          "src/features/email/email.module.ts",
+          "src/features/redis/redis.module.ts",
+          "src/features/user/user.module.ts",
+          "src/packages/configs/jwt-sign.config.ts",
+          "src/packages/strategy/index.ts"
+        ],
+        "src/features/auth/auth.service.ts": [
+          "src/features/email/email.service.ts",
+          "src/features/redis/redis.service.ts",
+          "src/features/user/user.service.ts",
+          "src/packages/configs/jwt-sign.config.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/auth/index.ts",
+          "src/packages/entities/user/index.ts",
+          "src/packages/helpers/index.ts",
+          "src/packages/strategy/index.ts"
+        ],
+        "src/features/email/email.controller.ts": [],
+        "src/features/email/email.module.ts": [
+          "src/features/email/email.controller.ts",
+          "src/features/email/email.service.ts"
+        ],
+        "src/features/email/email.service.ts": [
+          "src/features/email/mailer/mailer.service.ts"
+        ],
+        "src/features/email/mailer/mailer.module.ts": [
+          "src/features/email/mailer/mailer.service.ts"
+        ],
+        "src/features/email/mailer/mailer.service.ts": [],
+        "src/features/redis/redis.controller.ts": [
+          "src/features/redis/redis.service.ts"
+        ],
+        "src/features/redis/redis.module.ts": [
+          "src/features/redis/redis.controller.ts",
+          "src/features/redis/redis.service.ts"
+        ],
+        "src/features/redis/redis.service.ts": [],
+        "src/packages/configs/jwt-sign.config.ts": [
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/entities/auth/index.ts": [],
+        "src/packages/strategy/index.ts": []
+      },
+      "neighborMap": {
+        "src/features/auth/auth.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/auth/auth.module.ts": [
+          {
+            "path": "src/features/user/user.module.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserModule"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/auth/auth.service.ts": [
+          {
+            "path": "src/features/user/user.service.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserService"
+            ]
+          },
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/entities/user/index.ts",
+            "batchIndex": 2,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/email/mailer/mailer.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/redis/redis.module.ts": [
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/packages/configs/jwt-sign.config.ts": [
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": "scripts/seed-curriculum-demo.ts",
+          "language": "typescript",
+          "sizeLines": 392,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/seed-dashboard.ts",
+          "language": "typescript",
+          "sizeLines": 300,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/seed-edu-flow.ts",
+          "language": "typescript",
+          "sizeLines": 176,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/seed-grades.ts",
+          "language": "typescript",
+          "sizeLines": 50,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/seed-user.ts",
+          "language": "typescript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/seed-users-bulk.ts",
+          "language": "typescript",
+          "sizeLines": 121,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/database/schema.ts",
+          "language": "typescript",
+          "sizeLines": 451,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/tuition/tuition.controller.ts",
+          "language": "typescript",
+          "sizeLines": 128,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/tuition/tuition.module.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/tuition/tuition.repository.ts",
+          "language": "typescript",
+          "sizeLines": 147,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/tuition/tuition.service.ts",
+          "language": "typescript",
+          "sizeLines": 105,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/tuition/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/helpers/hashingData.helper.ts",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "scripts/seed-curriculum-demo.ts": [
+          "src/database/schema.ts",
+          "src/packages/helpers/hashingData.helper.ts"
+        ],
+        "scripts/seed-dashboard.ts": [
+          "src/database/schema.ts",
+          "src/packages/helpers/hashingData.helper.ts"
+        ],
+        "scripts/seed-edu-flow.ts": [
+          "src/database/schema.ts"
+        ],
+        "scripts/seed-grades.ts": [
+          "src/database/schema.ts"
+        ],
+        "scripts/seed-user.ts": [
+          "src/database/schema.ts",
+          "src/packages/helpers/hashingData.helper.ts"
+        ],
+        "scripts/seed-users-bulk.ts": [
+          "src/database/schema.ts",
+          "src/packages/helpers/hashingData.helper.ts"
+        ],
+        "src/database/schema.ts": [],
+        "src/features/tuition/tuition.controller.ts": [
+          "src/features/tuition/tuition.service.ts",
+          "src/packages/decorators/index.ts",
+          "src/packages/entities/tuition/index.ts",
+          "src/packages/pipes/index.ts"
+        ],
+        "src/features/tuition/tuition.module.ts": [
+          "src/features/notification/notification.module.ts",
+          "src/features/tuition/tuition.controller.ts",
+          "src/features/tuition/tuition.repository.ts",
+          "src/features/tuition/tuition.service.ts"
+        ],
+        "src/features/tuition/tuition.repository.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/packages/entities/tuition/index.ts"
+        ],
+        "src/features/tuition/tuition.service.ts": [
+          "src/database/database.module.ts",
+          "src/database/schema.ts",
+          "src/features/notification/notification.service.ts",
+          "src/features/tuition/tuition.repository.ts",
+          "src/packages/entities/tuition/index.ts",
+          "src/packages/helpers/index.ts"
+        ],
+        "src/packages/entities/tuition/index.ts": [],
+        "src/packages/helpers/hashingData.helper.ts": []
+      },
+      "neighborMap": {
+        "src/database/schema.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/features/admin/admin.repository.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AdminRepository"
+            ]
+          },
+          {
+            "path": "src/features/ai/chat/chat.repository.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "ChatRepository"
+            ]
+          },
+          {
+            "path": "src/features/ai/context/class.context.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "ClassContextService"
+            ]
+          },
+          {
+            "path": "src/features/ai/context/context.service.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "ContextService"
+            ]
+          },
+          {
+            "path": "src/features/ai/context/exercise.context.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "ExerciseContextService"
+            ]
+          },
+          {
+            "path": "src/features/ai/context/schedule.context.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "ScheduleContextService"
+            ]
+          },
+          {
+            "path": "src/features/ai/context/session.context.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "SessionContextService"
+            ]
+          },
+          {
+            "path": "src/features/chapter/chapter.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "ChapterRepository"
+            ]
+          },
+          {
+            "path": "src/features/class/class.repository.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ClassRepository"
+            ]
+          },
+          {
+            "path": "src/features/curriculum/curriculum.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "CurriculumRepository"
+            ]
+          },
+          {
+            "path": "src/features/dashboard/dashboard.repository.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DashboardRepository"
+            ]
+          },
+          {
+            "path": "src/features/exercise/exercise.repository.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "ExerciseRepository"
+            ]
+          },
+          {
+            "path": "src/features/lesson/lesson.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "LessonRepository"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.repository.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationRepository"
+            ]
+          },
+          {
+            "path": "src/features/schedule/schedule.repository.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "ScheduleRepository"
+            ]
+          },
+          {
+            "path": "src/features/session/session.repository.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "SessionRepository"
+            ]
+          },
+          {
+            "path": "src/features/student/student.repository.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "StudentRepository"
+            ]
+          },
+          {
+            "path": "src/features/student/student.service.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "StudentService"
+            ]
+          },
+          {
+            "path": "src/features/user/user.repository.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "UserRepository"
+            ]
+          },
+          {
+            "path": "src/packages/guards/jwt-auth.guard.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "JwtAuthGuard"
+            ]
+          }
+        ],
+        "src/features/tuition/tuition.controller.ts": [
+          {
+            "path": "src/packages/decorators/index.ts",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "src/packages/pipes/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ],
+        "src/features/tuition/tuition.module.ts": [
+          {
+            "path": "src/features/notification/notification.module.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationModule"
+            ]
+          },
+          {
+            "path": "src/app.module.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "AppModule"
+            ]
+          }
+        ],
+        "src/features/tuition/tuition.repository.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          }
+        ],
+        "src/features/tuition/tuition.service.ts": [
+          {
+            "path": "src/database/database.module.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "DRIZZLE",
+              "DatabaseModule"
+            ]
+          },
+          {
+            "path": "src/features/notification/notification.service.ts",
+            "batchIndex": 4,
+            "symbols": [
+              "NotificationService"
+            ]
+          },
+          {
+            "path": "src/packages/helpers/index.ts",
+            "batchIndex": 3,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": ".gitlab-ci.yml",
+          "language": "yaml",
+          "sizeLines": 72,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        ".gitlab-ci.yml": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": ".ai-devkit.json",
+          "language": "json",
+          "sizeLines": 92,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".env",
+          "language": "config",
+          "sizeLines": 73,
+          "fileCategory": "config"
+        },
+        {
+          "path": "AGENTS.md",
+          "language": "markdown",
+          "sizeLines": 111,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "API_ENDPOINTS.md",
+          "language": "markdown",
+          "sizeLines": 577,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "CLAUDE.md",
+          "language": "markdown",
+          "sizeLines": 264,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "PAGES_API_REVIEW.md",
+          "language": "markdown",
+          "sizeLines": 292,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 291,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "coverage-report.txt",
+          "language": "txt",
+          "sizeLines": 129,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docker-compose.yml",
+          "language": "yaml",
+          "sizeLines": 30,
+          "fileCategory": "infra"
+        },
+        {
+          "path": "nest-cli.json",
+          "language": "json",
+          "sizeLines": 18,
+          "fileCategory": "config"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 108,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.build.json",
+          "language": "json",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.json",
+          "language": "json",
+          "sizeLines": 31,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".ai-devkit.json": [],
+        ".env": [],
+        "AGENTS.md": [],
+        "API_ENDPOINTS.md": [],
+        "CLAUDE.md": [],
+        "PAGES_API_REVIEW.md": [],
+        "README.md": [],
+        "coverage-report.txt": [],
+        "docker-compose.yml": [],
+        "nest-cli.json": [],
+        "package.json": [],
+        "tsconfig.build.json": [],
+        "tsconfig.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": ".claude/agents/dev.md",
+          "language": "markdown",
+          "sizeLines": 50,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/agents/review.md",
+          "language": "markdown",
+          "sizeLines": 37,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/agents/security.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/agents/dev.md": [],
+        ".claude/agents/review.md": [],
+        ".claude/agents/security.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": ".claude/rules/conventions.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/rules/database.md",
+          "language": "markdown",
+          "sizeLines": 10,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/rules/nestjs-feature-pattern.md",
+          "language": "markdown",
+          "sizeLines": 63,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/rules/conventions.md": [],
+        ".claude/rules/database.md": [],
+        ".claude/rules/nestjs-feature-pattern.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 13,
+      "files": [
+        {
+          "path": ".opencode/agent/code-reviewer.md",
+          "language": "markdown",
+          "sizeLines": 65,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/agent/dev.md",
+          "language": "markdown",
+          "sizeLines": 108,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/agent/feature-builder.md",
+          "language": "markdown",
+          "sizeLines": 283,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/agent/fixbug.md",
+          "language": "markdown",
+          "sizeLines": 73,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/agent/security-review.md",
+          "language": "markdown",
+          "sizeLines": 150,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/agent/test.md",
+          "language": "markdown",
+          "sizeLines": 91,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".opencode/agent/code-reviewer.md": [],
+        ".opencode/agent/dev.md": [],
+        ".opencode/agent/feature-builder.md": [],
+        ".opencode/agent/fixbug.md": [],
+        ".opencode/agent/security-review.md": [],
+        ".opencode/agent/test.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 14,
+      "files": [
+        {
+          "path": ".opencode/commands/dev.md",
+          "language": "markdown",
+          "sizeLines": 16,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/commands/feature.md",
+          "language": "markdown",
+          "sizeLines": 12,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/commands/review.md",
+          "language": "markdown",
+          "sizeLines": 15,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/commands/security-review.md",
+          "language": "markdown",
+          "sizeLines": 17,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/commands/test.md",
+          "language": "markdown",
+          "sizeLines": 15,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".opencode/commands/dev.md": [],
+        ".opencode/commands/feature.md": [],
+        ".opencode/commands/review.md": [],
+        ".opencode/commands/security-review.md": [],
+        ".opencode/commands/test.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 15,
+      "files": [
+        {
+          "path": ".opencode/memory/api.md",
+          "language": "markdown",
+          "sizeLines": 78,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/memory/commands.md",
+          "language": "markdown",
+          "sizeLines": 55,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/memory/conventions.md",
+          "language": "markdown",
+          "sizeLines": 48,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/memory/database.md",
+          "language": "markdown",
+          "sizeLines": 43,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/memory/decisions.md",
+          "language": "markdown",
+          "sizeLines": 16,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/memory/project.md",
+          "language": "markdown",
+          "sizeLines": 52,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".opencode/memory/api.md": [],
+        ".opencode/memory/commands.md": [],
+        ".opencode/memory/conventions.md": [],
+        ".opencode/memory/database.md": [],
+        ".opencode/memory/decisions.md": [],
+        ".opencode/memory/project.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 16,
+      "files": [
+        {
+          "path": ".opencode/rules/api-design.md",
+          "language": "markdown",
+          "sizeLines": 40,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/rules/api-error-handling.md",
+          "language": "markdown",
+          "sizeLines": 61,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/rules/seed-data.md",
+          "language": "markdown",
+          "sizeLines": 45,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".opencode/rules/service-repository-pattern.md",
+          "language": "markdown",
+          "sizeLines": 69,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".opencode/rules/api-design.md": [],
+        ".opencode/rules/api-error-handling.md": [],
+        ".opencode/rules/seed-data.md": [],
+        ".opencode/rules/service-repository-pattern.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 17,
+      "files": [
+        {
+          "path": "drizzle/meta/0000_snapshot.json",
+          "language": "json",
+          "sizeLines": 1881,
+          "fileCategory": "config"
+        },
+        {
+          "path": "drizzle/meta/0001_snapshot.json",
+          "language": "json",
+          "sizeLines": 1881,
+          "fileCategory": "config"
+        },
+        {
+          "path": "drizzle/meta/_journal.json",
+          "language": "json",
+          "sizeLines": 19,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "drizzle/meta/0000_snapshot.json": [],
+        "drizzle/meta/0001_snapshot.json": [],
+        "drizzle/meta/_journal.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 18,
+      "files": [
+        {
+          "path": ".claude/hooks/format-ts.mjs",
+          "language": "javascript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/hooks/guard-paths.mjs",
+          "language": "javascript",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/hooks/review-skills.mjs",
+          "language": "javascript",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/settings.json",
+          "language": "json",
+          "sizeLines": 43,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".claude/settings.local.json",
+          "language": "json",
+          "sizeLines": 11,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".claude/skills/generate-controller/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 72,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/generate-db-table/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 30,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/generate-entity/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 58,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/generate-feature/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 82,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/generate-module/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/generate-repository/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 66,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/generate-service/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 93,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".gitattributes",
+          "language": "unknown",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".prettierignore",
+          "language": "unknown",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".railwayignore",
+          "language": "unknown",
+          "sizeLines": 3,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".ua/.understandignore",
+          "language": "unknown",
+          "sizeLines": 86,
+          "fileCategory": "code"
+        },
+        {
+          "path": "drizzle.config.ts",
+          "language": "typescript",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "drizzle/0000_cold_nightmare.sql",
+          "language": "sql",
+          "sizeLines": 255,
+          "fileCategory": "data"
+        },
+        {
+          "path": "drizzle/0001_daffy_garia.sql",
+          "language": "sql",
+          "sizeLines": 0,
+          "fileCategory": "data"
+        },
+        {
+          "path": "eslint.config.mjs",
+          "language": "javascript",
+          "sizeLines": 70,
+          "fileCategory": "code"
+        },
+        {
+          "path": "jest.config.js",
+          "language": "javascript",
+          "sizeLines": 36,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/recreate-db.ts",
+          "language": "typescript",
+          "sizeLines": 75,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/seed-categories.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/seed-wallet.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/test-db.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".claude/hooks/format-ts.mjs": [],
+        ".claude/hooks/guard-paths.mjs": [],
+        ".claude/hooks/review-skills.mjs": [],
+        ".claude/settings.json": [],
+        ".claude/settings.local.json": [],
+        ".claude/skills/generate-controller/SKILL.md": [],
+        ".claude/skills/generate-db-table/SKILL.md": [],
+        ".claude/skills/generate-entity/SKILL.md": [],
+        ".claude/skills/generate-feature/SKILL.md": [],
+        ".claude/skills/generate-module/SKILL.md": [],
+        ".claude/skills/generate-repository/SKILL.md": [],
+        ".claude/skills/generate-service/SKILL.md": [],
+        ".gitattributes": [],
+        ".prettierignore": [],
+        ".railwayignore": [],
+        ".ua/.understandignore": [],
+        "drizzle.config.ts": [],
+        "drizzle/0000_cold_nightmare.sql": [],
+        "drizzle/0001_daffy_garia.sql": [],
+        "eslint.config.mjs": [],
+        "jest.config.js": [],
+        "scripts/recreate-db.ts": [],
+        "scripts/seed-categories.ts": [],
+        "scripts/seed-wallet.ts": [],
+        "scripts/test-db.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 19,
+      "files": [
+        {
+          "path": "src/data/constants/error.constant.ts",
+          "language": "typescript",
+          "sizeLines": 115,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/constants/success.constant.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/data/index.ts",
+          "language": "typescript",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/index.ts",
+          "language": "typescript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/messages/class.msg.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/messages/exercise.msg.ts",
+          "language": "typescript",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/messages/session.msg.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/swaggers/messages/user.msg.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/ai/README.md",
+          "language": "markdown",
+          "sizeLines": 147,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "src/features/ai/utils/markdown.ts",
+          "language": "typescript",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/decorators/public.decorator.ts",
+          "language": "typescript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/admin/admin.dto.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/admin/admin.schema.ts",
+          "language": "typescript",
+          "sizeLines": 119,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/auth/auth.dto.ts",
+          "language": "typescript",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/auth/auth.schema.ts",
+          "language": "typescript",
+          "sizeLines": 126,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/category/category.dto.ts",
+          "language": "typescript",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/category/category.schema.ts",
+          "language": "typescript",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/category/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/class/class.dto.ts",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/class/class.schema.ts",
+          "language": "typescript",
+          "sizeLines": 51,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/curriculum/curriculum.dto.ts",
+          "language": "typescript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/curriculum/curriculum.schema.ts",
+          "language": "typescript",
+          "sizeLines": 117,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/curriculum/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/exercise/exercise.dto.ts",
+          "language": "typescript",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/exercise/exercise.schema.ts",
+          "language": "typescript",
+          "sizeLines": 57,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/data/constants/error.constant.ts": [],
+        "src/data/constants/success.constant.ts": [],
+        "src/data/swaggers/data/index.ts": [],
+        "src/data/swaggers/index.ts": [],
+        "src/data/swaggers/messages/class.msg.ts": [],
+        "src/data/swaggers/messages/exercise.msg.ts": [],
+        "src/data/swaggers/messages/session.msg.ts": [],
+        "src/data/swaggers/messages/user.msg.ts": [],
+        "src/features/ai/README.md": [],
+        "src/features/ai/utils/markdown.ts": [],
+        "src/packages/decorators/public.decorator.ts": [],
+        "src/packages/entities/admin/admin.dto.ts": [
+          "src/packages/entities/admin/admin.schema.ts"
+        ],
+        "src/packages/entities/admin/admin.schema.ts": [],
+        "src/packages/entities/auth/auth.dto.ts": [
+          "src/packages/entities/auth/auth.schema.ts"
+        ],
+        "src/packages/entities/auth/auth.schema.ts": [],
+        "src/packages/entities/category/category.dto.ts": [
+          "src/packages/entities/category/category.schema.ts"
+        ],
+        "src/packages/entities/category/category.schema.ts": [],
+        "src/packages/entities/category/index.ts": [],
+        "src/packages/entities/class/class.dto.ts": [
+          "src/packages/entities/class/class.schema.ts"
+        ],
+        "src/packages/entities/class/class.schema.ts": [],
+        "src/packages/entities/curriculum/curriculum.dto.ts": [
+          "src/packages/entities/curriculum/curriculum.schema.ts"
+        ],
+        "src/packages/entities/curriculum/curriculum.schema.ts": [],
+        "src/packages/entities/curriculum/index.ts": [],
+        "src/packages/entities/exercise/exercise.dto.ts": [
+          "src/packages/entities/exercise/exercise.schema.ts"
+        ],
+        "src/packages/entities/exercise/exercise.schema.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 20,
+      "files": [
+        {
+          "path": "src/packages/entities/notification/notification.dto.ts",
+          "language": "typescript",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/notification/notification.schema.ts",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/report/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/report/report.dto.ts",
+          "language": "typescript",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/report/report.schema.ts",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/schedule/schedule.dto.ts",
+          "language": "typescript",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/schedule/schedule.schema.ts",
+          "language": "typescript",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/session/session.dto.ts",
+          "language": "typescript",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/session/session.schema.ts",
+          "language": "typescript",
+          "sizeLines": 72,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/student/student.dto.ts",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/student/student.schema.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/transactions/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/transactions/transaction.dto.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/transactions/transaction.schema.ts",
+          "language": "typescript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/tuition/tuition.dto.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/tuition/tuition.schema.ts",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/user/user.dto.ts",
+          "language": "typescript",
+          "sizeLines": 68,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/user/user.schema.ts",
+          "language": "typescript",
+          "sizeLines": 314,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/wallet/index.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/wallet/wallet.dto.ts",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/entities/wallet/wallet.schema.ts",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/filters/http-exception.filter.ts",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/helpers/generate.helper.ts",
+          "language": "typescript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/helpers/jwt.helper.ts",
+          "language": "typescript",
+          "sizeLines": 70,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/helpers/queryList.helper.ts",
+          "language": "typescript",
+          "sizeLines": 72,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/packages/entities/notification/notification.dto.ts": [
+          "src/packages/entities/notification/notification.schema.ts"
+        ],
+        "src/packages/entities/notification/notification.schema.ts": [],
+        "src/packages/entities/report/index.ts": [],
+        "src/packages/entities/report/report.dto.ts": [
+          "src/packages/entities/report/report.schema.ts"
+        ],
+        "src/packages/entities/report/report.schema.ts": [],
+        "src/packages/entities/schedule/schedule.dto.ts": [
+          "src/packages/entities/schedule/schedule.schema.ts"
+        ],
+        "src/packages/entities/schedule/schedule.schema.ts": [],
+        "src/packages/entities/session/session.dto.ts": [
+          "src/packages/entities/session/session.schema.ts"
+        ],
+        "src/packages/entities/session/session.schema.ts": [],
+        "src/packages/entities/student/student.dto.ts": [
+          "src/packages/entities/student/student.schema.ts"
+        ],
+        "src/packages/entities/student/student.schema.ts": [],
+        "src/packages/entities/transactions/index.ts": [],
+        "src/packages/entities/transactions/transaction.dto.ts": [
+          "src/packages/entities/transactions/transaction.schema.ts"
+        ],
+        "src/packages/entities/transactions/transaction.schema.ts": [],
+        "src/packages/entities/tuition/tuition.dto.ts": [
+          "src/packages/entities/tuition/tuition.schema.ts"
+        ],
+        "src/packages/entities/tuition/tuition.schema.ts": [],
+        "src/packages/entities/user/user.dto.ts": [
+          "src/packages/entities/user/user.schema.ts"
+        ],
+        "src/packages/entities/user/user.schema.ts": [],
+        "src/packages/entities/wallet/index.ts": [],
+        "src/packages/entities/wallet/wallet.dto.ts": [
+          "src/packages/entities/wallet/wallet.schema.ts"
+        ],
+        "src/packages/entities/wallet/wallet.schema.ts": [],
+        "src/packages/filters/http-exception.filter.ts": [],
+        "src/packages/helpers/generate.helper.ts": [],
+        "src/packages/helpers/jwt.helper.ts": [],
+        "src/packages/helpers/queryList.helper.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 21,
+      "files": [
+        {
+          "path": "src/packages/index.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/interceptor/error.interceptor.ts",
+          "language": "typescript",
+          "sizeLines": 57,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/interceptor/logger.interceptor.ts",
+          "language": "typescript",
+          "sizeLines": 34,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/interfaces/interceptor.interface.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/pipes/zod-validation.pipe.ts",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/strategy/google.strategy.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/packages/strategy/jwt-user.strategy.ts",
+          "language": "typescript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/packages/index.ts": [],
+        "src/packages/interceptor/error.interceptor.ts": [],
+        "src/packages/interceptor/logger.interceptor.ts": [],
+        "src/packages/interfaces/interceptor.interface.ts": [],
+        "src/packages/pipes/zod-validation.pipe.ts": [],
+        "src/packages/strategy/google.strategy.ts": [],
+        "src/packages/strategy/jwt-user.strategy.ts": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

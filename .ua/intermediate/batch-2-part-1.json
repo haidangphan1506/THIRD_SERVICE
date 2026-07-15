@@ -1,0 +1,801 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/data/constants/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/data/constants/index.ts",
+      "summary": "Barrel file re-exporting shared application constants used across features.",
+      "tags": [
+        "barrel",
+        "utility",
+        "constants"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/data/swaggers/data/user.swagger.ts",
+      "type": "file",
+      "name": "user.swagger.ts",
+      "filePath": "src/data/swaggers/data/user.swagger.ts",
+      "summary": "Defines Swagger/OpenAPI request and response schema annotations for user endpoints (create, update, password change, avatar upload, status change).",
+      "tags": [
+        "api-documentation",
+        "swagger",
+        "configuration",
+        "user"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/chapter/chapter.controller.ts",
+      "type": "file",
+      "name": "chapter.controller.ts",
+      "filePath": "src/features/chapter/chapter.controller.ts",
+      "summary": "REST controller exposing CRUD endpoints for curriculum chapters, delegating validation and business logic to ChapterService.",
+      "tags": [
+        "api-handler",
+        "controller",
+        "crud",
+        "chapter"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/chapter/chapter.module.ts",
+      "type": "file",
+      "name": "chapter.module.ts",
+      "filePath": "src/features/chapter/chapter.module.ts",
+      "summary": "NestJS module wiring together the chapter controller, service, and repository.",
+      "tags": [
+        "module",
+        "dependency-injection",
+        "chapter"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/chapter/chapter.repository.ts",
+      "type": "file",
+      "name": "chapter.repository.ts",
+      "filePath": "src/features/chapter/chapter.repository.ts",
+      "summary": "Drizzle ORM repository providing CRUD database operations with pagination for the chapters table.",
+      "tags": [
+        "repository",
+        "database",
+        "crud",
+        "chapter"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/chapter/chapter.service.ts",
+      "type": "file",
+      "name": "chapter.service.ts",
+      "filePath": "src/features/chapter/chapter.service.ts",
+      "summary": "Business logic layer for chapters, validating UUIDs and delegating persistence to ChapterRepository.",
+      "tags": [
+        "service",
+        "business-logic",
+        "chapter"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/curriculum/curriculum.controller.ts",
+      "type": "file",
+      "name": "curriculum.controller.ts",
+      "filePath": "src/features/curriculum/curriculum.controller.ts",
+      "summary": "REST controller exposing CRUD endpoints and curriculum code generation, delegating to CurriculumService.",
+      "tags": [
+        "api-handler",
+        "controller",
+        "crud",
+        "curriculum"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/curriculum/curriculum.module.ts",
+      "type": "file",
+      "name": "curriculum.module.ts",
+      "filePath": "src/features/curriculum/curriculum.module.ts",
+      "summary": "NestJS module wiring the curriculum feature together with its upload and user module dependencies.",
+      "tags": [
+        "module",
+        "dependency-injection",
+        "curriculum"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/curriculum/curriculum.repository.ts",
+      "type": "file",
+      "name": "curriculum.repository.ts",
+      "filePath": "src/features/curriculum/curriculum.repository.ts",
+      "summary": "Drizzle ORM repository for curriculum records, including nested chapter/lesson detail aggregation and pagination.",
+      "tags": [
+        "repository",
+        "database",
+        "crud",
+        "curriculum"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/curriculum/curriculum.service.ts",
+      "type": "file",
+      "name": "curriculum.service.ts",
+      "filePath": "src/features/curriculum/curriculum.service.ts",
+      "summary": "Business logic for curriculums: generates unique codes, validates ownership via UserService, and cleans up uploaded exercise files via UploadService on delete.",
+      "tags": [
+        "service",
+        "business-logic",
+        "curriculum"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/lesson/lesson.controller.ts",
+      "type": "file",
+      "name": "lesson.controller.ts",
+      "filePath": "src/features/lesson/lesson.controller.ts",
+      "summary": "REST controller for lesson CRUD plus theory/exercise file upload endpoints, delegating to LessonService.",
+      "tags": [
+        "api-handler",
+        "controller",
+        "crud",
+        "lesson"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/lesson/lesson.module.ts",
+      "type": "file",
+      "name": "lesson.module.ts",
+      "filePath": "src/features/lesson/lesson.module.ts",
+      "summary": "NestJS module wiring the lesson feature together with its upload, session, exercise, and user module dependencies.",
+      "tags": [
+        "module",
+        "dependency-injection",
+        "lesson"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/lesson/lesson.repository.ts",
+      "type": "file",
+      "name": "lesson.repository.ts",
+      "filePath": "src/features/lesson/lesson.repository.ts",
+      "summary": "Drizzle ORM repository providing CRUD and pagination for the lessons table.",
+      "tags": [
+        "repository",
+        "database",
+        "crud",
+        "lesson"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/chapter/chapter.controller.ts:ChapterController",
+      "type": "class",
+      "name": "ChapterController",
+      "filePath": "src/features/chapter/chapter.controller.ts",
+      "lineRange": [
+        27,
+        111
+      ],
+      "summary": "Handles chapter creation, listing, retrieval, update, and deletion HTTP requests, delegating to ChapterService methods.",
+      "tags": [
+        "api-handler",
+        "controller",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/chapter/chapter.repository.ts:ChapterRepository",
+      "type": "class",
+      "name": "ChapterRepository",
+      "filePath": "src/features/chapter/chapter.repository.ts",
+      "lineRange": [
+        10,
+        79
+      ],
+      "summary": "Executes Drizzle queries to create, paginate/list, find, update, and delete chapter records.",
+      "tags": [
+        "repository",
+        "database",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/chapter/chapter.service.ts:ChapterService",
+      "type": "class",
+      "name": "ChapterService",
+      "filePath": "src/features/chapter/chapter.service.ts",
+      "lineRange": [
+        13,
+        64
+      ],
+      "summary": "Validates input and coordinates chapter CRUD operations by delegating to ChapterRepository.",
+      "tags": [
+        "service",
+        "business-logic",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/curriculum/curriculum.controller.ts:CurriculumController",
+      "type": "class",
+      "name": "CurriculumController",
+      "filePath": "src/features/curriculum/curriculum.controller.ts",
+      "lineRange": [
+        35,
+        160
+      ],
+      "summary": "Handles curriculum code generation, creation, listing, detail retrieval, update, and deletion requests, delegating to CurriculumService.",
+      "tags": [
+        "api-handler",
+        "controller",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/curriculum/curriculum.repository.ts:CurriculumRepository",
+      "type": "class",
+      "name": "CurriculumRepository",
+      "filePath": "src/features/curriculum/curriculum.repository.ts",
+      "lineRange": [
+        11,
+        140
+      ],
+      "summary": "Executes Drizzle queries for curriculum CRUD plus findByIdWithDetails, which aggregates chapters and lessons for a curriculum.",
+      "tags": [
+        "repository",
+        "database",
+        "crud"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/curriculum/curriculum.service.ts:CurriculumService",
+      "type": "class",
+      "name": "CurriculumService",
+      "filePath": "src/features/curriculum/curriculum.service.ts",
+      "lineRange": [
+        18,
+        184
+      ],
+      "summary": "Validates curriculum ownership via UserService, generates unique curriculum codes, and cleans up uploaded exercise files via UploadService on delete.",
+      "tags": [
+        "service",
+        "business-logic",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/lesson/lesson.controller.ts:LessonController",
+      "type": "class",
+      "name": "LessonController",
+      "filePath": "src/features/lesson/lesson.controller.ts",
+      "lineRange": [
+        42,
+        200
+      ],
+      "summary": "Handles lesson creation, listing, retrieval, update, deletion, and theory/exercise file upload requests.",
+      "tags": [
+        "api-handler",
+        "controller",
+        "file-upload"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/lesson/lesson.repository.ts:LessonRepository",
+      "type": "class",
+      "name": "LessonRepository",
+      "filePath": "src/features/lesson/lesson.repository.ts",
+      "lineRange": [
+        10,
+        93
+      ],
+      "summary": "Executes Drizzle queries to create, paginate/list, find, update, and delete lesson records.",
+      "tags": [
+        "repository",
+        "database",
+        "crud"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/features/chapter/chapter.controller.ts",
+      "target": "file:src/features/chapter/chapter.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.controller.ts",
+      "target": "file:src/packages/decorators/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.controller.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.controller.ts",
+      "target": "file:src/packages/pipes/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.module.ts",
+      "target": "file:src/features/chapter/chapter.controller.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.module.ts",
+      "target": "file:src/features/chapter/chapter.repository.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.module.ts",
+      "target": "file:src/features/chapter/chapter.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.repository.ts",
+      "target": "file:src/database/database.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.repository.ts",
+      "target": "file:src/database/schema.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.repository.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.service.ts",
+      "target": "file:src/database/database.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.service.ts",
+      "target": "file:src/features/chapter/chapter.repository.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.service.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.service.ts",
+      "target": "file:src/packages/helpers/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.controller.ts",
+      "target": "file:src/features/curriculum/curriculum.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.controller.ts",
+      "target": "file:src/packages/decorators/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.controller.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.controller.ts",
+      "target": "file:src/packages/pipes/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.module.ts",
+      "target": "file:src/features/curriculum/curriculum.controller.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.module.ts",
+      "target": "file:src/features/curriculum/curriculum.repository.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.module.ts",
+      "target": "file:src/features/curriculum/curriculum.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.module.ts",
+      "target": "file:src/features/uploads/upload.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.module.ts",
+      "target": "file:src/features/user/user.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.repository.ts",
+      "target": "file:src/database/database.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.repository.ts",
+      "target": "file:src/database/schema.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.repository.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.repository.ts",
+      "target": "file:src/packages/helpers/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "file:src/database/database.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "file:src/features/curriculum/curriculum.repository.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "file:src/features/uploads/upload.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "file:src/features/user/user.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "file:src/packages/helpers/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.controller.ts",
+      "target": "file:src/features/lesson/lesson.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.controller.ts",
+      "target": "file:src/features/uploads/upload.interface.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.controller.ts",
+      "target": "file:src/packages/decorators/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.controller.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.controller.ts",
+      "target": "file:src/packages/pipes/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.module.ts",
+      "target": "file:src/features/lesson/lesson.controller.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.module.ts",
+      "target": "file:src/features/lesson/lesson.repository.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.module.ts",
+      "target": "file:src/features/lesson/lesson.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.module.ts",
+      "target": "file:src/features/uploads/upload.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.module.ts",
+      "target": "file:src/features/user/user.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.repository.ts",
+      "target": "file:src/database/database.module.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.repository.ts",
+      "target": "file:src/database/schema.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lesson/lesson.repository.ts",
+      "target": "file:src/packages/entities/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/chapter/chapter.controller.ts",
+      "target": "class:src/features/chapter/chapter.controller.ts:ChapterController",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/chapter/chapter.repository.ts",
+      "target": "class:src/features/chapter/chapter.repository.ts:ChapterRepository",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/chapter/chapter.service.ts",
+      "target": "class:src/features/chapter/chapter.service.ts:ChapterService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.controller.ts",
+      "target": "class:src/features/curriculum/curriculum.controller.ts:CurriculumController",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.repository.ts",
+      "target": "class:src/features/curriculum/curriculum.repository.ts:CurriculumRepository",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "class:src/features/curriculum/curriculum.service.ts:CurriculumService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/lesson/lesson.controller.ts",
+      "target": "class:src/features/lesson/lesson.controller.ts:LessonController",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/lesson/lesson.repository.ts",
+      "target": "class:src/features/lesson/lesson.repository.ts:LessonRepository",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/chapter/chapter.controller.ts",
+      "target": "class:src/features/chapter/chapter.controller.ts:ChapterController",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/chapter/chapter.repository.ts",
+      "target": "class:src/features/chapter/chapter.repository.ts:ChapterRepository",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/chapter/chapter.service.ts",
+      "target": "class:src/features/chapter/chapter.service.ts:ChapterService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.controller.ts",
+      "target": "class:src/features/curriculum/curriculum.controller.ts:CurriculumController",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.repository.ts",
+      "target": "class:src/features/curriculum/curriculum.repository.ts:CurriculumRepository",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/curriculum/curriculum.service.ts",
+      "target": "class:src/features/curriculum/curriculum.service.ts:CurriculumService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/lesson/lesson.controller.ts",
+      "target": "class:src/features/lesson/lesson.controller.ts:LessonController",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/lesson/lesson.repository.ts",
+      "target": "class:src/features/lesson/lesson.repository.ts:LessonRepository",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/chapter/chapter.controller.ts:ChapterController",
+      "target": "class:src/features/chapter/chapter.service.ts:ChapterService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/chapter/chapter.service.ts:ChapterService",
+      "target": "class:src/features/chapter/chapter.repository.ts:ChapterRepository",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/curriculum/curriculum.controller.ts:CurriculumController",
+      "target": "class:src/features/curriculum/curriculum.service.ts:CurriculumService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/curriculum/curriculum.service.ts:CurriculumService",
+      "target": "class:src/features/curriculum/curriculum.repository.ts:CurriculumRepository",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/curriculum/curriculum.service.ts:CurriculumService",
+      "target": "class:src/features/uploads/upload.service.ts:UploadService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/curriculum/curriculum.service.ts:CurriculumService",
+      "target": "class:src/features/user/user.service.ts:UserService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/lesson/lesson.controller.ts:LessonController",
+      "target": "class:src/features/lesson/lesson.service.ts:LessonService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

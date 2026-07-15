@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { checkUuidValid } from '@packages/helpers';
-import { DashboardRepository, type MonthlyRow, type TodayScheduleRow } from './dashboard.repository';
+import {
+  DashboardRepository,
+  type MonthlyRow,
+  type TodayScheduleRow,
+} from './dashboard.repository';
 import { UserService } from '../user/user.service';
 import { NotificationService } from '../notification/notification.service';
 
@@ -72,15 +76,21 @@ export class DashboardService {
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     const year = now.getFullYear();
 
-    const [studentsCount, sessionStats, todaySchedule, revenueThisMonth, monthlyRevenue, monthlySessions] =
-      await Promise.all([
-        isStudent ? Promise.resolve(0) : this.repo.countStudents(classIds),
-        this.repo.getSessionStats(classIds, weekStart, weekEnd),
-        this.repo.getSchedule(classIds, dayStart, dayEnd),
-        isStudent ? Promise.resolve(0) : this.repo.getRevenue(classIds, monthStart, monthEnd),
-        this.repo.getMonthlyRevenue(classIds, year),
-        this.repo.getMonthlySessions(classIds, year),
-      ]);
+    const [
+      studentsCount,
+      sessionStats,
+      todaySchedule,
+      revenueThisMonth,
+      monthlyRevenue,
+      monthlySessions,
+    ] = await Promise.all([
+      isStudent ? Promise.resolve(0) : this.repo.countStudents(classIds),
+      this.repo.getSessionStats(classIds, weekStart, weekEnd),
+      this.repo.getSchedule(classIds, dayStart, dayEnd),
+      isStudent ? Promise.resolve(0) : this.repo.getRevenue(classIds, monthStart, monthEnd),
+      this.repo.getMonthlyRevenue(classIds, year),
+      this.repo.getMonthlySessions(classIds, year),
+    ]);
 
     const overdue = await this.repo.getTuitionSum(
       classIds,
