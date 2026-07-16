@@ -1,4 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import { LessonRepository } from './lesson.repository';
 import { DRIZZLE } from 'src/database/database.module';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -10,7 +11,7 @@ import {
 import { checkUuidValid } from '@packages/helpers';
 import { UserService } from '../user/user.service';
 import { UploadService } from '../uploads/upload.service';
-import { MulterFile } from '../cloudinary/cloudinary.interface';
+import { MulterFile } from '../uploads/upload.interface';
 
 @Injectable()
 export class LessonService {
@@ -31,10 +32,10 @@ export class LessonService {
     data: CreateLessonBodyDto;
   }) {
     if (!curriculumId || !checkUuidValid({ data: curriculumId })) {
-      throw new BadRequestException('curriculumId must be a valid UUID');
+      throw new BadRequestException(ERROR_MESSAGES.CURRICULUM_ID_MUST_BE_UUID);
     }
     if (chapterId && !checkUuidValid({ data: chapterId })) {
-      throw new BadRequestException('chapterId must be a valid UUID');
+      throw new BadRequestException(ERROR_MESSAGES.CHAPTER_ID_MUST_BE_UUID);
     }
     return await this.lessonRepository.create({ curriculumId, chapterId, data });
   }
@@ -42,36 +43,36 @@ export class LessonService {
   async getAllLessonsService({ query }: { query: GetLessonsQueryDto }) {
     const { curriculumId, chapterId, page, limit } = query;
     if (!curriculumId || !checkUuidValid({ data: curriculumId })) {
-      throw new BadRequestException('curriculumId must be a valid UUID');
+      throw new BadRequestException(ERROR_MESSAGES.CURRICULUM_ID_MUST_BE_UUID);
     }
     if (chapterId && !checkUuidValid({ data: chapterId })) {
-      throw new BadRequestException('chapterId must be a valid UUID');
+      throw new BadRequestException(ERROR_MESSAGES.CHAPTER_ID_MUST_BE_UUID);
     }
     return await this.lessonRepository.findAll({ curriculumId, chapterId, page, limit });
   }
 
   async getLessonByIdService({ id }: { id: string }) {
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid lesson id');
+      throw new BadRequestException(ERROR_MESSAGES.LESSON_ID_INVALID);
     }
     return await this.lessonRepository.findById(id);
   }
 
   async updateLessonService({ id, data }: { id: string; data: UpdateLessonDto }) {
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid lesson id');
+      throw new BadRequestException(ERROR_MESSAGES.LESSON_ID_INVALID);
     }
     const existing = await this.lessonRepository.findById(id);
-    if (!existing) throw new NotFoundException('Lesson not found');
+    if (!existing) throw new NotFoundException(ERROR_MESSAGES.LESSON_NOT_FOUND);
     return await this.lessonRepository.update(id, data);
   }
 
   async deleteLessonService({ id }: { id: string }) {
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid lesson id');
+      throw new BadRequestException(ERROR_MESSAGES.LESSON_ID_INVALID);
     }
     const existing = await this.lessonRepository.findById(id);
-    if (!existing) throw new NotFoundException('Lesson not found');
+    if (!existing) throw new NotFoundException(ERROR_MESSAGES.LESSON_NOT_FOUND);
     return await this.lessonRepository.delete(id);
   }
 
@@ -85,11 +86,11 @@ export class LessonService {
     data: MulterFile;
   }) {
     if (!userId || !checkUuidValid({ data: userId })) {
-      throw new BadRequestException('userId must be uuid ....');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     }
 
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid lesson id');
+      throw new BadRequestException(ERROR_MESSAGES.LESSON_ID_INVALID);
     }
 
     const user = await this.user.getUserByField({
@@ -98,19 +99,19 @@ export class LessonService {
     });
 
     if (!user || (Array.isArray(user) && user.length <= 0)) {
-      throw new BadRequestException('User not  found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const lession = await this.getLessonByIdService({ id });
 
     if (!lession) {
-      throw new BadRequestException('Lesson not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.LESSON_NOT_FOUND);
     }
 
     const theory = await this.upload.upload(data, 'uploads/theory');
 
     if (!theory) {
-      throw new BadRequestException('Upload theory failed ...');
+      throw new BadRequestException(ERROR_MESSAGES.UPLOAD_THEORY_FAILED);
     }
 
     const lessionUpdated = await this.updateLessonService({
@@ -136,11 +137,11 @@ export class LessonService {
     data: MulterFile;
   }) {
     if (!userId || !checkUuidValid({ data: userId })) {
-      throw new BadRequestException('userId must be uuid ....');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     }
 
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid lesson id');
+      throw new BadRequestException(ERROR_MESSAGES.LESSON_ID_INVALID);
     }
 
     const user = await this.user.getUserByField({
@@ -149,19 +150,19 @@ export class LessonService {
     });
 
     if (!user || (Array.isArray(user) && user.length <= 0)) {
-      throw new BadRequestException('User not  found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const lession = await this.getLessonByIdService({ id });
 
     if (!lession) {
-      throw new BadRequestException('Lesson not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.LESSON_NOT_FOUND);
     }
 
     const exercise = await this.upload.upload(data, 'uploads/exercises');
 
     if (!exercise) {
-      throw new BadRequestException('Upload exercises failed ...');
+      throw new BadRequestException(ERROR_MESSAGES.UPLOAD_EXERCISES_FAILED);
     }
 
     const lessionUpdated = await this.updateLessonService({

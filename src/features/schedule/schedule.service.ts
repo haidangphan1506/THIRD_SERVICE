@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import {
   CreateScheduleDto,
   CreateSchedulesDto,
@@ -20,24 +21,24 @@ export class ScheduleService {
   // todo : ensure the acting user owns the target class ...
   private async assertClassOwner({ userId, classId }: { userId: string; classId: string }) {
     if (!classId || !checkUuidValid({ data: classId }))
-      throw new BadRequestException('Class Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.CLASS_ID_MUST_BE_UUID);
 
     const classData = await this.classService.getClassService({ userId, id: classId });
     if (!classData || (Array.isArray(classData) && classData.length === 0))
-      throw new NotFoundException('Class not found ...');
-    if (classData.tutorId !== userId) throw new NotFoundException('Class not found ...');
+      throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
+    if (classData.tutorId !== userId) throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
 
     return classData;
   }
 
   private async loadOwnedSchedule({ userId, id }: { userId: string; id: string }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     if (!id || !checkUuidValid({ data: id }))
-      throw new BadRequestException('Schedule Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.SCHEDULE_ID_MUST_BE_UUID);
 
     const schedule = await this.repo.getById({ id });
-    if (!schedule) throw new NotFoundException('Schedule not found ...');
+    if (!schedule) throw new NotFoundException(ERROR_MESSAGES.SCHEDULE_NOT_FOUND);
 
     await this.assertClassOwner({ userId, classId: schedule.classId });
     return schedule;
@@ -45,7 +46,7 @@ export class ScheduleService {
 
   async createScheduleService({ userId, data }: { userId: string; data: CreateScheduleDto }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     await this.assertClassOwner({ userId, classId: data.classId });
     return this.repo.create({ data });
@@ -53,7 +54,7 @@ export class ScheduleService {
 
   async createSchedulesService({ userId, data }: { userId: string; data: CreateSchedulesDto }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     await this.assertClassOwner({ userId, classId: data.classId });
     return this.repo.createMany({ classId: data.classId, items: data.schedules });
@@ -61,14 +62,14 @@ export class ScheduleService {
 
   async getSchedulesService({ userId, query }: { userId: string; query: GetSchedulesQueryDto }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     return this.repo.getAll({ userId, query });
   }
 
   async getSchedulesByClassService({ userId, classId }: { userId: string; classId: string }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     await this.assertClassOwner({ userId, classId });
     return this.repo.getByClass({ classId });
@@ -95,7 +96,7 @@ export class ScheduleService {
     await this.loadOwnedSchedule({ userId, id });
 
     const deleted = await this.repo.del({ id });
-    if (!deleted) throw new NotFoundException('Schedule not found ...');
+    if (!deleted) throw new NotFoundException(ERROR_MESSAGES.SCHEDULE_NOT_FOUND);
 
     return { id };
   }

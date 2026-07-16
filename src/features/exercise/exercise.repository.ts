@@ -95,10 +95,7 @@ export class ExerciseRepository {
 
     const whereClause = and(...conditions);
 
-    const [totalRow] = await this.db
-      .select({ total: count() })
-      .from(exercise)
-      .where(whereClause);
+    const [totalRow] = await this.db.select({ total: count() }).from(exercise).where(whereClause);
     const total = Number(totalRow?.total ?? 0);
     const offset = (page - 1) * limit;
 

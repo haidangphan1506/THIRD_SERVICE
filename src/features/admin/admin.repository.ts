@@ -75,11 +75,7 @@ export class AdminRepository {
     return row ?? null;
   }
 
-  async updateByIdAndRole(
-    id: string,
-    role: ManagedRole,
-    data: Partial<typeof users.$inferInsert>,
-  ) {
+  async updateByIdAndRole(id: string, role: ManagedRole, data: Partial<typeof users.$inferInsert>) {
     const [row] = await this.db
       .update(users)
       .set({ ...data, updatedAt: new Date() })

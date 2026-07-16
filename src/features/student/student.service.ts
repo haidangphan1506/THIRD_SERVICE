@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import { Inject } from '@nestjs/common';
 import { and, eq, ilike } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -32,7 +33,7 @@ export class StudentService {
     while (await this.repo.findByCode({ code: newCode })) {
       attempts++;
       if (attempts >= MAX_RETRIES) {
-        throw new ConflictException('Unable to generate unique code, please try again');
+        throw new ConflictException(ERROR_MESSAGES.UNABLE_TO_GENERATE_UNIQUE_CODE);
       }
       newCode = generateCode();
     }
@@ -72,7 +73,9 @@ export class StudentService {
       if (!existing) return candidate;
     }
 
-    throw new ConflictException(`Cannot generate unique username for "${firstName} ${lastName}"`);
+    throw new ConflictException(
+      `${ERROR_MESSAGES.UNABLE_TO_GENERATE_USERNAME}: ${firstName} ${lastName}`,
+    );
   }
 
   /**
@@ -85,7 +88,8 @@ export class StudentService {
     let studentCode: string;
     if (dto.userCode) {
       const taken = await this.repo.findByCode({ code: dto.userCode });
-      if (taken) throw new ConflictException(`Student code "${dto.userCode}" already exists`);
+      if (taken)
+        throw new ConflictException(`${ERROR_MESSAGES.STUDENT_CODE_EXISTS}: ${dto.userCode}`);
       studentCode = dto.userCode;
     } else {
       studentCode = await this.generateUniqueCode();
@@ -153,7 +157,7 @@ export class StudentService {
 
   async findById(id: string) {
     const user = await this.repo.findById({ id });
-    if (!user) throw new NotFoundException('Student not found');
+    if (!user) throw new NotFoundException(ERROR_MESSAGES.STUDENT_NOT_FOUND);
 
     const [scoreRow] = await this.db
       .select({ score: studentScores.score })
@@ -229,7 +233,7 @@ export class StudentService {
 
   async update(id: string, dto: UpdateStudentDto) {
     const student = await this.repo.findById({ id });
-    if (!student) throw new NotFoundException('Student not found');
+    if (!student) throw new NotFoundException(ERROR_MESSAGES.STUDENT_NOT_FOUND);
 
     // ── student fields ──
     const studentUpdate: Partial<typeof users.$inferInsert> = {};
@@ -316,7 +320,7 @@ export class StudentService {
 
   async delete(id: string) {
     const student = await this.repo.findById({ id });
-    if (!student) throw new NotFoundException('Student not found');
+    if (!student) throw new NotFoundException(ERROR_MESSAGES.STUDENT_NOT_FOUND);
     await this.repo.delete({ id });
     return { id };
   }

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import nodemailer from 'nodemailer';
 
@@ -42,7 +37,7 @@ export function useGmailTransport(config: ConfigService): boolean {
 }
 
 @Injectable()
-export class MailerService implements  OnModuleDestroy {
+export class MailerService implements OnModuleDestroy {
   private readonly logger = new Logger(MailerService.name);
   private transporter: MailTransport | null = null;
 

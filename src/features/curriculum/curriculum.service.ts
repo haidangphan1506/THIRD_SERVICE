@@ -6,8 +6,10 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import { CurriculumRepository } from './curriculum.repository';
 import { UserService } from '../user/user.service';
+import { UploadService } from '../uploads/upload.service';
 import { drizzle } from 'drizzle-orm/singlestore';
 import { DRIZZLE } from 'src/database/database.module';
 import { type GetCurriculumsQueryDto, type CreateCurriculumDto } from '@packages/entities';
@@ -19,6 +21,7 @@ export class CurriculumService {
   constructor(
     private readonly curriculumRepository: CurriculumRepository,
     private readonly userService: UserService,
+    private readonly uploadService: UploadService,
     @Inject(DRIZZLE)
     private readonly db: ReturnType<typeof drizzle>,
   ) {}
@@ -31,7 +34,7 @@ export class CurriculumService {
     while (await this.curriculumRepository.findByCode(newCode)) {
       attempts++;
       if (attempts >= MAX_RETRIES) {
-        throw new ConflictException('Unable to generate unique code, please try again');
+        throw new ConflictException(ERROR_MESSAGES.UNABLE_TO_GENERATE_UNIQUE_CODE);
       }
       newCode = generateCode();
     }
@@ -47,7 +50,7 @@ export class CurriculumService {
     createCurriculum: CreateCurriculumDto;
   }) {
     if (!userId || !checkUuidValid({ data: userId })) {
-      throw new BadRequestException('userId must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     }
 
     const user = await this.userService.getUserByField({
@@ -55,7 +58,7 @@ export class CurriculumService {
       value: userId,
     });
     if (Array.isArray(user) && user.length === 0) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     return await this.curriculumRepository.create({ userId, data: createCurriculum });
@@ -70,7 +73,7 @@ export class CurriculumService {
   }) {
     this.logger.log('user id : ', userId);
     if (!userId || !checkUuidValid({ data: userId })) {
-      throw new BadRequestException('userId must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     }
 
     const user = await this.userService.getUserByField({
@@ -78,7 +81,7 @@ export class CurriculumService {
       value: userId,
     });
     if (Array.isArray(user) && user.length === 0) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     this.logger.log('query :', query);
@@ -94,10 +97,10 @@ export class CurriculumService {
 
   async getCurriculumByIdService({ userId, id }: { userId: string; id: string }) {
     if (!userId || !checkUuidValid({ data: userId })) {
-      throw new BadRequestException('userId not uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     }
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid curriculum id ...');
+      throw new BadRequestException(ERROR_MESSAGES.CURRICULUM_ID_INVALID);
     }
 
     const user = await this.userService.getUserByField({
@@ -105,7 +108,7 @@ export class CurriculumService {
       value: userId,
     });
     if (!user || (Array.isArray(user) && user.length === 0)) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     return await this.curriculumRepository.findByIdWithDetails(id);
@@ -121,10 +124,10 @@ export class CurriculumService {
     data: CreateCurriculumDto;
   }) {
     if (!userId || !checkUuidValid({ data: userId })) {
-      throw new BadRequestException('userId not uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     }
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid curriculum id ...');
+      throw new BadRequestException(ERROR_MESSAGES.CURRICULUM_ID_INVALID);
     }
 
     const user = await this.userService.getUserByField({
@@ -132,21 +135,21 @@ export class CurriculumService {
       value: userId,
     });
     if (!user || (Array.isArray(user) && user.length === 0)) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const existing = await this.curriculumRepository.findById(id);
-    if (!existing) throw new NotFoundException('Curriculum not found');
+    if (!existing) throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
 
     return await this.curriculumRepository.update(id, data);
   }
 
   async deleteCurriculumService({ userId, id }: { userId: string; id: string }) {
     if (!userId || !checkUuidValid({ data: userId })) {
-      throw new BadRequestException('userId not uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     }
     if (!id || !checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid curriculum id ...');
+      throw new BadRequestException(ERROR_MESSAGES.CURRICULUM_ID_INVALID);
     }
 
     const user = await this.userService.getUserByField({
@@ -154,11 +157,28 @@ export class CurriculumService {
       value: userId,
     });
     if (!user || (Array.isArray(user) && user.length === 0)) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const existing = await this.curriculumRepository.findById(id);
-    if (!existing) throw new NotFoundException('Curriculum not found');
+    if (!existing) throw new NotFoundException(ERROR_MESSAGES.CURRICULUM_NOT_FOUND);
+
+    const details = await this.curriculumRepository.findByIdWithDetails(id);
+    if (details) {
+      const allLessons = [
+        ...(details.lessons ?? []),
+        ...(details.chapters ?? []).flatMap((ch) => ch.lessons ?? []),
+      ];
+
+      const fileKeys = allLessons.flatMap((lesson) => [
+        ...(lesson.theoryUrls ?? []).map((f) => f.key),
+        ...(lesson.exerciseUrls ?? []).map((f) => f.key),
+      ]);
+
+      if (fileKeys.length > 0) {
+        await Promise.allSettled(fileKeys.map((key) => this.uploadService.delete(key)));
+      }
+    }
 
     return await this.curriculumRepository.delete(id);
   }

@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import { checkUuidValid } from '@packages/helpers';
-import { DashboardRepository, type MonthlyRow, type TodayScheduleRow } from './dashboard.repository';
+import {
+  DashboardRepository,
+  type MonthlyRow,
+  type TodayScheduleRow,
+} from './dashboard.repository';
 import { UserService } from '../user/user.service';
 import { NotificationService } from '../notification/notification.service';
 
@@ -50,11 +55,11 @@ export class DashboardService {
 
   async getOverview(userId: string): Promise<DashboardOverview> {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     const users = await this.userService.getUserByField({ field: 'id', value: userId });
     const user = Array.isArray(users) ? users[0] : users;
-    if (!user) throw new NotFoundException('User not found ...');
+    if (!user) throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
 
     const role = user.role ?? 'STUDENT';
     const isStudent = role === 'STUDENT';
@@ -72,15 +77,21 @@ export class DashboardService {
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     const year = now.getFullYear();
 
-    const [studentsCount, sessionStats, todaySchedule, revenueThisMonth, monthlyRevenue, monthlySessions] =
-      await Promise.all([
-        isStudent ? Promise.resolve(0) : this.repo.countStudents(classIds),
-        this.repo.getSessionStats(classIds, weekStart, weekEnd),
-        this.repo.getSchedule(classIds, dayStart, dayEnd),
-        isStudent ? Promise.resolve(0) : this.repo.getRevenue(classIds, monthStart, monthEnd),
-        this.repo.getMonthlyRevenue(classIds, year),
-        this.repo.getMonthlySessions(classIds, year),
-      ]);
+    const [
+      studentsCount,
+      sessionStats,
+      todaySchedule,
+      revenueThisMonth,
+      monthlyRevenue,
+      monthlySessions,
+    ] = await Promise.all([
+      isStudent ? Promise.resolve(0) : this.repo.countStudents(classIds),
+      this.repo.getSessionStats(classIds, weekStart, weekEnd),
+      this.repo.getSchedule(classIds, dayStart, dayEnd),
+      isStudent ? Promise.resolve(0) : this.repo.getRevenue(classIds, monthStart, monthEnd),
+      this.repo.getMonthlyRevenue(classIds, year),
+      this.repo.getMonthlySessions(classIds, year),
+    ]);
 
     const overdue = await this.repo.getTuitionSum(
       classIds,

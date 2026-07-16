@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import type {
   CreateNotificationDto,
   GetNotificationsQueryDto,
@@ -37,21 +38,21 @@ export class NotificationService {
     console.log('userId:', dto.senderId);
 
     if (!dto.senderId || (dto.senderId && !checkUuidValid({ data: dto.senderId }))) {
-      throw new BadRequestException('UserId not valid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_NOT_VALID);
     }
 
     this.logger.log('exist user : ', existUser);
 
     if (Array.isArray(existUser) && existUser.length === 0) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     if (dto.classId && !checkUuidValid({ data: dto.classId })) {
-      throw new BadRequestException('classId not valid ...');
+      throw new BadRequestException(ERROR_MESSAGES.CLASS_ID_NOT_VALID);
     }
 
     if (dto.studentId && !checkUuidValid({ data: dto.studentId })) {
-      throw new BadRequestException('studentId not valid ...');
+      throw new BadRequestException(ERROR_MESSAGES.STUDENT_ID_NOT_VALID);
     }
     return this.repo.create(dto);
   }
@@ -62,13 +63,13 @@ export class NotificationService {
 
   async findById(id: string) {
     const note = await this.repo.findById(id);
-    if (!note) throw new NotFoundException('Notification not found');
+    if (!note) throw new NotFoundException(ERROR_MESSAGES.NOTIFICATION_NOT_FOUND);
     return note;
   }
 
   async markAsRead(id: string) {
     const note = await this.repo.findById(id);
-    if (!note) throw new NotFoundException('Notification not found');
+    if (!note) throw new NotFoundException(ERROR_MESSAGES.NOTIFICATION_NOT_FOUND);
     return this.repo.markAsRead(id);
   }
 
@@ -78,7 +79,7 @@ export class NotificationService {
 
   async delete(id: string) {
     const note = await this.repo.findById(id);
-    if (!note) throw new NotFoundException('Notification not found');
+    if (!note) throw new NotFoundException(ERROR_MESSAGES.NOTIFICATION_NOT_FOUND);
     await this.repo.delete(id);
     return { id };
   }

@@ -6,7 +6,6 @@ import { AuthModule } from './features/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { MailerModule } from './features/email/mailer/mailer.module';
 import { RedisModule } from './features/redis/redis.module';
-// import { EmailModule } from './features/email/email.module';
 import { UserModule } from './features/user/user.module';
 import { AdminModule } from './features/admin/admin.module';
 import { ClassModule } from './features/class/class.module';
@@ -18,10 +17,9 @@ import { TuitionModule } from './features/tuition/tuition.module';
 import { NotificationModule } from './features/notification/notification.module';
 import { ScheduleModule } from './features/schedule/schedule.module';
 import { SessionModule } from './features/session/session.module';
-import { JwtAuthGuard } from '@packages/guards';
+import { JwtAuthGuard, LanguageGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
-import { CloudinaryModule } from './features/cloudinary/cloudinary.module';
 import { UploadModule } from './features/uploads/upload.module';
 import { ExerciseModule } from './features/exercise/exercise.module';
 import { AiModule } from './features/ai/ai.module';
@@ -38,7 +36,6 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
     UserModule,
     AdminModule,
     AuthModule,
-    // EmailModule,
     ClassModule,
     StudentModule,
     CurriculumModule,
@@ -48,7 +45,6 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
     NotificationModule,
     ScheduleModule,
     SessionModule,
-    CloudinaryModule,
     UploadModule,
     ExerciseModule,
     AiModule,
@@ -64,6 +60,10 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: LanguageGuard,
     },
   ],
 })

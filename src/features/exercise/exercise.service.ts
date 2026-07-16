@@ -6,6 +6,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import type {
   CreateExerciseDto,
   GradeExerciseDto,
@@ -32,14 +33,14 @@ export class ExerciseService {
 
   private assertUuid(value: string | null | undefined, label: string) {
     if (!value || !checkUuidValid({ data: value })) {
-      throw new BadRequestException(`${label} must be a valid UUID`);
+      throw new BadRequestException(`${ERROR_MESSAGES.ID_MUST_BE_UUID}: ${label}`);
     }
   }
 
   private async assertUserExists(id: string, label: string) {
     const user = await this.userService.getUserByField({ field: 'id', value: id });
     if (!user || (Array.isArray(user) && user.length === 0)) {
-      throw new NotFoundException(`${label} not found ...`);
+      throw new NotFoundException(`${ERROR_MESSAGES.USER_NOT_FOUND}: ${label}`);
     }
   }
 
@@ -61,7 +62,7 @@ export class ExerciseService {
     if (lessonId) {
       this.assertUuid(lessonId, 'lessonId');
       const lesson = await this.lessonService.getLessonByIdService({ id: lessonId });
-      if (!lesson) throw new NotFoundException('Lesson not found ...');
+      if (!lesson) throw new NotFoundException(ERROR_MESSAGES.LESSON_NOT_FOUND);
     }
   }
 
@@ -70,7 +71,7 @@ export class ExerciseService {
 
     // the acting user must be a party to the submission (the student who nop bai, or their tutor)
     if (data.studentId !== userId && data.tutorId !== userId) {
-      throw new ForbiddenException('You cannot submit this exercise ...');
+      throw new ForbiddenException(ERROR_MESSAGES.EXERCISE_SUBMIT_NOT_ALLOWED);
     }
 
     await this.assertUserExists(data.tutorId, 'Tutor');
@@ -84,7 +85,7 @@ export class ExerciseService {
         sessionId: data.sessionId,
       });
       if (existing) {
-        throw new ConflictException('Exercise already submitted for this session ...');
+        throw new ConflictException(ERROR_MESSAGES.EXERCISE_ALREADY_SUBMITTED);
       }
     }
 
@@ -113,9 +114,9 @@ export class ExerciseService {
     this.assertUuid(id, 'Exercise Id');
 
     const found = await this.repo.findById({ id });
-    if (!found) throw new NotFoundException('Exercise not found ...');
+    if (!found) throw new NotFoundException(ERROR_MESSAGES.EXERCISE_NOT_FOUND);
     if (found.studentId !== userId && found.tutorId !== userId) {
-      throw new NotFoundException('Exercise not found ...');
+      throw new NotFoundException(ERROR_MESSAGES.EXERCISE_NOT_FOUND);
     }
     return found;
   }
@@ -134,12 +135,12 @@ export class ExerciseService {
     this.assertUuid(id, 'Exercise Id');
 
     const found = await this.repo.findById({ id });
-    if (!found) throw new NotFoundException('Exercise not found ...');
+    if (!found) throw new NotFoundException(ERROR_MESSAGES.EXERCISE_NOT_FOUND);
     if (found.studentId !== userId) {
-      throw new ForbiddenException('You can only re-submit your own exercise ...');
+      throw new ForbiddenException(ERROR_MESSAGES.EXERCISE_RE_SUBMIT_NOT_ALLOWED);
     }
     if (found.status === 'GRADED') {
-      throw new BadRequestException('Exercise already graded — cannot re-submit ...');
+      throw new BadRequestException(ERROR_MESSAGES.EXERCISE_ALREADY_GRADED);
     }
 
     const updated = await this.repo.update({
@@ -174,9 +175,9 @@ export class ExerciseService {
     this.assertUuid(id, 'Exercise Id');
 
     const found = await this.repo.findById({ id });
-    if (!found) throw new NotFoundException('Exercise not found ...');
+    if (!found) throw new NotFoundException(ERROR_MESSAGES.EXERCISE_NOT_FOUND);
     if (found.tutorId !== userId) {
-      throw new ForbiddenException('Only the assigned tutor can grade this exercise ...');
+      throw new ForbiddenException(ERROR_MESSAGES.EXERCISE_GRADE_NOT_ALLOWED);
     }
 
     const graded = await this.repo.update({
