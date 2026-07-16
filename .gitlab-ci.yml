@@ -1,4 +1,13 @@
 image: node:22
+
+# Chỉ chạy branch pipeline; tắt hẳn merge request pipeline để mỗi commit chỉ sinh
+# một pipeline (tránh 2 pipeline chạy đồng thời khi push/merge vào develop).
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
 stages:
   - install
   - typecheck
@@ -63,6 +72,7 @@ build:
 
 deploy:
   stage: deploy
+  resource_group: production
   before_script:
     - npm install -g @railway/cli
 
