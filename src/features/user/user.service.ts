@@ -179,7 +179,7 @@ export class UserService {
       value: id,
     });
     if (!user) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const hashedPassword = await hashData(password);
@@ -196,7 +196,7 @@ export class UserService {
       value: id,
     });
     if (!user) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     return this.userRepo.update(id, data);
@@ -212,7 +212,7 @@ export class UserService {
       value: id,
     });
     if (!user) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     return this.userRepo.update(id, { isActive: !user.isActive });
@@ -228,7 +228,7 @@ export class UserService {
       value: id,
     });
     if (!user) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     await this.userRepo.delete(id);

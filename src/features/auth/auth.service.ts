@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type {
@@ -32,14 +33,14 @@ import type { GoogleProfile } from '@packages/strategy';
 
 function parseRefreshTokenPayload(value: unknown): JwtRefreshPayload {
   if (typeof value !== 'object' || value === null) {
-    throw new UnauthorizedException('Invalid token payload');
+    throw new UnauthorizedException(ERROR_MESSAGES.INVALID_TOKEN_PAYLOAD);
   }
   const record = value as Record<string, unknown>;
   if (record.typ !== 'refresh') {
-    throw new UnauthorizedException('Invalid token type');
+    throw new UnauthorizedException(ERROR_MESSAGES.INVALID_TOKEN_TYPE);
   }
   if (typeof record.sub !== 'string' || typeof record.email !== 'string') {
-    throw new UnauthorizedException('Invalid token payload');
+    throw new UnauthorizedException(ERROR_MESSAGES.INVALID_TOKEN_PAYLOAD);
   }
   return { sub: record.sub, email: record.email, typ: 'refresh' };
 }
@@ -69,7 +70,7 @@ export class AuthService {
       value: email,
     });
     if (Array.isArray(checkUserWithEmail) && checkUserWithEmail.length > 0) {
-      throw new BadRequestException('Email already exists ...');
+      throw new BadRequestException(ERROR_MESSAGES.EMAIL_EXISTS);
     }
 
     const checkUserWithUsername =
@@ -79,7 +80,7 @@ export class AuthService {
         value: username?.trim(),
       }));
     if (Array.isArray(checkUserWithUsername) && checkUserWithUsername.length > 0) {
-      throw new BadRequestException('Username already exists ...');
+      throw new BadRequestException(ERROR_MESSAGES.USERNAME_EXISTS);
     }
 
     await this.userService.createUserService({
@@ -94,7 +95,7 @@ export class AuthService {
     const createdRows = await this.userService.getUserByField({ field: 'email', value: email });
     const createdUser = createdRows[0];
     if (!createdUser) {
-      throw new BadRequestException('Failed to create user ...');
+      throw new BadRequestException(ERROR_MESSAGES.FAILED_TO_CREATE_USER);
     }
 
     return {
@@ -116,12 +117,12 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const isPasswordOk = await compareData(loginDto.password, user.password);
     if (!isPasswordOk) {
-      throw new BadRequestException('Invalid password ...');
+      throw new BadRequestException(ERROR_MESSAGES.INVALID_PASSWORD);
     }
 
     const payload = { sub: user.id, email: user.email, role: user.role as JwtUserRole };
@@ -148,11 +149,11 @@ export class AuthService {
 
     const user = rows.find((u) => u.role === dto.role);
     if (!user) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
     const isPasswordOk = await compareData(dto.password, user.password);
     if (!isPasswordOk) {
-      throw new BadRequestException('Invalid password ...');
+      throw new BadRequestException(ERROR_MESSAGES.INVALID_PASSWORD);
     }
 
     const payload = { sub: user.id, email: user.email, role: user.role as JwtUserRole };
@@ -192,7 +193,7 @@ export class AuthService {
       });
       user = createdRows[0];
       if (!user) {
-        throw new BadRequestException('Failed to create user ...');
+        throw new BadRequestException(ERROR_MESSAGES.FAILED_TO_CREATE_USER);
       }
     }
 
@@ -219,7 +220,7 @@ export class AuthService {
       value: forgotPasswordDto.email,
     });
     if (!user) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const resetToken = randomUUID();
@@ -240,7 +241,7 @@ export class AuthService {
     const { jti, password } = resetPasswordDto;
     const userId = await this.redis.get(`${this.PASSWORD_RESET_REDIS_PREFIX}${jti}`);
     if (!userId) {
-      throw new BadRequestException('Invalid reset password token ...');
+      throw new BadRequestException(ERROR_MESSAGES.INVALID_RESET_PASSWORD_TOKEN);
     }
 
     const user: User[] = await this.userService.getUserByField({
@@ -248,11 +249,11 @@ export class AuthService {
       value: userId,
     });
     if (!Array.isArray(user) || user.length === 0) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     if (user[0].isActive === false) {
-      throw new BadRequestException('User is not active ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_ACTIVE);
     }
 
     const updatedUser = await this.userService.updateUserPasswordService({
@@ -260,7 +261,7 @@ export class AuthService {
       password,
     });
     if (!updatedUser) {
-      throw new BadRequestException('Failed to reset password ...');
+      throw new BadRequestException(ERROR_MESSAGES.FAILED_TO_RESET_PASSWORD);
     }
     await this.redis.del(`${this.PASSWORD_RESET_REDIS_PREFIX}${jti}`);
     return { ok: true };
@@ -273,7 +274,7 @@ export class AuthService {
     });
 
     if (!Array.isArray(user) || user.length === 0) {
-      throw new BadRequestException('User not found ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const updatedUser = await this.userService.updateUserPasswordService({
@@ -281,7 +282,7 @@ export class AuthService {
       password,
     });
     if (!updatedUser) {
-      throw new BadRequestException('Failed to update password ...');
+      throw new BadRequestException(ERROR_MESSAGES.FAILED_TO_UPDATE_PASSWORD);
     }
     return updatedUser;
   }
@@ -293,7 +294,7 @@ export class AuthService {
         secret: this.jwtTokensConfig.refreshSecret,
       });
     } catch {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_REFRESH_TOKEN);
     }
 
     const payload = parseRefreshTokenPayload(verified);
@@ -304,7 +305,7 @@ export class AuthService {
     });
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      throw new UnauthorizedException('User no longer exists');
+      throw new UnauthorizedException(ERROR_MESSAGES.USER_NO_LONGER_EXISTS);
     }
 
     const user = rows[0];
@@ -325,11 +326,11 @@ export class AuthService {
   // TODO: logout user ...
   async logoutService(@CurrentUser() user: Record<string, string>) {
     if (!user.id || !checkUuidValid({ data: user.id })) {
-      throw new BadRequestException('Invalid user ID ...');
+      throw new BadRequestException(ERROR_MESSAGES.INVALID_USER_ID);
     }
     const blackListToken = await this.redis.get(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`);
     if (blackListToken) {
-      throw new BadRequestException('User already logged out ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ALREADY_LOGGED_OUT);
     }
     await this.redis.set(`${this.BLACK_LIST_TOKEN_REDIS_PREFIX}${user.id}`, user.id, 604800);
     return { ok: true };

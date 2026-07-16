@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import {
   CreateSessionDto,
   CreateSessionsDto,
@@ -69,14 +70,14 @@ export class SessionService {
   }): Promise<{ lessonId: string | null; tutorId: string }> {
     if (lessonId) {
       const lesson = await this.lessonService.getLessonByIdService({ id: lessonId });
-      if (!lesson) throw new NotFoundException('Lesson not found ...');
+      if (!lesson) throw new NotFoundException(ERROR_MESSAGES.LESSON_NOT_FOUND);
     }
 
     // the acting tutor owns the class, so default the session tutor to them; if an explicit
     // tutorId is supplied, it must reference a real user.
     if (tutorId && tutorId !== userId) {
       const tutor = await this.userService.getUserByField({ field: 'id', value: tutorId });
-      if (!tutor || tutor.length === 0) throw new NotFoundException('Tutor not found ...');
+      if (!tutor || tutor.length === 0) throw new NotFoundException(ERROR_MESSAGES.TUTOR_NOT_FOUND);
     }
 
     return { lessonId: lessonId ?? null, tutorId: tutorId ?? userId };
@@ -85,12 +86,12 @@ export class SessionService {
   // todo : ensure the acting user owns the target class ...
   private async assertClassOwner({ userId, classId }: { userId: string; classId: string }) {
     if (!classId || !checkUuidValid({ data: classId }))
-      throw new BadRequestException('Class Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.CLASS_ID_MUST_BE_UUID);
 
     const classData = await this.classService.getClassService({ userId, id: classId });
     if (!classData || (Array.isArray(classData) && classData.length === 0))
-      throw new NotFoundException('Class not found ...');
-    if (classData.tutorId !== userId) throw new NotFoundException('Class not found ...');
+      throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
+    if (classData.tutorId !== userId) throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
 
     return classData;
   }
@@ -113,12 +114,12 @@ export class SessionService {
 
   private async loadOwnedSession({ userId, id }: { userId: string; id: string }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     if (!id || !checkUuidValid({ data: id }))
-      throw new BadRequestException('Session Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.SESSION_ID_MUST_BE_UUID);
 
     const session = await this.repo.getById({ id });
-    if (!session) throw new NotFoundException('Session not found ...');
+    if (!session) throw new NotFoundException(ERROR_MESSAGES.SESSION_NOT_FOUND);
 
     await this.assertClassOwner({ userId, classId: session.classId });
     return session;
@@ -126,7 +127,7 @@ export class SessionService {
 
   async createSessionService({ userId, data }: { userId: string; data: CreateSessionDto }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     const classData = await this.assertClassOwner({ userId, classId: data.classId });
     const refs = await this.resolveSessionRefs({
@@ -146,7 +147,7 @@ export class SessionService {
 
   async createSessionsService({ userId, data }: { userId: string; data: CreateSessionsDto }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     const classData = await this.assertClassOwner({ userId, classId: data.classId });
     const items = await Promise.all(
@@ -171,7 +172,7 @@ export class SessionService {
 
   async getSessionsService({ userId, query }: { userId: string; query: GetSessionsQueryDto }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     const result = await this.repo.getAll({ userId, query });
     return {
@@ -184,7 +185,7 @@ export class SessionService {
 
   async getSessionsByClassService({ userId, classId }: { userId: string; classId: string }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     await this.assertClassOwner({ userId, classId });
     return this.repo.getByClass({ classId });
@@ -193,12 +194,12 @@ export class SessionService {
   // detail read is allowed for the class tutor (owner) OR an enrolled student
   async getSessionService({ userId, id }: { userId: string; id: string }) {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     if (!id || !checkUuidValid({ data: id }))
-      throw new BadRequestException('Session Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.SESSION_ID_MUST_BE_UUID);
 
     const detail = await this.repo.getDetailById({ id });
-    if (!detail) throw new NotFoundException('Session not found ...');
+    if (!detail) throw new NotFoundException(ERROR_MESSAGES.SESSION_NOT_FOUND);
 
     // access: class tutor (owner), an enrolled student, or a parent of an enrolled student
     const isOwner = detail.class?.tutorId === userId;
@@ -206,7 +207,7 @@ export class SessionService {
       isOwner ||
       (await this.repo.isEnrolled({ userId, classId: detail.classId })) ||
       (await this.repo.isParentOfEnrolled({ userId, classId: detail.classId }));
-    if (!canAccess) throw new NotFoundException('Session not found ...');
+    if (!canAccess) throw new NotFoundException(ERROR_MESSAGES.SESSION_NOT_FOUND);
 
     // students & parents only see the assigned exercises after the session has ended
     return this.gateExercises(detail, isOwner);
@@ -229,7 +230,7 @@ export class SessionService {
     await this.loadOwnedSession({ userId, id });
 
     const deleted = await this.repo.del({ id });
-    if (!deleted) throw new NotFoundException('Session not found ...');
+    if (!deleted) throw new NotFoundException(ERROR_MESSAGES.SESSION_NOT_FOUND);
 
     return { id };
   }

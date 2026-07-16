@@ -5,6 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import { randomUUID } from 'node:crypto';
 import type {
   CreateManagedUserDto,
@@ -69,7 +70,7 @@ export class AdminService {
     const email = dto.email.trim().toLowerCase();
     const [existingByEmail] = await this.adminRepository.findByEmail(email);
     if (existingByEmail) {
-      throw new ConflictException(`Email already exists: ${email}`);
+      throw new ConflictException(`${ERROR_MESSAGES.EMAIL_EXISTS}: ${email}`);
     }
 
     const username = dto.username?.trim()
@@ -109,7 +110,9 @@ export class AdminService {
     this.assertUuid(id);
     const row = await this.adminRepository.findByIdAndRole(id, role);
     if (!row) {
-      throw new NotFoundException(`${this.label(role)} not found`);
+      throw new NotFoundException(
+        role === 'TUTOR' ? ERROR_MESSAGES.TUTOR_NOT_FOUND : ERROR_MESSAGES.STUDENT_NOT_FOUND,
+      );
     }
     return this.mapRow(row);
   }
@@ -122,14 +125,14 @@ export class AdminService {
       const email = dto.email.trim().toLowerCase();
       const [existing] = await this.adminRepository.findByEmail(email);
       if (existing && existing.id !== id) {
-        throw new ConflictException(`Email already exists: ${email}`);
+        throw new ConflictException(`${ERROR_MESSAGES.EMAIL_EXISTS}: ${email}`);
       }
       dto = { ...dto, email };
     }
     if (dto.username) {
       const [existing] = await this.adminRepository.findByUsername(dto.username.trim());
       if (existing && existing.id !== id) {
-        throw new ConflictException(`Username already exists: ${dto.username.trim()}`);
+        throw new ConflictException(`${ERROR_MESSAGES.USERNAME_EXISTS}: ${dto.username.trim()}`);
       }
     }
 
@@ -145,7 +148,9 @@ export class AdminService {
 
     const updated = await this.adminRepository.updateByIdAndRole(id, role, writeData);
     if (!updated) {
-      throw new NotFoundException(`${this.label(role)} not found`);
+      throw new NotFoundException(
+        role === 'TUTOR' ? ERROR_MESSAGES.TUTOR_NOT_FOUND : ERROR_MESSAGES.STUDENT_NOT_FOUND,
+      );
     }
     return this.mapRow(updated);
   }
@@ -154,7 +159,9 @@ export class AdminService {
     this.assertUuid(id);
     const deleted = await this.adminRepository.deleteByIdAndRole(id, role);
     if (!deleted) {
-      throw new NotFoundException(`${this.label(role)} not found`);
+      throw new NotFoundException(
+        role === 'TUTOR' ? ERROR_MESSAGES.TUTOR_NOT_FOUND : ERROR_MESSAGES.STUDENT_NOT_FOUND,
+      );
     }
     return { id: deleted.id };
   }
@@ -162,7 +169,7 @@ export class AdminService {
   // ─── Helpers ───────────────────────────────────────────────────────
   private assertUuid(id: string) {
     if (!checkUuidValid({ data: id })) {
-      throw new BadRequestException('Invalid id ...');
+      throw new BadRequestException(ERROR_MESSAGES.ADMIN_INVALID_ID);
     }
   }
 
@@ -199,7 +206,7 @@ export class AdminService {
   private async ensureUniqueUsername(username: string): Promise<string> {
     const [existing] = await this.adminRepository.findByUsername(username);
     if (existing) {
-      throw new ConflictException(`Username already exists: ${username}`);
+      throw new ConflictException(`${ERROR_MESSAGES.USERNAME_EXISTS}: ${username}`);
     }
     return username;
   }
@@ -217,7 +224,7 @@ export class AdminService {
       if (!existing) return candidate;
     }
     throw new ConflictException(
-      `Cannot generate unique username for "${firstName} ${lastName}" after 10 attempts`,
+      `${ERROR_MESSAGES.UNABLE_TO_GENERATE_USERNAME}: ${firstName} ${lastName}`,
     );
   }
 
@@ -227,6 +234,6 @@ export class AdminService {
       const [existing] = await this.adminRepository.findByUserCode(code);
       if (!existing) return code;
     }
-    throw new ConflictException('Cannot generate a unique user code after 5 attempts');
+    throw new ConflictException(ERROR_MESSAGES.UNABLE_TO_GENERATE_USER_CODE);
   }
 }

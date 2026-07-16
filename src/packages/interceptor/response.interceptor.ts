@@ -1,9 +1,11 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { map, Observable } from 'rxjs';
 import { API_RESPONSE_KEY } from '../decorators';
 import { type ApiResponseInterface, type ApiResponseOptions } from '../interfaces';
+import { DEFAULT_LANGUAGE, type RequestWithLanguage } from '@packages/guards/language.guard';
+import { SUCCESS_TRANSLATIONS, translateMessage } from '../../data/i18n';
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponseInterface<T>> {
@@ -12,12 +14,14 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponseInt
   intercept(context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponseInterface<T>> {
     const http = context.switchToHttp();
     const response = http.getResponse<Response>();
-    const request = http.getRequest<Request>();
-    const message =
+    const request = http.getRequest<RequestWithLanguage>();
+    const lang = request.language ?? DEFAULT_LANGUAGE;
+    const rawMessage =
       this.reflector.getAllAndOverride<ApiResponseOptions>(API_RESPONSE_KEY, [
         context.getHandler(),
         context.getClass(),
-      ])?.message ?? 'Success';
+      ])?.message ?? 'SUCCESS';
+    const message = translateMessage(SUCCESS_TRANSLATIONS, rawMessage, lang);
 
     return next.handle().pipe(
       map((data): ApiResponseInterface<T> => {

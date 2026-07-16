@@ -1,6 +1,7 @@
 import { Injectable, UnprocessableEntityException, type PipeTransform } from '@nestjs/common';
 import { StatusCodes } from 'http-status-codes';
 import { type ZodIssue, type ZodType } from 'zod';
+import { ERROR_MESSAGES } from 'src/data/constants';
 
 export type ZodValidationErrorItem = {
   field: string;
@@ -21,7 +22,7 @@ export class ZodValidationPipe<TOutput = unknown> implements PipeTransform<unkno
 
       throw new UnprocessableEntityException({
         statusCode: StatusCodes.UNPROCESSABLE_ENTITY,
-        message: 'Validation failed',
+        message: ERROR_MESSAGES.VALIDATION_FAILED,
         errors,
       });
     }

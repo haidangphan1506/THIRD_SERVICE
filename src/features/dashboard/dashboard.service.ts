@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
 import { checkUuidValid } from '@packages/helpers';
 import {
   DashboardRepository,
@@ -54,11 +55,11 @@ export class DashboardService {
 
   async getOverview(userId: string): Promise<DashboardOverview> {
     if (!userId || !checkUuidValid({ data: userId }))
-      throw new BadRequestException('User Id must be uuid ...');
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
 
     const users = await this.userService.getUserByField({ field: 'id', value: userId });
     const user = Array.isArray(users) ? users[0] : users;
-    if (!user) throw new NotFoundException('User not found ...');
+    if (!user) throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
 
     const role = user.role ?? 'STUDENT';
     const isStudent = role === 'STUDENT';

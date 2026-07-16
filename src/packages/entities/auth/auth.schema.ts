@@ -1,35 +1,37 @@
 import { z } from 'zod';
+import { ERROR_MESSAGES } from 'src/data/constants';
 
+// Values are stable CODES (not text). `HttpExceptionFilter` localizes them into the
+// request language via `ERROR_TRANSLATIONS`. To change wording, edit `error.i18n.ts`.
 export const AUTH_MESSAGES = {
   // email
-  EMAIL_REQUIRED: 'Email is required',
-  EMAIL_INVALID: 'Invalid email address',
+  EMAIL_REQUIRED: ERROR_MESSAGES.AUTH_EMAIL_REQUIRED,
+  EMAIL_INVALID: ERROR_MESSAGES.AUTH_EMAIL_INVALID,
   // username
-  USERNAME_REQUIRED: 'Username is required',
+  USERNAME_REQUIRED: ERROR_MESSAGES.AUTH_USERNAME_REQUIRED,
   // password
-  PASSWORD_REQUIRED: 'Password is required',
-  PASSWORD_MIN: 'Password must be at least 6 characters long',
-  PASSWORD_MAX: 'Password must be less than 25 characters long',
-  PASSWORD_LOWERCASE: 'Password must include at least one lowercase letter (a-z)',
-  PASSWORD_UPPERCASE: 'Password must include at least one uppercase letter (A-Z)',
-  PASSWORD_DIGIT: 'Password must include at least one digit (0-9)',
-  PASSWORD_SPECIAL:
-    'Password must include at least one special character (any symbol that is not a letter or digit)',
+  PASSWORD_REQUIRED: ERROR_MESSAGES.AUTH_PASSWORD_REQUIRED,
+  PASSWORD_MIN: ERROR_MESSAGES.AUTH_PASSWORD_MIN,
+  PASSWORD_MAX: ERROR_MESSAGES.AUTH_PASSWORD_MAX,
+  PASSWORD_LOWERCASE: ERROR_MESSAGES.AUTH_PASSWORD_LOWERCASE,
+  PASSWORD_UPPERCASE: ERROR_MESSAGES.AUTH_PASSWORD_UPPERCASE,
+  PASSWORD_DIGIT: ERROR_MESSAGES.AUTH_PASSWORD_DIGIT,
+  PASSWORD_SPECIAL: ERROR_MESSAGES.AUTH_PASSWORD_SPECIAL,
   // firstName
-  FIRST_NAME_REQUIRED: 'First name is required',
-  FIRST_NAME_MAX: 'First name must be less than 25 characters long',
+  FIRST_NAME_REQUIRED: ERROR_MESSAGES.AUTH_FIRST_NAME_REQUIRED,
+  FIRST_NAME_MAX: ERROR_MESSAGES.AUTH_FIRST_NAME_MAX,
   // lastName
-  LAST_NAME_REQUIRED: 'Last name is required',
-  LAST_NAME_MAX: 'Last name must be less than 25 characters long',
+  LAST_NAME_REQUIRED: ERROR_MESSAGES.AUTH_LAST_NAME_REQUIRED,
+  LAST_NAME_MAX: ERROR_MESSAGES.AUTH_LAST_NAME_MAX,
   // refreshToken
-  REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
+  REFRESH_TOKEN_REQUIRED: ERROR_MESSAGES.AUTH_REFRESH_TOKEN_REQUIRED,
   // resetPassword
-  RESET_TOKEN_REQUIRED: 'Reset password token is required',
-  RESET_TOKEN_INVALID: 'Invalid reset password token',
-  CONFIRM_PASSWORD_REQUIRED: 'Confirm password is required',
-  CONFIRM_PASSWORD_MIN: 'Confirm password must be at least 6 characters long',
-  CONFIRM_PASSWORD_MAX: 'Confirm password must be less than 25 characters long',
-  CONFIRM_PASSWORD_MISMATCH: 'Confirm password must be the same as password',
+  RESET_TOKEN_REQUIRED: ERROR_MESSAGES.AUTH_RESET_TOKEN_REQUIRED,
+  RESET_TOKEN_INVALID: ERROR_MESSAGES.AUTH_RESET_TOKEN_INVALID,
+  CONFIRM_PASSWORD_REQUIRED: ERROR_MESSAGES.AUTH_CONFIRM_PASSWORD_REQUIRED,
+  CONFIRM_PASSWORD_MIN: ERROR_MESSAGES.AUTH_CONFIRM_PASSWORD_MIN,
+  CONFIRM_PASSWORD_MAX: ERROR_MESSAGES.AUTH_CONFIRM_PASSWORD_MAX,
+  CONFIRM_PASSWORD_MISMATCH: ERROR_MESSAGES.AUTH_CONFIRM_PASSWORD_MISMATCH,
 } as const;
 
 export const emailFieldSchema = z
@@ -76,9 +78,9 @@ export const loginSchema = z.object({
 
 export const loginByUserCodeSchema = z.object({
   userCode: z
-    .string({ message: 'User code is required' })
-    .min(6, { message: 'User code must be 6 characters' })
-    .max(6, { message: 'User code must be 6 characters' }),
+    .string({ message: ERROR_MESSAGES.AUTH_USER_CODE_REQUIRED })
+    .min(6, { message: ERROR_MESSAGES.AUTH_USER_CODE_LENGTH })
+    .max(6, { message: ERROR_MESSAGES.AUTH_USER_CODE_LENGTH }),
   password: passwordFieldSchema,
   role: z.enum(['PARENT', 'STUDENT']),
 });
