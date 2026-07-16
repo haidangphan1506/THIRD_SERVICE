@@ -173,7 +173,10 @@ export class AdminService {
   /** The DB column stores subjects as a comma-joined string; the API exposes an array. */
   private joinSubjects(subjects?: string[]): string | undefined {
     if (!subjects || subjects.length === 0) return undefined;
-    return subjects.map((s) => s.trim()).filter(Boolean).join(', ');
+    return subjects
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join(', ');
   }
 
   private splitSubjects(value: string | null): string[] {
@@ -185,7 +188,9 @@ export class AdminService {
   }
 
   /** Turn a raw DB row into the API shape (subjects string → string[]). */
-  private mapRow<T extends { subjects: string | null }>(row: T): Omit<T, 'subjects'> & {
+  private mapRow<T extends { subjects: string | null }>(
+    row: T,
+  ): Omit<T, 'subjects'> & {
     subjects: string[];
   } {
     return { ...row, subjects: this.splitSubjects(row.subjects) };

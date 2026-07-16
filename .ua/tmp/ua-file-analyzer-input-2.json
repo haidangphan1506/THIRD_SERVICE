@@ -1,0 +1,292 @@
+{
+  "projectRoot": "/home/haidangphan/Documents/project/backends",
+  "batchFiles": [
+    {
+      "path": "src/data/constants/index.ts",
+      "language": "typescript",
+      "sizeLines": 2,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/data/swaggers/data/user.swagger.ts",
+      "language": "typescript",
+      "sizeLines": 143,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/chapter/chapter.controller.ts",
+      "language": "typescript",
+      "sizeLines": 111,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/chapter/chapter.module.ts",
+      "language": "typescript",
+      "sizeLines": 11,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/chapter/chapter.repository.ts",
+      "language": "typescript",
+      "sizeLines": 79,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/chapter/chapter.service.ts",
+      "language": "typescript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/curriculum/curriculum.controller.ts",
+      "language": "typescript",
+      "sizeLines": 160,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/curriculum/curriculum.module.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/curriculum/curriculum.repository.ts",
+      "language": "typescript",
+      "sizeLines": 140,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/curriculum/curriculum.service.ts",
+      "language": "typescript",
+      "sizeLines": 184,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/lesson/lesson.controller.ts",
+      "language": "typescript",
+      "sizeLines": 200,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/lesson/lesson.module.ts",
+      "language": "typescript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/lesson/lesson.repository.ts",
+      "language": "typescript",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/lesson/lesson.service.ts",
+      "language": "typescript",
+      "sizeLines": 179,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/uploads/upload.constant.ts",
+      "language": "typescript",
+      "sizeLines": 2,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/uploads/upload.controller.ts",
+      "language": "typescript",
+      "sizeLines": 117,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/uploads/upload.interface.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/uploads/upload.module.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/uploads/upload.provider.ts",
+      "language": "typescript",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/uploads/upload.service.ts",
+      "language": "typescript",
+      "sizeLines": 105,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/user/user.controller.ts",
+      "language": "typescript",
+      "sizeLines": 235,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/user/user.module.ts",
+      "language": "typescript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/user/user.repository.ts",
+      "language": "typescript",
+      "sizeLines": 163,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/user/user.service.ts",
+      "language": "typescript",
+      "sizeLines": 270,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/packages/entities/index.ts",
+      "language": "typescript",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/packages/entities/user/index.ts",
+      "language": "typescript",
+      "sizeLines": 2,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/data/constants/index.ts": [],
+    "src/data/swaggers/data/user.swagger.ts": [],
+    "src/features/chapter/chapter.controller.ts": [
+      "src/features/chapter/chapter.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/chapter/chapter.module.ts": [
+      "src/features/chapter/chapter.controller.ts",
+      "src/features/chapter/chapter.repository.ts",
+      "src/features/chapter/chapter.service.ts"
+    ],
+    "src/features/chapter/chapter.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/index.ts"
+    ],
+    "src/features/chapter/chapter.service.ts": [
+      "src/database/database.module.ts",
+      "src/features/chapter/chapter.repository.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/curriculum/curriculum.controller.ts": [
+      "src/features/curriculum/curriculum.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/curriculum/curriculum.module.ts": [
+      "src/features/curriculum/curriculum.controller.ts",
+      "src/features/curriculum/curriculum.repository.ts",
+      "src/features/curriculum/curriculum.service.ts",
+      "src/features/uploads/upload.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/curriculum/curriculum.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/curriculum/curriculum.service.ts": [
+      "src/database/database.module.ts",
+      "src/features/curriculum/curriculum.repository.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/lesson/lesson.controller.ts": [
+      "src/features/lesson/lesson.service.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/lesson/lesson.module.ts": [
+      "src/features/lesson/lesson.controller.ts",
+      "src/features/lesson/lesson.repository.ts",
+      "src/features/lesson/lesson.service.ts",
+      "src/features/uploads/upload.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/lesson/lesson.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/index.ts"
+    ],
+    "src/features/lesson/lesson.service.ts": [
+      "src/database/database.module.ts",
+      "src/features/lesson/lesson.repository.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/uploads/upload.constant.ts": [],
+    "src/features/uploads/upload.controller.ts": [
+      "src/features/uploads/upload.interface.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/packages/decorators/index.ts"
+    ],
+    "src/features/uploads/upload.interface.ts": [],
+    "src/features/uploads/upload.module.ts": [
+      "src/features/uploads/upload.controller.ts",
+      "src/features/uploads/upload.provider.ts",
+      "src/features/uploads/upload.service.ts"
+    ],
+    "src/features/uploads/upload.provider.ts": [
+      "src/features/uploads/upload.constant.ts"
+    ],
+    "src/features/uploads/upload.service.ts": [
+      "src/features/uploads/upload.constant.ts",
+      "src/features/uploads/upload.interface.ts"
+    ],
+    "src/features/user/user.controller.ts": [
+      "src/data/swaggers/data/user.swagger.ts",
+      "src/data/swaggers/messages/index.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/user/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/user/user.module.ts": [
+      "src/features/uploads/upload.module.ts",
+      "src/features/user/user.controller.ts",
+      "src/features/user/user.repository.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/guards/index.ts"
+    ],
+    "src/features/user/user.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/user/index.ts"
+    ],
+    "src/features/user/user.service.ts": [
+      "src/data/constants/index.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/features/user/user.repository.ts",
+      "src/packages/entities/user/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/packages/entities/index.ts": [],
+    "src/packages/entities/user/index.ts": []
+  }
+}

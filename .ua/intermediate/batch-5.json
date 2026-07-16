@@ -1,0 +1,335 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/app.controller.ts",
+      "type": "file",
+      "name": "app.controller.ts",
+      "filePath": "src/app.controller.ts",
+      "summary": "Root health-check controller exposing a single GET endpoint that delegates to AppService for a basic hello-world response.",
+      "tags": ["entry-point", "health-check", "controller"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/app.controller.ts:AppController",
+      "type": "class",
+      "name": "AppController",
+      "filePath": "src/app.controller.ts",
+      "lineRange": [7, 20],
+      "summary": "NestJS root controller with a single getHello handler used as a basic liveness/health check endpoint.",
+      "tags": ["controller", "health-check"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app.module.ts",
+      "type": "file",
+      "name": "app.module.ts",
+      "filePath": "src/app.module.ts",
+      "summary": "Root NestJS module wiring together every feature module (auth, admin, class, curriculum, exercise, tuition, notifications, user, uploads, redis, mailer, ai) plus the global DatabaseModule and guards barrel to bootstrap the whole application.",
+      "tags": ["entry-point", "module", "dependency-injection"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/app.module.ts:AppModule",
+      "type": "class",
+      "name": "AppModule",
+      "filePath": "src/app.module.ts",
+      "lineRange": [66, 66],
+      "summary": "Root application module decorated with @Module, importing every feature module plus DatabaseModule and RedisModule to bootstrap the NestJS app.",
+      "tags": ["entry-point", "module"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app.service.spec.ts",
+      "type": "file",
+      "name": "app.service.spec.ts",
+      "filePath": "src/app.service.spec.ts",
+      "summary": "Unit test suite for AppService verifying the getHello method returns the expected greeting string.",
+      "tags": ["test", "unit-test", "health-check"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app.service.ts",
+      "type": "file",
+      "name": "app.service.ts",
+      "filePath": "src/app.service.ts",
+      "summary": "Minimal root service providing the getHello method used by AppController as a basic health-check response.",
+      "tags": ["service", "health-check"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/app.service.ts:AppService",
+      "type": "class",
+      "name": "AppService",
+      "filePath": "src/app.service.ts",
+      "lineRange": [4, 8],
+      "summary": "Injectable service with a single getHello method returning a static greeting string, used for the root health-check endpoint.",
+      "tags": ["service", "health-check"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/admin/admin.controller.ts",
+      "type": "file",
+      "name": "admin.controller.ts",
+      "filePath": "src/features/admin/admin.controller.ts",
+      "summary": "Admin-only REST controller for managing tutor and student accounts (create/list/get/update/delete), protected by the global JwtAuthGuard plus a RolesGuard restricted to the ADMIN role.",
+      "tags": ["api-handler", "admin", "controller", "crud"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/admin/admin.controller.ts:AdminController",
+      "type": "class",
+      "name": "AdminController",
+      "filePath": "src/features/admin/admin.controller.ts",
+      "lineRange": [96, 228],
+      "summary": "Controller exposing CRUD endpoints under /admin for tutor and student account management, delegating all business logic to AdminService and documenting request/response shapes via Swagger decorators.",
+      "tags": ["api-handler", "admin", "crud"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/admin/admin.module.ts",
+      "type": "file",
+      "name": "admin.module.ts",
+      "filePath": "src/features/admin/admin.module.ts",
+      "summary": "NestJS module wiring for the admin feature, registering AdminController and providing AdminService/AdminRepository.",
+      "tags": ["module", "admin"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/admin/admin.module.ts:AdminModule",
+      "type": "class",
+      "name": "AdminModule",
+      "filePath": "src/features/admin/admin.module.ts",
+      "lineRange": [11, 11],
+      "summary": "Feature module declaring AdminController as controller and AdminService/AdminRepository as providers for the admin management feature.",
+      "tags": ["module", "admin"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/admin/admin.repository.ts",
+      "type": "file",
+      "name": "admin.repository.ts",
+      "filePath": "src/features/admin/admin.repository.ts",
+      "summary": "Drizzle ORM data-access layer for admin-managed user accounts, providing lookups by email/username/user code and paginated search/list with role filtering.",
+      "tags": ["data-model", "admin", "database", "repository"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/admin/admin.repository.ts:AdminRepository",
+      "type": "class",
+      "name": "AdminRepository",
+      "filePath": "src/features/admin/admin.repository.ts",
+      "lineRange": [41, 132],
+      "summary": "Repository encapsulating raw Drizzle queries against the users table for the admin feature: uniqueness checks, create, role-scoped find/update/delete, and paginated search with ilike filters.",
+      "tags": ["repository", "database", "admin"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/admin/admin.service.ts",
+      "type": "file",
+      "name": "admin.service.ts",
+      "filePath": "src/features/admin/admin.service.ts",
+      "summary": "Business logic for admin-managed tutor/student accounts: validates uniqueness, generates usernames/user codes, hashes passwords, and maps DB rows to DTOs for the admin controller.",
+      "tags": ["service", "admin", "business-logic", "user-management"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/admin/admin.service.ts:AdminService",
+      "type": "class",
+      "name": "AdminService",
+      "filePath": "src/features/admin/admin.service.ts",
+      "lineRange": [18, 232],
+      "summary": "Service implementing tutor/student account CRUD for admins, including username/user-code generation, password hashing, subject list join/split helpers, and row-to-DTO mapping.",
+      "tags": ["service", "admin", "user-management"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/main.ts",
+      "type": "file",
+      "name": "main.ts",
+      "filePath": "src/main.ts",
+      "summary": "Application bootstrap entry point: creates the Nest app, configures CORS, global interceptors/filters, logs loaded environment variables, and sets up Swagger API documentation before listening on the configured port.",
+      "tags": ["entry-point", "bootstrap", "configuration"],
+      "complexity": "moderate",
+      "languageNotes": "Uses NestFactory.create + SwaggerModule.setup/createDocument, and logs a large set of env vars (with secrets truncated) at startup for debugging."
+    },
+    {
+      "id": "function:src/main.ts:bootstrap",
+      "type": "function",
+      "name": "bootstrap",
+      "filePath": "src/main.ts",
+      "lineRange": [9, 93],
+      "summary": "Bootstraps the NestJS application: builds the app instance, applies global interceptors/filters, configures CORS and Swagger documentation, and starts the HTTP listener.",
+      "tags": ["entry-point", "bootstrap"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/packages/decorators/api-success-response.decorator.ts",
+      "type": "file",
+      "name": "api-success-response.decorator.ts",
+      "filePath": "src/packages/decorators/api-success-response.decorator.ts",
+      "summary": "Defines the custom ApiResponse decorator and its API_RESPONSE_KEY metadata token, used by controllers to attach a success message that ResponseInterceptor reads to shape the response envelope.",
+      "tags": ["decorator", "metadata", "api-response"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/packages/decorators/api-success-response.decorator.ts:ApiResponse",
+      "type": "function",
+      "name": "ApiResponse",
+      "filePath": "src/packages/decorators/api-success-response.decorator.ts",
+      "lineRange": [6, 6],
+      "summary": "Custom method decorator that sets API_RESPONSE_KEY metadata on a route handler, later read by ResponseInterceptor to populate the response's success message field.",
+      "tags": ["decorator", "metadata"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/entities/admin/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/entities/admin/index.ts",
+      "summary": "Barrel re-export file for the admin domain's Zod schemas and DTOs used by the admin controller and service.",
+      "tags": ["barrel", "entity", "admin"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/filters/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/filters/index.ts",
+      "summary": "Barrel re-export file for the packages/filters directory, aggregating exception filters imported by main.ts.",
+      "tags": ["barrel", "filters"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/guards/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/guards/index.ts",
+      "summary": "Barrel re-export file for the packages/guards directory, aggregating auth/role guards used across feature modules.",
+      "tags": ["barrel", "guards", "auth"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/interceptor/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/interceptor/index.ts",
+      "summary": "Barrel re-export file for the packages/interceptor directory, aggregating interceptors including ResponseInterceptor.",
+      "tags": ["barrel", "interceptor"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/packages/interceptor/response.interceptor.ts",
+      "type": "file",
+      "name": "response.interceptor.ts",
+      "filePath": "src/packages/interceptor/response.interceptor.ts",
+      "summary": "Global response interceptor that wraps every successful HTTP response into the standard envelope ({statusCode, message, data, timestamp, method, path}), reading a custom success message from ApiResponse metadata via Reflector.",
+      "tags": ["interceptor", "middleware", "api-response"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/packages/interceptor/response.interceptor.ts:ResponseInterceptor",
+      "type": "class",
+      "name": "ResponseInterceptor",
+      "filePath": "src/packages/interceptor/response.interceptor.ts",
+      "lineRange": [9, 35],
+      "summary": "NestJS interceptor implementing NestInterceptor.intercept to reshape controller responses into the standard API response envelope, pulling a per-route success message from Reflector metadata set by @ApiResponse.",
+      "tags": ["interceptor", "middleware", "api-response"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/packages/interfaces/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/packages/interfaces/index.ts",
+      "summary": "Barrel re-export file for the packages/interfaces directory, aggregating shared TypeScript interfaces such as the API response shape.",
+      "tags": ["barrel", "type-definition"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    { "source": "file:src/app.controller.ts", "target": "file:src/app.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/app.module.ts", "target": "file:src/app.controller.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/app.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/database/database.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/admin/admin.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/ai/ai.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/auth/auth.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/chapter/chapter.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/class/class.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/curriculum/curriculum.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/dashboard/dashboard.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/email/mailer/mailer.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/exercise/exercise.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/lesson/lesson.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/notification/notification.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/redis/redis.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/schedule/schedule.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/session/session.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/student/student.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/tuition/tuition.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/uploads/upload.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/features/user/user.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/app.module.ts", "target": "file:src/packages/guards/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/app.service.spec.ts", "target": "file:src/app.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/admin/admin.controller.ts", "target": "file:src/features/admin/admin.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.controller.ts", "target": "file:src/packages/decorators/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.controller.ts", "target": "file:src/packages/entities/admin/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.controller.ts", "target": "file:src/packages/guards/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.controller.ts", "target": "file:src/packages/pipes/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/admin/admin.module.ts", "target": "file:src/features/admin/admin.controller.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.module.ts", "target": "file:src/features/admin/admin.repository.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.module.ts", "target": "file:src/features/admin/admin.service.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/admin/admin.repository.ts", "target": "file:src/database/database.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.repository.ts", "target": "file:src/database/schema.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.repository.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/features/admin/admin.service.ts", "target": "file:src/features/admin/admin.repository.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.service.ts", "target": "file:src/packages/entities/admin/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/features/admin/admin.service.ts", "target": "file:src/packages/helpers/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/main.ts", "target": "file:src/app.module.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/main.ts", "target": "file:src/packages/filters/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/main.ts", "target": "file:src/packages/interceptor/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/main.ts", "target": "file:src/packages/interceptor/response.interceptor.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/packages/decorators/api-success-response.decorator.ts", "target": "file:src/packages/interfaces/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/packages/interceptor/response.interceptor.ts", "target": "file:src/packages/decorators/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:src/packages/interceptor/response.interceptor.ts", "target": "file:src/packages/interfaces/index.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+
+    { "source": "file:src/app.controller.ts", "target": "class:src/app.controller.ts:AppController", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/app.module.ts", "target": "class:src/app.module.ts:AppModule", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/app.service.ts", "target": "class:src/app.service.ts:AppService", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/admin/admin.controller.ts", "target": "class:src/features/admin/admin.controller.ts:AdminController", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/admin/admin.module.ts", "target": "class:src/features/admin/admin.module.ts:AdminModule", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/admin/admin.repository.ts", "target": "class:src/features/admin/admin.repository.ts:AdminRepository", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/features/admin/admin.service.ts", "target": "class:src/features/admin/admin.service.ts:AdminService", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/main.ts", "target": "function:src/main.ts:bootstrap", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/packages/decorators/api-success-response.decorator.ts", "target": "function:src/packages/decorators/api-success-response.decorator.ts:ApiResponse", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:src/packages/interceptor/response.interceptor.ts", "target": "class:src/packages/interceptor/response.interceptor.ts:ResponseInterceptor", "type": "contains", "direction": "forward", "weight": 1.0 },
+
+    { "source": "file:src/app.controller.ts", "target": "class:src/app.controller.ts:AppController", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/app.module.ts", "target": "class:src/app.module.ts:AppModule", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/app.service.ts", "target": "class:src/app.service.ts:AppService", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/admin/admin.controller.ts", "target": "class:src/features/admin/admin.controller.ts:AdminController", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/admin/admin.module.ts", "target": "class:src/features/admin/admin.module.ts:AdminModule", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/admin/admin.repository.ts", "target": "class:src/features/admin/admin.repository.ts:AdminRepository", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/features/admin/admin.service.ts", "target": "class:src/features/admin/admin.service.ts:AdminService", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/packages/decorators/api-success-response.decorator.ts", "target": "function:src/packages/decorators/api-success-response.decorator.ts:ApiResponse", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:src/packages/interceptor/response.interceptor.ts", "target": "class:src/packages/interceptor/response.interceptor.ts:ResponseInterceptor", "type": "exports", "direction": "forward", "weight": 0.8 },
+
+    { "source": "class:src/app.controller.ts:AppController", "target": "class:src/app.service.ts:AppService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/admin/admin.controller.ts:AdminController", "target": "class:src/features/admin/admin.service.ts:AdminService", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "class:src/features/admin/admin.service.ts:AdminService", "target": "class:src/features/admin/admin.repository.ts:AdminRepository", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:src/main.ts:bootstrap", "target": "class:src/packages/interceptor/response.interceptor.ts:ResponseInterceptor", "type": "calls", "direction": "forward", "weight": 0.8 },
+
+    { "source": "file:src/packages/interceptor/response.interceptor.ts", "target": "file:src/packages/decorators/api-success-response.decorator.ts", "type": "depends_on", "direction": "forward", "weight": 0.6 },
+
+    { "source": "file:src/app.service.ts", "target": "file:src/app.service.spec.ts", "type": "tested_by", "direction": "forward", "weight": 0.5 }
+  ]
+}

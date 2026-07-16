@@ -1,0 +1,818 @@
+{
+  "scriptCompleted": true,
+  "stats": {
+    "filesScanned": 273,
+    "filesWithImports": 122,
+    "totalEdges": 413
+  },
+  "importMap": {
+    ".ai-devkit.json": [],
+    ".claude/agents/dev.md": [],
+    ".claude/agents/review.md": [],
+    ".claude/agents/security.md": [],
+    ".claude/hooks/format-ts.mjs": [],
+    ".claude/hooks/guard-paths.mjs": [],
+    ".claude/hooks/review-skills.mjs": [],
+    ".claude/rules/conventions.md": [],
+    ".claude/rules/database.md": [],
+    ".claude/rules/nestjs-feature-pattern.md": [],
+    ".claude/settings.json": [],
+    ".claude/settings.local.json": [],
+    ".claude/skills/generate-controller/SKILL.md": [],
+    ".claude/skills/generate-db-table/SKILL.md": [],
+    ".claude/skills/generate-entity/SKILL.md": [],
+    ".claude/skills/generate-feature/SKILL.md": [],
+    ".claude/skills/generate-module/SKILL.md": [],
+    ".claude/skills/generate-repository/SKILL.md": [],
+    ".claude/skills/generate-service/SKILL.md": [],
+    ".env": [],
+    ".gitattributes": [],
+    ".gitlab-ci.yml": [],
+    ".opencode/agent/code-reviewer.md": [],
+    ".opencode/agent/dev.md": [],
+    ".opencode/agent/feature-builder.md": [],
+    ".opencode/agent/fixbug.md": [],
+    ".opencode/agent/security-review.md": [],
+    ".opencode/agent/test.md": [],
+    ".opencode/commands/dev.md": [],
+    ".opencode/commands/feature.md": [],
+    ".opencode/commands/review.md": [],
+    ".opencode/commands/security-review.md": [],
+    ".opencode/commands/test.md": [],
+    ".opencode/memory/api.md": [],
+    ".opencode/memory/commands.md": [],
+    ".opencode/memory/conventions.md": [],
+    ".opencode/memory/database.md": [],
+    ".opencode/memory/decisions.md": [],
+    ".opencode/memory/project.md": [],
+    ".opencode/rules/api-design.md": [],
+    ".opencode/rules/api-error-handling.md": [],
+    ".opencode/rules/seed-data.md": [],
+    ".opencode/rules/service-repository-pattern.md": [],
+    ".prettierignore": [],
+    ".railwayignore": [],
+    ".ua/.understandignore": [],
+    "AGENTS.md": [],
+    "API_ENDPOINTS.md": [],
+    "CLAUDE.md": [],
+    "coverage-report.txt": [],
+    "docker-compose.yml": [],
+    "drizzle.config.ts": [],
+    "drizzle/0000_cold_nightmare.sql": [],
+    "drizzle/0001_daffy_garia.sql": [],
+    "drizzle/meta/_journal.json": [],
+    "drizzle/meta/0000_snapshot.json": [],
+    "drizzle/meta/0001_snapshot.json": [],
+    "eslint.config.mjs": [],
+    "jest.config.js": [],
+    "nest-cli.json": [],
+    "package.json": [],
+    "PAGES_API_REVIEW.md": [],
+    "README.md": [],
+    "scripts/recreate-db.ts": [],
+    "scripts/seed-categories.ts": [],
+    "scripts/seed-curriculum-demo.ts": [
+      "src/database/schema.ts",
+      "src/packages/helpers/hashingData.helper.ts"
+    ],
+    "scripts/seed-dashboard.ts": [
+      "src/database/schema.ts",
+      "src/packages/helpers/hashingData.helper.ts"
+    ],
+    "scripts/seed-edu-flow.ts": [
+      "src/database/schema.ts"
+    ],
+    "scripts/seed-grades.ts": [
+      "src/database/schema.ts"
+    ],
+    "scripts/seed-user.ts": [
+      "src/database/schema.ts",
+      "src/packages/helpers/hashingData.helper.ts"
+    ],
+    "scripts/seed-users-bulk.ts": [
+      "src/database/schema.ts",
+      "src/packages/helpers/hashingData.helper.ts"
+    ],
+    "scripts/seed-wallet.ts": [],
+    "scripts/test-db.ts": [],
+    "src/app.controller.ts": [
+      "src/app.service.ts"
+    ],
+    "src/app.module.ts": [
+      "src/app.controller.ts",
+      "src/app.service.ts",
+      "src/database/database.module.ts",
+      "src/features/admin/admin.module.ts",
+      "src/features/ai/ai.module.ts",
+      "src/features/auth/auth.module.ts",
+      "src/features/chapter/chapter.module.ts",
+      "src/features/class/class.module.ts",
+      "src/features/curriculum/curriculum.module.ts",
+      "src/features/dashboard/dashboard.module.ts",
+      "src/features/email/mailer/mailer.module.ts",
+      "src/features/exercise/exercise.module.ts",
+      "src/features/lesson/lesson.module.ts",
+      "src/features/notification/notification.module.ts",
+      "src/features/redis/redis.module.ts",
+      "src/features/schedule/schedule.module.ts",
+      "src/features/session/session.module.ts",
+      "src/features/student/student.module.ts",
+      "src/features/tuition/tuition.module.ts",
+      "src/features/uploads/upload.module.ts",
+      "src/features/user/user.module.ts",
+      "src/packages/guards/index.ts"
+    ],
+    "src/app.service.spec.ts": [
+      "src/app.service.ts"
+    ],
+    "src/app.service.ts": [],
+    "src/data/constants/error.constant.ts": [],
+    "src/data/constants/index.ts": [],
+    "src/data/constants/success.constant.ts": [],
+    "src/data/swaggers/data/class.swagger.ts": [],
+    "src/data/swaggers/data/exercise.swagger.ts": [],
+    "src/data/swaggers/data/index.ts": [],
+    "src/data/swaggers/data/schedule.swagger.ts": [],
+    "src/data/swaggers/data/session.swagger.ts": [],
+    "src/data/swaggers/data/user.swagger.ts": [],
+    "src/data/swaggers/index.ts": [],
+    "src/data/swaggers/messages/class.msg.ts": [],
+    "src/data/swaggers/messages/exercise.msg.ts": [],
+    "src/data/swaggers/messages/index.ts": [],
+    "src/data/swaggers/messages/session.msg.ts": [],
+    "src/data/swaggers/messages/user.msg.ts": [],
+    "src/database/database.module.ts": [
+      "src/database/schema.ts"
+    ],
+    "src/database/schema.ts": [],
+    "src/features/admin/admin.controller.ts": [
+      "src/features/admin/admin.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/admin/index.ts",
+      "src/packages/guards/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/admin/admin.module.ts": [
+      "src/features/admin/admin.controller.ts",
+      "src/features/admin/admin.repository.ts",
+      "src/features/admin/admin.service.ts"
+    ],
+    "src/features/admin/admin.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/admin/admin.service.ts": [
+      "src/features/admin/admin.repository.ts",
+      "src/packages/entities/admin/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/ai/ai.controller.ts": [
+      "src/features/ai/ai.service.ts",
+      "src/features/ai/dto/ai-chat.dto.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/helpers/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/ai/ai.module.ts": [
+      "src/features/ai/ai.controller.ts",
+      "src/features/ai/ai.service.ts",
+      "src/features/ai/chat/chat-history.service.ts",
+      "src/features/ai/chat/chat.repository.ts",
+      "src/features/ai/context/class.context.ts",
+      "src/features/ai/context/context.service.ts",
+      "src/features/ai/context/exercise.context.ts",
+      "src/features/ai/context/schedule.context.ts",
+      "src/features/ai/context/session.context.ts",
+      "src/features/ai/intent/intent.service.ts",
+      "src/features/ai/prompt/prompt.service.ts",
+      "src/features/ai/providers/openai.provider.ts",
+      "src/features/ai/providers/openrouter.provider.ts",
+      "src/features/ai/providers/provider.factory.ts",
+      "src/features/ai/rag/embedding.service.ts",
+      "src/features/ai/rag/rag.service.ts",
+      "src/features/ai/rag/vector-search.service.ts"
+    ],
+    "src/features/ai/ai.service.ts": [
+      "src/features/ai/chat/chat-history.service.ts",
+      "src/features/ai/context/context.service.ts",
+      "src/features/ai/dto/ai-chat.dto.ts",
+      "src/features/ai/dto/ai-response.dto.ts",
+      "src/features/ai/intent/intent.service.ts",
+      "src/features/ai/interfaces/ai-context.interface.ts",
+      "src/features/ai/interfaces/ai-message.interface.ts",
+      "src/features/ai/prompt/prompt.service.ts",
+      "src/features/ai/providers/provider.factory.ts",
+      "src/features/ai/rag/rag.service.ts"
+    ],
+    "src/features/ai/chat/chat-history.service.ts": [
+      "src/features/ai/chat/chat.repository.ts",
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/chat/chat.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/context/class.context.ts": [
+      "src/database/schema.ts"
+    ],
+    "src/features/ai/context/context.service.ts": [
+      "src/database/schema.ts",
+      "src/features/ai/context/class.context.ts",
+      "src/features/ai/context/exercise.context.ts",
+      "src/features/ai/context/schedule.context.ts",
+      "src/features/ai/context/session.context.ts",
+      "src/features/ai/interfaces/ai-context.interface.ts",
+      "src/features/ai/providers/ai-provider.interface.ts",
+      "src/features/ai/utils/date-range.ts"
+    ],
+    "src/features/ai/context/exercise.context.ts": [
+      "src/database/schema.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/ai/context/schedule.context.ts": [
+      "src/database/schema.ts"
+    ],
+    "src/features/ai/context/session.context.ts": [
+      "src/database/schema.ts",
+      "src/features/ai/utils/date-range.ts"
+    ],
+    "src/features/ai/dto/ai-chat.dto.ts": [],
+    "src/features/ai/dto/ai-response.dto.ts": [
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/intent/intent.enum.ts": [],
+    "src/features/ai/intent/intent.service.ts": [
+      "src/features/ai/intent/intent.enum.ts",
+      "src/features/ai/intent/intent.type.ts"
+    ],
+    "src/features/ai/intent/intent.type.ts": [
+      "src/features/ai/intent/intent.enum.ts"
+    ],
+    "src/features/ai/interfaces/ai-context.interface.ts": [
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/ai/interfaces/ai-message.interface.ts": [],
+    "src/features/ai/interfaces/ai-response.interface.ts": [
+      "src/features/ai/intent/intent.enum.ts"
+    ],
+    "src/features/ai/prompt/prompt.service.ts": [
+      "src/features/ai/intent/intent.enum.ts",
+      "src/features/ai/interfaces/ai-context.interface.ts",
+      "src/features/ai/prompt/prompt.template.ts",
+      "src/features/ai/prompt/system.prompt.ts"
+    ],
+    "src/features/ai/prompt/prompt.template.ts": [
+      "src/features/ai/intent/intent.enum.ts"
+    ],
+    "src/features/ai/prompt/system.prompt.ts": [
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/ai/providers/ai-provider.interface.ts": [
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/ai/providers/openai.provider.ts": [
+      "src/features/ai/providers/ai-provider.interface.ts"
+    ],
+    "src/features/ai/providers/openrouter.provider.ts": [
+      "src/features/ai/providers/ai-provider.interface.ts"
+    ],
+    "src/features/ai/providers/provider.factory.ts": [
+      "src/features/ai/providers/ai-provider.interface.ts",
+      "src/features/ai/providers/openai.provider.ts",
+      "src/features/ai/providers/openrouter.provider.ts"
+    ],
+    "src/features/ai/rag/embedding.service.ts": [],
+    "src/features/ai/rag/rag.service.ts": [
+      "src/features/ai/rag/embedding.service.ts",
+      "src/features/ai/rag/vector-search.service.ts"
+    ],
+    "src/features/ai/rag/vector-search.service.ts": [],
+    "src/features/ai/README.md": [],
+    "src/features/ai/utils/date-range.ts": [],
+    "src/features/ai/utils/markdown.ts": [],
+    "src/features/ai/utils/token-counter.ts": [
+      "src/features/ai/interfaces/ai-message.interface.ts"
+    ],
+    "src/features/auth/auth.controller.ts": [
+      "src/features/auth/auth.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/auth/index.ts",
+      "src/packages/pipes/index.ts",
+      "src/packages/strategy/index.ts"
+    ],
+    "src/features/auth/auth.module.ts": [
+      "src/features/auth/auth.controller.ts",
+      "src/features/auth/auth.service.ts",
+      "src/features/email/email.module.ts",
+      "src/features/redis/redis.module.ts",
+      "src/features/user/user.module.ts",
+      "src/packages/configs/jwt-sign.config.ts",
+      "src/packages/strategy/index.ts"
+    ],
+    "src/features/auth/auth.service.ts": [
+      "src/features/email/email.service.ts",
+      "src/features/redis/redis.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/configs/jwt-sign.config.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/auth/index.ts",
+      "src/packages/entities/user/index.ts",
+      "src/packages/helpers/index.ts",
+      "src/packages/strategy/index.ts"
+    ],
+    "src/features/chapter/chapter.controller.ts": [
+      "src/features/chapter/chapter.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/chapter/chapter.module.ts": [
+      "src/features/chapter/chapter.controller.ts",
+      "src/features/chapter/chapter.repository.ts",
+      "src/features/chapter/chapter.service.ts"
+    ],
+    "src/features/chapter/chapter.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/index.ts"
+    ],
+    "src/features/chapter/chapter.service.ts": [
+      "src/database/database.module.ts",
+      "src/features/chapter/chapter.repository.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/class/class.controller.ts": [
+      "src/data/swaggers/data/class.swagger.ts",
+      "src/data/swaggers/messages/index.ts",
+      "src/features/class/class.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/class/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/class/class.module.ts": [
+      "src/features/class/class.controller.ts",
+      "src/features/class/class.repository.ts",
+      "src/features/class/class.service.ts",
+      "src/features/notification/notification.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/class/class.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/class/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/class/class.service.ts": [
+      "src/database/database.module.ts",
+      "src/features/class/class.repository.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/class/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/curriculum/curriculum.controller.ts": [
+      "src/features/curriculum/curriculum.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/curriculum/curriculum.module.ts": [
+      "src/features/curriculum/curriculum.controller.ts",
+      "src/features/curriculum/curriculum.repository.ts",
+      "src/features/curriculum/curriculum.service.ts",
+      "src/features/uploads/upload.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/curriculum/curriculum.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/curriculum/curriculum.service.ts": [
+      "src/database/database.module.ts",
+      "src/features/curriculum/curriculum.repository.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/dashboard/dashboard.controller.ts": [
+      "src/features/dashboard/dashboard.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/guards/jwt-auth.guard.ts"
+    ],
+    "src/features/dashboard/dashboard.module.ts": [
+      "src/features/dashboard/dashboard.controller.ts",
+      "src/features/dashboard/dashboard.repository.ts",
+      "src/features/dashboard/dashboard.service.ts",
+      "src/features/notification/notification.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/dashboard/dashboard.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts"
+    ],
+    "src/features/dashboard/dashboard.service.ts": [
+      "src/features/dashboard/dashboard.repository.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/email/email.controller.ts": [],
+    "src/features/email/email.module.ts": [
+      "src/features/email/email.controller.ts",
+      "src/features/email/email.service.ts"
+    ],
+    "src/features/email/email.service.ts": [
+      "src/features/email/mailer/mailer.service.ts"
+    ],
+    "src/features/email/mailer/mailer.module.ts": [
+      "src/features/email/mailer/mailer.service.ts"
+    ],
+    "src/features/email/mailer/mailer.service.ts": [],
+    "src/features/exercise/exercise.controller.ts": [
+      "src/data/swaggers/data/exercise.swagger.ts",
+      "src/data/swaggers/messages/index.ts",
+      "src/features/exercise/exercise.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/exercise/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/exercise/exercise.module.ts": [
+      "src/features/exercise/exercise.controller.ts",
+      "src/features/exercise/exercise.repository.ts",
+      "src/features/exercise/exercise.service.ts",
+      "src/features/lesson/lesson.module.ts",
+      "src/features/notification/notification.module.ts",
+      "src/features/session/session.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/exercise/exercise.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/exercise/index.ts"
+    ],
+    "src/features/exercise/exercise.service.ts": [
+      "src/features/exercise/exercise.repository.ts",
+      "src/features/lesson/lesson.service.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/session/session.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/exercise/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/lesson/lesson.controller.ts": [
+      "src/features/lesson/lesson.service.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/lesson/lesson.module.ts": [
+      "src/features/lesson/lesson.controller.ts",
+      "src/features/lesson/lesson.repository.ts",
+      "src/features/lesson/lesson.service.ts",
+      "src/features/uploads/upload.module.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/lesson/lesson.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/index.ts"
+    ],
+    "src/features/lesson/lesson.service.ts": [
+      "src/database/database.module.ts",
+      "src/features/lesson/lesson.repository.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/notification/notification.controller.ts": [
+      "src/features/notification/notification.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/notification/index.ts",
+      "src/packages/guards/jwt-auth.guard.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/notification/notification.module.ts": [
+      "src/features/notification/notification.controller.ts",
+      "src/features/notification/notification.repository.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/notification/notification.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/notification/index.ts"
+    ],
+    "src/features/notification/notification.service.ts": [
+      "src/features/notification/notification.repository.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/notification/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/redis/redis.controller.ts": [
+      "src/features/redis/redis.service.ts"
+    ],
+    "src/features/redis/redis.module.ts": [
+      "src/features/redis/redis.controller.ts",
+      "src/features/redis/redis.service.ts"
+    ],
+    "src/features/redis/redis.service.ts": [],
+    "src/features/schedule/schedule.controller.ts": [
+      "src/data/swaggers/data/schedule.swagger.ts",
+      "src/features/schedule/schedule.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/schedule/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/schedule/schedule.module.ts": [
+      "src/features/class/class.module.ts",
+      "src/features/schedule/schedule.controller.ts",
+      "src/features/schedule/schedule.repository.ts",
+      "src/features/schedule/schedule.service.ts"
+    ],
+    "src/features/schedule/schedule.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/schedule/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/schedule/schedule.service.ts": [
+      "src/features/class/class.service.ts",
+      "src/features/schedule/schedule.repository.ts",
+      "src/packages/entities/schedule/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/session/session.controller.ts": [
+      "src/data/swaggers/data/session.swagger.ts",
+      "src/data/swaggers/messages/index.ts",
+      "src/features/session/session.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/session/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/session/session.module.ts": [
+      "src/features/class/class.module.ts",
+      "src/features/lesson/lesson.module.ts",
+      "src/features/notification/notification.module.ts",
+      "src/features/session/session.controller.ts",
+      "src/features/session/session.repository.ts",
+      "src/features/session/session.service.ts",
+      "src/features/user/user.module.ts"
+    ],
+    "src/features/session/session.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/session/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/session/session.service.ts": [
+      "src/features/class/class.service.ts",
+      "src/features/lesson/lesson.service.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/session/session.repository.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/entities/session/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/student/student.controller.ts": [
+      "src/features/student/student.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/student/index.ts",
+      "src/packages/guards/jwt-auth.guard.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/student/student.module.ts": [
+      "src/features/student/student.controller.ts",
+      "src/features/student/student.repository.ts",
+      "src/features/student/student.service.ts"
+    ],
+    "src/features/student/student.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/student/index.ts"
+    ],
+    "src/features/student/student.service.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/features/student/student.repository.ts",
+      "src/packages/entities/student/index.ts",
+      "src/packages/guards/jwt-auth.guard.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/tuition/tuition.controller.ts": [
+      "src/features/tuition/tuition.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/tuition/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/tuition/tuition.module.ts": [
+      "src/features/notification/notification.module.ts",
+      "src/features/tuition/tuition.controller.ts",
+      "src/features/tuition/tuition.repository.ts",
+      "src/features/tuition/tuition.service.ts"
+    ],
+    "src/features/tuition/tuition.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/tuition/index.ts"
+    ],
+    "src/features/tuition/tuition.service.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/features/notification/notification.service.ts",
+      "src/features/tuition/tuition.repository.ts",
+      "src/packages/entities/tuition/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/features/uploads/upload.constant.ts": [],
+    "src/features/uploads/upload.controller.ts": [
+      "src/features/uploads/upload.interface.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/packages/decorators/index.ts"
+    ],
+    "src/features/uploads/upload.interface.ts": [],
+    "src/features/uploads/upload.module.ts": [
+      "src/features/uploads/upload.controller.ts",
+      "src/features/uploads/upload.provider.ts",
+      "src/features/uploads/upload.service.ts"
+    ],
+    "src/features/uploads/upload.provider.ts": [
+      "src/features/uploads/upload.constant.ts"
+    ],
+    "src/features/uploads/upload.service.ts": [
+      "src/features/uploads/upload.constant.ts",
+      "src/features/uploads/upload.interface.ts"
+    ],
+    "src/features/user/user.controller.ts": [
+      "src/data/swaggers/data/user.swagger.ts",
+      "src/data/swaggers/messages/index.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/entities/user/index.ts",
+      "src/packages/pipes/index.ts"
+    ],
+    "src/features/user/user.module.ts": [
+      "src/features/uploads/upload.module.ts",
+      "src/features/user/user.controller.ts",
+      "src/features/user/user.repository.ts",
+      "src/features/user/user.service.ts",
+      "src/packages/guards/index.ts"
+    ],
+    "src/features/user/user.repository.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/entities/user/index.ts"
+    ],
+    "src/features/user/user.service.ts": [
+      "src/data/constants/index.ts",
+      "src/features/uploads/upload.interface.ts",
+      "src/features/uploads/upload.service.ts",
+      "src/features/user/user.repository.ts",
+      "src/packages/entities/user/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/main.ts": [
+      "src/app.module.ts",
+      "src/packages/filters/index.ts",
+      "src/packages/interceptor/index.ts",
+      "src/packages/interceptor/response.interceptor.ts"
+    ],
+    "src/packages/configs/jwt-sign.config.ts": [
+      "src/packages/helpers/index.ts"
+    ],
+    "src/packages/decorators/api-success-response.decorator.ts": [
+      "src/packages/interfaces/index.ts"
+    ],
+    "src/packages/decorators/index.ts": [],
+    "src/packages/decorators/public.decorator.ts": [],
+    "src/packages/decorators/roles.decorator.ts": [
+      "src/packages/helpers/index.ts"
+    ],
+    "src/packages/decorators/user.decorator.ts": [
+      "src/packages/helpers/index.ts"
+    ],
+    "src/packages/entities/admin/admin.dto.ts": [
+      "src/packages/entities/admin/admin.schema.ts"
+    ],
+    "src/packages/entities/admin/admin.schema.ts": [],
+    "src/packages/entities/admin/index.ts": [],
+    "src/packages/entities/auth/auth.dto.ts": [
+      "src/packages/entities/auth/auth.schema.ts"
+    ],
+    "src/packages/entities/auth/auth.schema.ts": [],
+    "src/packages/entities/auth/index.ts": [],
+    "src/packages/entities/category/category.dto.ts": [
+      "src/packages/entities/category/category.schema.ts"
+    ],
+    "src/packages/entities/category/category.schema.ts": [],
+    "src/packages/entities/category/index.ts": [],
+    "src/packages/entities/class/class.dto.ts": [
+      "src/packages/entities/class/class.schema.ts"
+    ],
+    "src/packages/entities/class/class.schema.ts": [],
+    "src/packages/entities/class/index.ts": [],
+    "src/packages/entities/curriculum/curriculum.dto.ts": [
+      "src/packages/entities/curriculum/curriculum.schema.ts"
+    ],
+    "src/packages/entities/curriculum/curriculum.schema.ts": [],
+    "src/packages/entities/curriculum/index.ts": [],
+    "src/packages/entities/exercise/exercise.dto.ts": [
+      "src/packages/entities/exercise/exercise.schema.ts"
+    ],
+    "src/packages/entities/exercise/exercise.schema.ts": [],
+    "src/packages/entities/exercise/index.ts": [],
+    "src/packages/entities/index.ts": [],
+    "src/packages/entities/notification/index.ts": [],
+    "src/packages/entities/notification/notification.dto.ts": [
+      "src/packages/entities/notification/notification.schema.ts"
+    ],
+    "src/packages/entities/notification/notification.schema.ts": [],
+    "src/packages/entities/report/index.ts": [],
+    "src/packages/entities/report/report.dto.ts": [
+      "src/packages/entities/report/report.schema.ts"
+    ],
+    "src/packages/entities/report/report.schema.ts": [],
+    "src/packages/entities/schedule/index.ts": [],
+    "src/packages/entities/schedule/schedule.dto.ts": [
+      "src/packages/entities/schedule/schedule.schema.ts"
+    ],
+    "src/packages/entities/schedule/schedule.schema.ts": [],
+    "src/packages/entities/session/index.ts": [],
+    "src/packages/entities/session/session.dto.ts": [
+      "src/packages/entities/session/session.schema.ts"
+    ],
+    "src/packages/entities/session/session.schema.ts": [],
+    "src/packages/entities/student/index.ts": [],
+    "src/packages/entities/student/student.dto.ts": [
+      "src/packages/entities/student/student.schema.ts"
+    ],
+    "src/packages/entities/student/student.schema.ts": [],
+    "src/packages/entities/transactions/index.ts": [],
+    "src/packages/entities/transactions/transaction.dto.ts": [
+      "src/packages/entities/transactions/transaction.schema.ts"
+    ],
+    "src/packages/entities/transactions/transaction.schema.ts": [],
+    "src/packages/entities/tuition/index.ts": [],
+    "src/packages/entities/tuition/tuition.dto.ts": [
+      "src/packages/entities/tuition/tuition.schema.ts"
+    ],
+    "src/packages/entities/tuition/tuition.schema.ts": [],
+    "src/packages/entities/user/index.ts": [],
+    "src/packages/entities/user/user.dto.ts": [
+      "src/packages/entities/user/user.schema.ts"
+    ],
+    "src/packages/entities/user/user.schema.ts": [],
+    "src/packages/entities/wallet/index.ts": [],
+    "src/packages/entities/wallet/wallet.dto.ts": [
+      "src/packages/entities/wallet/wallet.schema.ts"
+    ],
+    "src/packages/entities/wallet/wallet.schema.ts": [],
+    "src/packages/filters/http-exception.filter.ts": [],
+    "src/packages/filters/index.ts": [],
+    "src/packages/guards/admin-role.guard.ts": [
+      "src/packages/guards/jwt-auth.guard.ts"
+    ],
+    "src/packages/guards/index.ts": [],
+    "src/packages/guards/jwt-auth.guard.ts": [
+      "src/database/database.module.ts",
+      "src/database/schema.ts",
+      "src/packages/decorators/index.ts",
+      "src/packages/helpers/index.ts"
+    ],
+    "src/packages/guards/roles.guard.ts": [
+      "src/packages/decorators/index.ts",
+      "src/packages/guards/jwt-auth.guard.ts"
+    ],
+    "src/packages/helpers/generate.helper.ts": [],
+    "src/packages/helpers/hashingData.helper.ts": [],
+    "src/packages/helpers/index.ts": [],
+    "src/packages/helpers/jwt.helper.ts": [],
+    "src/packages/helpers/queryList.helper.ts": [],
+    "src/packages/index.ts": [],
+    "src/packages/interceptor/error.interceptor.ts": [],
+    "src/packages/interceptor/index.ts": [],
+    "src/packages/interceptor/logger.interceptor.ts": [],
+    "src/packages/interceptor/response.interceptor.ts": [
+      "src/packages/decorators/index.ts",
+      "src/packages/interfaces/index.ts"
+    ],
+    "src/packages/interfaces/index.ts": [],
+    "src/packages/interfaces/interceptor.interface.ts": [],
+    "src/packages/pipes/index.ts": [],
+    "src/packages/pipes/zod-validation.pipe.ts": [],
+    "src/packages/strategy/google.strategy.ts": [],
+    "src/packages/strategy/index.ts": [],
+    "src/packages/strategy/jwt-user.strategy.ts": [],
+    "tsconfig.build.json": [],
+    "tsconfig.json": []
+  }
+}

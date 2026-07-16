@@ -12,9 +12,7 @@ import type {
   CreateUserInput,
   CreateUserResponseDto,
   GetUsersQueryDto,
-  UpdateGradeDto,
   UpdateUserDto,
-  UpdateUserGradesDto,
   UserDataFieldDto,
   User,
 } from '@packages/entities/user';
@@ -37,6 +35,7 @@ export class UserService {
     private readonly upload: UploadService,
   ) {}
 
+  // TODO: generate unique username from first/last name
   async generateUsername(firstName: string, lastName: string): Promise<string> {
     const baseUsername = `${lastName}${firstName}`
       .toLowerCase()
@@ -55,6 +54,7 @@ export class UserService {
     );
   }
 
+  // TODO: get and filter users, paginated
   async getUsersService(query: GetUsersQueryDto) {
     const { page, limit } = query;
     const offset = (page - 1) * limit;
@@ -88,10 +88,14 @@ export class UserService {
     };
   }
 
+  // TODO: get detail user by id
   async getDetailUserService({ id }: { id: string }): Promise<User | null> {
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
     return this.userRepo.findById(id);
   }
 
+  // TODO: get users by searchable field
   async getUserByField(userDataFieldDto: UserDataFieldDto): Promise<User[]> {
     if (
       !this.searchableFields.includes(
@@ -99,15 +103,17 @@ export class UserService {
       )
     ) {
       this.logger.warn(`Status: 400 - Unsupported field: ${userDataFieldDto.field}`);
-      throw new BadRequestException(`${ERROR_MESSAGES.UNSUPPORTED_FIELD}: ${userDataFieldDto.field}`);
+      throw new BadRequestException(
+        `${ERROR_MESSAGES.UNSUPPORTED_FIELD}: ${userDataFieldDto.field}`,
+      );
     }
 
-    return this.userRepo.findByField(userDataFieldDto.field, userDataFieldDto.value);
+    const users = await this.userRepo.findByField(userDataFieldDto.field, userDataFieldDto.value);
+    return users.map((user) => ({ ...user, role: user.role ?? 'STUDENT' }));
   }
 
+  // TODO: create user, check email/username uniqueness
   async createUserService(createUserDto: CreateUserInput): Promise<CreateUserResponseDto> {
-    this.logger.log(`Creating new user ...`);
-
     const { email, firstName, lastName, password, username } = createUserDto;
     let resolvedUsername = username?.trim();
 
@@ -163,64 +169,73 @@ export class UserService {
     };
   }
 
+  // TODO: update user password by id
   async updateUserPasswordService({ id, password }: { id: string; password: string }) {
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
+
+    const [user] = await this.getUserByField({
+      field: 'id',
+      value: id,
+    });
+    if (!user) {
+      throw new BadRequestException('User not found ...');
+    }
+
     const hashedPassword = await hashData(password);
     return this.userRepo.updatePassword(id, hashedPassword);
   }
 
+  // TODO: update user fields by id
   async updateUserService({ id, data }: { id: string; data: UpdateUserDto }) {
-    const user = await this.getUserByField({ field: 'id', value: id });
-    if (Array.isArray(user) && !user.length) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
+
+    const [user] = await this.getUserByField({
+      field: 'id',
+      value: id,
+    });
+    if (!user) {
+      throw new BadRequestException('User not found ...');
     }
 
     return this.userRepo.update(id, data);
   }
 
+  // TODO: toggle user active status by id
   async updateStatusUserService({ id }: { id: string }) {
-    const user = await this.getUserByField({ field: 'id', value: id });
-    if (Array.isArray(user) && !user.length) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
+
+    const [user] = await this.getUserByField({
+      field: 'id',
+      value: id,
+    });
+    if (!user) {
+      throw new BadRequestException('User not found ...');
     }
 
-    return this.userRepo.update(id, { isActive: !user[0].isActive });
+    return this.userRepo.update(id, { isActive: !user.isActive });
   }
 
+  // TODO: delete user by id, admin only
   async deleteUserByAdminService({ id }: { id: string }) {
-    const user = await this.getUserByField({ field: 'id', value: id });
-    if (Array.isArray(user) && !user.length) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
+
+    const [user] = await this.getUserByField({
+      field: 'id',
+      value: id,
+    });
+    if (!user) {
+      throw new BadRequestException('User not found ...');
     }
+
     await this.userRepo.delete(id);
     return { id };
   }
 
-  async getGradesService(userId: string) {
-    return this.userRepo.findGradesByUser(userId);
-  }
-
-  async updateGradeService(id: string, dto: UpdateGradeDto) {
-    const existing = await this.userRepo.findGradeById(id);
-    if (!existing) {
-      throw new BadRequestException(ERROR_MESSAGES.GRADE_NOT_FOUND);
-    }
-    return this.userRepo.updateGrade(id, dto);
-  }
-
-  async updateUserGradesService(userId: string, dto: UpdateUserGradesDto) {
-    const user = await this.userRepo.findById(userId);
-    if (!user) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
-    }
-
-    const validGrades = await this.userRepo.validateGradeIds(dto.gradesId);
-    if (validGrades.length !== dto.gradesId.length) {
-      throw new BadRequestException(ERROR_MESSAGES.INVALID_GRADE_IDS);
-    }
-
-    return this.userRepo.update(userId, { gradesId: dto.gradesId });
-  }
-
+  // TODO: change password, verify current password first
   async changePasswordService(userId: string, dto: ChangePasswordValues) {
     const user = await this.userRepo.findWithPassword(userId);
     if (!user) {
@@ -236,6 +251,7 @@ export class UserService {
     return { message: 'Password changed successfully' };
   }
 
+  // TODO: upload and set user avatar
   async uploadAvatarService(userId: string, file: MulterFile) {
     if (!userId || (userId && !checkUuidValid({ data: userId })))
       throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
