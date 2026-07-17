@@ -203,6 +203,10 @@ export const ERROR_TRANSLATIONS = {
     vi: 'Không tạo được mã người dùng duy nhất sau 5 lần thử',
     en: 'Cannot generate a unique user code after 5 attempts',
   },
+  UPDATE_USER_AVATAR_FAILED: {
+    vi: 'Thay đổi ảnh đại diện thất bại ...',
+    en: 'Update user avatar failed ...',
+  },
 
   // Admin
   ADMIN_INVALID_ID: { vi: 'ID không hợp lệ', en: 'Invalid id' },
@@ -248,6 +252,12 @@ export const ERROR_TRANSLATIONS = {
   GOOGLE_NO_PUBLIC_EMAIL: {
     vi: 'Tài khoản Google không có email công khai',
     en: 'Google account has no public email',
+  },
+
+  // Rate limit
+  TOO_MANY_REQUESTS: {
+    vi: 'Bạn đã gửi quá nhiều yêu cầu, vui lòng thử lại sau',
+    en: 'Too many requests, please try again later',
   },
 
   // Hasher

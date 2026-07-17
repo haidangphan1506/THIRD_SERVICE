@@ -17,7 +17,7 @@ import { TuitionModule } from './features/tuition/tuition.module';
 import { NotificationModule } from './features/notification/notification.module';
 import { ScheduleModule } from './features/schedule/schedule.module';
 import { SessionModule } from './features/session/session.module';
-import { JwtAuthGuard, LanguageGuard } from '@packages/guards';
+import { JwtAuthGuard, LanguageGuard, TokenBucketGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from './features/uploads/upload.module';
@@ -64,6 +64,10 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
     {
       provide: APP_GUARD,
       useClass: LanguageGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: TokenBucketGuard,
     },
   ],
 })

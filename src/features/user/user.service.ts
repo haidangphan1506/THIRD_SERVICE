@@ -261,10 +261,9 @@ export class UserService {
 
     const result: UploadResponse = await this.upload.upload(file, 'avatars');
 
-    if (result?.url) {
-      await this.userRepo.update(userId, { avatar: result.url });
-    }
-
-    return result;
+    if (!result?.url) throw new BadRequestException('');
+    const userUpdated = await this.userRepo.update(userId, { avatar: result.url });
+    if (!userUpdated) throw new BadRequestException(ERROR_MESSAGES.UPDATE_USER_AVATAR_FAILED);
+    return userUpdated;
   }
 }

@@ -30,10 +30,11 @@ import {
 } from '@packages/entities/auth';
 import { ApiResponse, Public } from '@packages/decorators';
 import { ZodValidationPipe } from '@packages/pipes';
-import type { GoogleProfile } from '@packages/strategy';
+import type { FacebookProfile, GoogleProfile } from '@packages/strategy';
 import { AuthService } from './auth.service';
 
 type RequestWithGoogleProfile = Request & { user: GoogleProfile };
+type RequestWithFacebookProfile = Request & { user: FacebookProfile };
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,6 +44,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  // TODO : register user ...
   @Public()
   @ApiBearerAuth('access-token')
   @Post('register')
@@ -73,6 +75,7 @@ export class AuthController {
     return this.authService.registerService(registerDto);
   }
 
+  //TODO : login user ...
   @Public()
   @Post('login')
   @HttpCode(StatusCodes.OK)
@@ -119,6 +122,7 @@ export class AuthController {
     return this.authService.loginService(loginDto);
   }
 
+  // TODO : login with usercode ...
   @Public()
   @Post('login/user-code')
   @HttpCode(StatusCodes.OK)
@@ -166,6 +170,7 @@ export class AuthController {
     return this.authService.loginByUserCodeService(dto);
   }
 
+  // TODO : refresh token ...
   @Public()
   @Post('refresh')
   @HttpCode(StatusCodes.OK)
@@ -281,6 +286,47 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<void> {
     const { accessToken, refreshToken } = await this.authService.googleLoginService(req.user);
+
+    const redirectBase =
+      this.configService.get<string>('GOOGLE_OAUTH_REDIRECT_URL') ??
+      'http://localhost:3000/oauth/callback';
+    const redirectUrl = new URL(redirectBase);
+    redirectUrl.searchParams.set('accessToken', accessToken);
+    redirectUrl.searchParams.set('refreshToken', refreshToken);
+
+    res.redirect(redirectUrl.toString());
+  }
+
+  // GET /auth/facebook
+  @Public()
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({
+    summary: 'Facebook OAuth login',
+    description: 'Redirect to Facebook consent screen for authentication',
+  })
+  @SwaggerResponse({ status: 302, description: 'Redirects to Facebook' })
+  facebookAuth(): void {
+    // Guard redirects to Facebook's consent screen; no body to return.
+  }
+
+  // GET /auth/facebook/callback
+  @Public()
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({
+    summary: 'Facebook OAuth callback',
+    description: 'Handle Facebook OAuth callback and return JWT tokens',
+  })
+  @SwaggerResponse({
+    status: 302,
+    description: 'Redirects to frontend with tokens in query params',
+  })
+  async facebookAuthCallback(
+    @Req() req: RequestWithFacebookProfile,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { accessToken, refreshToken } = await this.authService.facebookLoginService(req.user);
 
     const redirectBase =
       this.configService.get<string>('GOOGLE_OAUTH_REDIRECT_URL') ??
