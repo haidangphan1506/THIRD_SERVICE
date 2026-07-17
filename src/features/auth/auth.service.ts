@@ -29,7 +29,7 @@ import { randomUUID } from 'node:crypto';
 import { RedisService } from 'src/features/redis/redis.service';
 import { checkUuidValid, type JwtUserRole } from '@packages/helpers';
 import { CurrentUser } from '@packages/decorators';
-import type { GoogleProfile } from '@packages/strategy';
+import type { FacebookProfile, GoogleProfile } from '@packages/strategy';
 
 function parseRefreshTokenPayload(value: unknown): JwtRefreshPayload {
   if (typeof value !== 'object' || value === null) {
@@ -172,6 +172,32 @@ export class AuthService {
   }
 
   // TODO: login with google account ...
+  async facebookLoginService(profile: FacebookProfile): Promise<LoginResponseDto> {
+    const rows = await this.userService.getUserByField({ field: 'email', value: profile.email });
+    let user = rows[0];
+    if (!user) {
+      await this.userService.createUserService({
+        email: profile.email,
+        password: randomUUID(),
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        role: 'STUDENT',
+      });
+      const createdRows = await this.userService.getUserByField({ field: 'email', value: profile.email });
+      user = createdRows[0];
+      if (!user) throw new BadRequestException(ERROR_MESSAGES.FAILED_TO_CREATE_USER);
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role as JwtUserRole };
+    const [accessToken, refreshToken] = await Promise.all([
+      signAccessToken(this.jwtService, payload, this.jwtTokensConfig),
+      signRefreshToken(this.jwtService, { sub: user.id, email: user.email }, this.jwtTokensConfig),
+    ]);
+    await this.redis.set(`${this.ACCESS_TOKEN_REDIS_PREFIX}:${user.id}`, refreshToken, 604800);
+
+    return { accessToken, refreshToken, user: { id: user.id, email: user.email, userCode: user.userCode, username: user.username } };
+  }
+
   async googleLoginService(profile: GoogleProfile): Promise<LoginResponseDto> {
     const rows = await this.userService.getUserByField({
       field: 'email',
