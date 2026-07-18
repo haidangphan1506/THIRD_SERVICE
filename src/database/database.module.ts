@@ -1,39 +1,77 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+
 import * as schema from './schema';
+import { validateRequiredEnvs } from '@packages/helpers';
 
 export const DRIZZLE = 'DRIZZLE';
-
+export const DATABASE_ENVS = [
+  'POSTGRES_HOST',
+  'POSTGRES_PORT',
+  'POSTGRES_DB',
+  'POSTGRES_USER',
+  'POSTGRES_PASSWORD',
+] as const;
 @Global()
 @Module({
   providers: [
     {
       provide: DRIZZLE,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      useFactory: async (configService: ConfigService) => {
+        const logger = new Logger(DatabaseModule.name);
+
+        // Nếu không dùng DATABASE_URL thì validate từng biến
         const databaseUrl = configService.get<string>('DATABASE_URL')?.trim();
 
-        const connectionString =
-          databaseUrl && databaseUrl.length > 0
-            ? databaseUrl
-            : (() => {
-                const host = configService.get<string>('POSTGRES_HOST')?.trim() || 'localhost';
-                const port = configService.get<string>('POSTGRES_PORT')?.trim() || '5433';
-                const db = configService.get<string>('POSTGRES_DB')?.trim() || 'backends_db';
-                const user = configService.get<string>('POSTGRES_USER')?.trim() || 'postgres';
-                const password =
-                  configService.get<string>('POSTGRES_PASSWORD')?.trim() || 'postgres';
+        if (!databaseUrl) {
+          validateRequiredEnvs(configService, DATABASE_ENVS);
+        }
 
-                const url = new URL(`postgres://${host}:${port}/${db}`);
-                url.username = user;
-                url.password = password;
-                return url.toString();
-              })();
+        const connectionString =
+          databaseUrl ||
+          (() => {
+            const url = new URL(
+              `postgres://${configService.getOrThrow(
+                'POSTGRES_HOST',
+              )}:${configService.getOrThrow(
+                'POSTGRES_PORT',
+              )}/${configService.getOrThrow('POSTGRES_DB')}`,
+            );
+
+            url.username = configService.getOrThrow('POSTGRES_USER');
+            url.password = configService.getOrThrow('POSTGRES_PASSWORD');
+
+            return url.toString();
+          })();
 
         const client = postgres(connectionString);
-        return drizzle(client, { schema });
+
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY_MS = 2000;
+
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+          try {
+            await client`SELECT 1`;
+            logger.log('✅ PostgreSQL connected.');
+            return drizzle(client, { schema });
+          } catch (error) {
+            logger.warn(
+              `PostgreSQL connection attempt ${attempt}/${MAX_RETRIES} failed: ${
+                (error as Error).message
+              }`,
+            );
+
+            if (attempt === MAX_RETRIES) {
+              logger.error('❌ PostgreSQL connect failed.');
+              throw new Error('PostgreSQL connect failed');
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+          }
+        }
       },
     },
   ],
