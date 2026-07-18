@@ -30,7 +30,7 @@ export class StudentService {
     let attempts = 0;
     let newCode = generateCode();
 
-    while (await this.repo.findByCode({ code: newCode })) {
+    while (await this.repo.getStudentByField({ field: 'userCode', value: newCode })) {
       attempts++;
       if (attempts >= MAX_RETRIES) {
         throw new ConflictException(ERROR_MESSAGES.UNABLE_TO_GENERATE_UNIQUE_CODE);
@@ -87,7 +87,7 @@ export class StudentService {
     // request instead of silently generating a different code. Otherwise, auto-generate one.
     let studentCode: string;
     if (dto.userCode) {
-      const taken = await this.repo.findByCode({ code: dto.userCode });
+      const taken = await this.repo.getStudentByField({ field: 'userCode', value: dto.userCode });
       if (taken)
         throw new ConflictException(`${ERROR_MESSAGES.STUDENT_CODE_EXISTS}: ${dto.userCode}`);
       studentCode = dto.userCode;
@@ -114,8 +114,6 @@ export class StudentService {
 
       const parent = await this.repo.createParent({
         id: randomUUID(),
-        // Every account needs a unique, non-null email — fall back to a placeholder when
-        // the tutor didn't provide one instead of colliding on `''` for every parent-less student.
         email: dto.parentEmail || '',
         password: hashedParentPassword,
         username: parentUsername,
@@ -152,7 +150,7 @@ export class StudentService {
   }
 
   async findAll(query: GetStudentsQueryDto) {
-    return this.repo.findAll(query);
+    return this.repo.getAllStudents({ query });
   }
 
   async findById(id: string) {
@@ -170,35 +168,15 @@ export class StudentService {
       .from(classStudents)
       .where(eq(classStudents.studentId, id));
 
-    const sessionRows = await this.db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.classId, classRows[0]?.classId ?? ''))
-      .limit(10);
+    const sessionRows = classRows[0]?.classId
+      ? await this.db
+          .select()
+          .from(sessions)
+          .where(eq(sessions.classId, classRows[0].classId))
+          .limit(10)
+      : [];
 
-    let parentName: string | null = null;
-    let parentPhone: string | null = null;
-    let parentEmail: string | null = null;
-    let parentRelationship: string | null = null;
-    if (user.parentId) {
-      const [parent] = await this.db
-        .select({
-          firstName: users.firstName,
-          lastName: users.lastName,
-          phone: users.phone,
-          email: users.email,
-          relationship: users.relationship,
-        })
-        .from(users)
-        .where(eq(users.id, user.parentId))
-        .limit(1);
-      if (parent) {
-        parentName = `${parent.firstName} ${parent.lastName}`.trim();
-        parentPhone = parent.phone;
-        parentEmail = parent.email;
-        parentRelationship = parent.relationship;
-      }
-    }
+    const parent = user.parent;
 
     return {
       id: user.id,
@@ -214,10 +192,22 @@ export class StudentService {
         user.dateOfBirth instanceof Date ? user.dateOfBirth.toISOString() : user.dateOfBirth,
       school: user.school,
       parentId: user.parentId,
-      parentName,
-      parentPhone,
-      parentEmail,
-      parentRelationship,
+      parentName: parent ? `${parent.firstName} ${parent.lastName}`.trim() : null,
+      parentPhone: parent?.phone ?? null,
+      parentEmail: parent?.email ?? null,
+      parentRelationship: parent?.relationship ?? null,
+      parent: parent
+        ? {
+            id: parent.id,
+            firstName: parent.firstName,
+            lastName: parent.lastName,
+            email: parent.email,
+            phone: parent.phone,
+            relationship: parent.relationship,
+            userCode: parent.userCode,
+            avatar: parent.avatar,
+          }
+        : null,
       role: user.role,
       isActive: user.isActive,
       classCount: classRows.length,
@@ -248,7 +238,7 @@ export class StudentService {
     if (dto.school !== undefined) studentUpdate.school = dto.school || null;
     if (dto.avatar !== undefined) studentUpdate.avatar = dto.avatar;
 
-    let updated = student;
+    let updated: Omit<typeof student, 'parent'> = student;
     if (Object.keys(studentUpdate).length > 0) {
       updated = (await this.repo.update({ id, data: studentUpdate })) ?? student;
     }
@@ -296,7 +286,7 @@ export class StudentService {
           gender: dto.parentRelationship === 'FATHER' ? 'MALE' : 'FEMALE',
           tutorId: student.tutorId,
         });
-        updated = await this.repo.update({ id, data: parent });
+        updated = (await this.repo.update({ id, data: parent })) ?? student;
       }
     }
 

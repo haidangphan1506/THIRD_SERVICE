@@ -35,6 +35,16 @@ this is now an education / tutoring domain.)
   still return `{ <resource>, pagination }`. See `SessionRepository.getAll` (`GET /sessions`).
 - **Admin endpoints**: use `@Roles('ADMIN')` decorator (from `@packages/decorators`) +
   `RolesGuard` (from `@packages/guards`) — not a non-existent `@Admin()` decorator.
+- **`/students/*` and `/admin/students/*` are two separate, unrelated surfaces** — don't assume
+  a fix in one applies to the other. `src/features/student/*` is the normal feature-layered
+  student domain (parent linking, class enrollment, scores, sessions). `src/features/admin/*`
+  (`AdminController`/`AdminService`/`AdminRepository`) is a *generic* managed-user CRUD shared by
+  both `/admin/students` and `/admin/tutors` via a single `ManagedRole` ('TUTOR' | 'STUDENT')
+  parameter and one `publicColumns` projection — it has no parent-linking concept by default.
+  When a student-only field needs to reach the admin surface, add a dedicated repo method (e.g.
+  `findStudentDetail` selecting `parentId`, `findParentInfo` for the linked row) and branch only
+  in the student-specific service method (`getStudent`) — don't widen `publicColumns` or the
+  shared `getManagedUser`/`list`/`update`/`delete` helpers, since that would also affect Tutors.
 - **Error messages**: use `ERROR_MESSAGES` constants from `src/data/constants/error.constant.ts`.
   Never hardcode strings in `BadRequestException` / `ConflictException` / etc. For messages with
   dynamic values, compose via template literal: `` `${ERROR_MESSAGES.EMAIL_EXISTS}: ${email}` ``.

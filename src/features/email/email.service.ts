@@ -1,85 +1,63 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MailerService } from './mailer/mailer.service';
-
-export type SendForgotPasswordMailParams = {
-  to: string;
-  resetToken: string;
-  displayName: string;
-};
+import { Resend } from 'resend';
+import { SendMailOptions } from '@packages/interfaces';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
+  private readonly resend: Resend;
+  private readonly from: string;
+  private readonly resetPasswordUrlBase: string;
 
-  constructor(
-    private readonly mailer: MailerService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly configService: ConfigService) {
+    const apiKey = this.configService.getOrThrow<string>('RESEND_API_KEY');
+    this.from = this.configService.getOrThrow<string>('MAIL_FROM');
+    this.resetPasswordUrlBase = this.configService.get<string>(
+      'PASSWORD_RESET_URL_BASE',
+      'http://localhost:3000',
+    );
+    this.resend = new Resend(apiKey);
+  }
 
-  /**
-   * Gửi email chứa link reset (frontend ghép với `PASSWORD_RESET_URL_BASE`).
-   */
-  async sendForgotPasswordMail(params: SendForgotPasswordMailParams): Promise<void> {
-    const base =
-      this.configService.get<string>('PASSWORD_RESET_URL_BASE')?.trim() || 'http://localhost:3000';
-    const resetUrl = `${base.replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(params.resetToken)}`;
+  async testSendEmailService() {
+    return this.sendMail({
+      to: 'dang04223@gmail.com',
+      subject: 'test email sended ...',
+      html: '',
+      text: 'test email sended ...',
+    });
+  }
 
-    const subject = 'Đặt lại mật khẩu';
-    const text = [
-      `Xin chào ${params.displayName},`,
-      '',
-      'Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Mở liên kết sau (có hiệu lực giới hạn):',
-      resetUrl,
-      '',
-      'Nếu bạn không yêu cầu, bỏ qua email này.',
-    ].join('\n');
+  async sendForgotPasswordMail(params: { to: string; resetToken: string; displayName: string }) {
+    const resetUrl = `${this.resetPasswordUrlBase}/reset-password?token=${params.resetToken}`;
 
-    const html = `
-      <p>Xin chào <strong>${escapeHtml(params.displayName)}</strong>,</p>
-      <p>Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu.</p>
-      <p><a href="${encodeURI(resetUrl)}">Nhấn vào đây để đặt lại mật khẩu</a></p>
-      <p>Hoặc copy liên kết: <code>${escapeHtml(resetUrl)}</code></p>
-      <p>Nếu bạn không yêu cầu, bỏ qua email này.</p>
-    `.trim();
+    return this.sendMail({
+      to: params.to,
+      subject: 'Reset your password',
+      html: `<p>Hi ${params.displayName},</p><p>We received a request to reset your password. Click the link below to choose a new one:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in 5 minutes. If you didn't request this, you can ignore this email.</p>`,
+      text: `Hi ${params.displayName}, reset your password here: ${resetUrl} (expires in 5 minutes)`,
+    });
+  }
 
-    if (!this.mailer.isReady()) {
-      const nodeEnv = this.configService.get<string>('NODE_ENV')?.trim() || 'development';
-      if (nodeEnv === 'production') {
-        throw new ServiceUnavailableException(
-          'Mail is not configured (Gmail: MAIL_SERVICE=gmail + MAIL_USER + MAIL_PASS + MAIL_FROM; hoặc MAIL_HOST + MAIL_PORT)',
-        );
-      }
-      this.logger.warn(
-        `SMTP chưa cấu hình (${nodeEnv}) — không gửi email; token vẫn lưu Redis. Đặt MAIL_SERVICE=gmail + MAIL_USER + MAIL_PASS (+ MAIL_FROM) trong .env tại thư mục chạy Nest. Link reset (dev): ${resetUrl}`,
-      );
-      return;
-    }
-
+  private async sendMail(options: SendMailOptions) {
     try {
-      await this.mailer.sendMail({
-        to: params.to,
-        subject,
-        text,
-        html,
+      const { data, error } = await this.resend.emails.send({
+        from: this.from,
+        ...options,
       });
-      this.logger.log(
-        `Đã gửi email forgot-password tới ${params.to} — kiểm tra hộp thư & thư mục Spam.`,
-      );
-    } catch (err) {
-      this.logger.error(
-        `sendForgotPasswordMail failed for ${params.to}`,
-        err instanceof Error ? err.stack : err,
-      );
-      throw err;
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      this.logger.log(`Mail sent: ${JSON.stringify(data)}`);
+
+      return data;
+    } catch (error) {
+      this.logger.error('Failed to send mail', error);
+
+      throw error;
     }
   }
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }

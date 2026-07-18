@@ -21,6 +21,9 @@ export default tseslint.config(
       // TypeScript project (tsconfig only includes src/**). Exclude them from type-aware linting
       // so the project service does not fail to resolve them.
       '.claude/**',
+      // Seed/CLI scripts run directly via `bun scripts/*.ts` and are outside rootDir (src/),
+      // so tsconfig can't include them without breaking rootDir. Same rationale as .claude/** above.
+      'scripts/**',
     ],
   },
   eslint.configs.recommended,

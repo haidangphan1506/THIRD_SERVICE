@@ -51,8 +51,15 @@ export class AdminService {
     return this.listManagedUsers('STUDENT', query);
   }
 
-  getStudent(id: string) {
-    return this.getManagedUser(id, 'STUDENT');
+  async getStudent(id: string) {
+    this.assertUuid(id);
+    const { parentId, ...row } = (await this.adminRepository.findStudentDetail(id)) ?? {};
+    if (!row.id) {
+      throw new NotFoundException(ERROR_MESSAGES.STUDENT_NOT_FOUND);
+    }
+
+    const parent = parentId ? await this.adminRepository.findParentInfo(parentId) : null;
+    return { ...this.mapRow(row), parent };
   }
 
   updateStudent(id: string, dto: UpdateManagedUserDto) {

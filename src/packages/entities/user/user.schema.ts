@@ -232,8 +232,8 @@ export const createUserSchema = z
       .max(100, { message: 'First name must be at most 100 characters' }),
     password: z
       .string({ message: 'Password is required' })
-      .min(8, { message: 'Password must be at least 8 characters' })
-      .max(14, { message: 'Password must be at most 14 characters' }),
+      .min(6, { message: 'Password must be at least 6 characters' })
+      .max(20, { message: 'Password must be at most 20 characters' }),
     avatar: z
       .string({ message: 'Avatar must be string ...' })
       .url({ message: 'Avatar must be url ...' })

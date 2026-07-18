@@ -122,8 +122,15 @@ export class StudentController {
     format: 'uuid',
     description: 'Filter by class',
   })
+  @ApiQuery({
+    name: 'tutorId',
+    required: false,
+    type: String,
+    format: 'uuid',
+    description: 'Filter to students managed by this tutor',
+  })
   @SwaggerResponse({ status: 200, description: 'Students fetched' })
-  async findAll(
+  async getAllStudents(
     @Query(new ZodValidationPipe<GetStudentsQueryDto>(getStudentsQuerySchema))
     query: GetStudentsQueryDto,
   ) {
@@ -137,7 +144,61 @@ export class StudentController {
     description: 'Get student detail with classes, scores, recent sessions',
   })
   @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @SwaggerResponse({ status: 200, description: 'Student detail' })
+  @SwaggerResponse({
+    status: 200,
+    description: 'Student detail',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        email: { type: 'string', format: 'email' },
+        username: { type: 'string' },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        userCode: { type: 'string', nullable: true },
+        phone: { type: 'string', nullable: true },
+        avatar: { type: 'string', nullable: true },
+        gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'], nullable: true },
+        dateOfBirth: { type: 'string', format: 'date-time', nullable: true },
+        school: { type: 'string', nullable: true },
+        parentId: { type: 'string', format: 'uuid', nullable: true },
+        parentName: { type: 'string', nullable: true },
+        parentPhone: { type: 'string', nullable: true },
+        parentEmail: { type: 'string', nullable: true },
+        parentRelationship: {
+          type: 'string',
+          enum: ['FATHER', 'MOTHER', 'GUARDIAN'],
+          nullable: true,
+        },
+        parent: {
+          type: 'object',
+          nullable: true,
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            firstName: { type: 'string' },
+            lastName: { type: 'string' },
+            email: { type: 'string' },
+            phone: { type: 'string', nullable: true },
+            relationship: {
+              type: 'string',
+              enum: ['FATHER', 'MOTHER', 'GUARDIAN'],
+              nullable: true,
+            },
+            userCode: { type: 'string', nullable: true },
+            avatar: { type: 'string', nullable: true },
+          },
+        },
+        role: { type: 'string' },
+        isActive: { type: 'boolean' },
+        classCount: { type: 'number' },
+        score: { type: 'string', nullable: true },
+        classes: { type: 'array', items: { type: 'object' } },
+        recentSessions: { type: 'array', items: { type: 'object' } },
+        createdAt: { type: 'string', format: 'date-time' },
+        updatedAt: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
   @SwaggerResponse({ status: 404, description: 'Student not found' })
   async findById(@Param('id') id: string) {
     return this.studentService.findById(id);

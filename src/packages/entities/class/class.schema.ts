@@ -32,7 +32,12 @@ export const createClassSchema = z.object({
     .default([]),
 });
 
-export const updateClassSchema = createClassSchema.partial().omit({ tutorId: true });
+export const updateClassSchema = createClassSchema
+  .partial()
+  .omit({ tutorId: true })
+  .extend({
+    studentIds: z.array(z.string().uuid('Invalid student ID')).max(100).optional(),
+  });
 
 export const addStudentsSchema = z.object({
   studentIds: z

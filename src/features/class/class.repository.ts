@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, count, inArray } from 'drizzle-orm';
+import { and, asc, eq, count, inArray, notInArray, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { CreateClassDto, GetClassesQueryDto } from '@packages/entities/class';
+import { CreateClassDto, GetClassesQueryDto, UpdateClassDto } from '@packages/entities/class';
 import { chapters, classes, classStudents, lessons, users } from 'src/database/schema';
 import { buildListWhereClause } from '@packages/helpers';
 
@@ -49,6 +49,46 @@ export class ClassRepository {
     return classData;
   }
 
+  async update({ id, data }: { id: string; data: Omit<UpdateClassDto, 'studentIds'> }) {
+    const [classData] = await this.db
+      .update(classes)
+      .set({
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.code !== undefined && { code: data.code }),
+        ...(data.subject !== undefined && { subject: data.subject }),
+        ...(data.tuition !== undefined && { tuition: data.tuition.toString() }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.format !== undefined && { format: data.format }),
+        ...(data.startTime !== undefined && { startTime: data.startTime }),
+        ...(data.endTime !== undefined && { endTime: data.endTime }),
+        ...(data.location !== undefined && { location: data.location }),
+        ...(data.curriculumId !== undefined && { curriculumId: data.curriculumId }),
+        updatedAt: new Date(),
+      })
+      .where(eq(classes.id, id))
+      .returning();
+    return classData ?? null;
+  }
+
+  // reconcile a class's enrolled students to exactly `studentIds`: remove students no longer
+  // in the list, insert the ones newly added (duplicates skipped via the unique index).
+  async syncStudents({ classId, studentIds }: { classId: string; studentIds: string[] }) {
+    if (studentIds.length > 0) {
+      await this.db
+        .delete(classStudents)
+        .where(
+          and(eq(classStudents.classId, classId), notInArray(classStudents.studentId, studentIds)),
+        );
+      await this.db
+        .insert(classStudents)
+        .values(studentIds.map((studentId) => ({ classId, studentId })))
+        .onConflictDoNothing();
+    } else {
+      await this.db.delete(classStudents).where(eq(classStudents.classId, classId));
+    }
+  }
+
   async getClasses({
     userId,
     role,
@@ -77,7 +117,7 @@ export class ClassRepository {
     // scope by role: a STUDENT only sees classes they're enrolled in, a PARENT only sees
     // classes one of their children is enrolled in, everyone else (TUTOR/ADMIN) sees the
     // classes they own (tutorId).
-    let scopeWhere;
+    let scopeWhere: SQL | undefined;
     if (role === 'STUDENT') {
       const enrolledClassIds = this.db
         .select({ classId: classStudents.classId })

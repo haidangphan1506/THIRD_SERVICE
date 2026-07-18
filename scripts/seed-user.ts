@@ -1,7 +1,3 @@
-/**
- * Seed 3 fixed accounts: admin, student, parent.
- * Usage: bun scripts/seed-user.ts
- */
 import 'dotenv/config';
 import { randomUUID } from 'node:crypto';
 import { eq, ilike } from 'drizzle-orm';
@@ -44,6 +40,7 @@ const SEED_ACCOUNTS = [
     firstName: 'Student',
     lastName: 'Account',
     password: 'Student@123456',
+    userCode : "ABC123",
     role: 'STUDENT' as const,
   },
   {
@@ -51,6 +48,7 @@ const SEED_ACCOUNTS = [
     username: 'parent',
     firstName: 'Parent',
     lastName: 'Account',
+    userCode : "ABC456",
     password: 'Parent@123456',
     role: 'PARENT' as const,
   },
@@ -60,6 +58,7 @@ const SEED_ACCOUNTS = [
   firstName: string;
   lastName: string;
   password: string;
+  userCode?: string;
   role: 'ADMIN' | 'STUDENT' | 'PARENT';
 }>;
 

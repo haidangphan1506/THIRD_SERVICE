@@ -8,3 +8,9 @@
 - All tables use UUID primary keys (`.defaultRandom()`), snake_case column names mapped from
   camelCase TS properties, and `created_at` / `updated_at` timestamps.
 - Declare enums as `pgEnum('name', [...])` at the top of `schema.ts` before the tables use them.
+- When a where-condition is built conditionally across `if`/`else` branches (e.g. role-based list
+  scoping) rather than in one expression, annotate the accumulator explicitly as
+  `let scopeWhere: SQL | undefined;` (import `type SQL` from `drizzle-orm`). An untyped `let`
+  defaults to implicit `any`, which then makes any `conditions` array holding it `any[]` and
+  trips `@typescript-eslint/no-unsafe-argument` the moment it's spread into `and(...conditions)`.
+  See `ClassRepository.getClasses` for the reference shape.
