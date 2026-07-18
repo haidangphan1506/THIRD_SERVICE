@@ -25,7 +25,7 @@ stages:
 install:
   stage: install
   script:
-    - npm ci
+    - npm install
   artifacts:
     paths:
       - node_modules/
