@@ -66,8 +66,8 @@ export const createManagedUserSchema = z
       .max(100, { message: 'Last name must be at most 100 characters' }),
     password: z
       .string({ message: 'Password is required' })
-      .min(8, { message: 'Password must be at least 8 characters' })
-      .max(14, { message: 'Password must be at most 14 characters' }),
+      .min(6, { message: 'Password must be at least 6 characters' })
+      .max(20, { message: 'Password must be at most 20 characters' }),
     phone: z.string().trim().max(20, { message: 'Phone must be at most 20 characters' }).optional(),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
     dateOfBirth: z.coerce.date().optional(),

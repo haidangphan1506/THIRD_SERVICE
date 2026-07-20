@@ -38,5 +38,6 @@ export const getStudentsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
   search: z.string().trim().min(1).optional(),
-  classId: z.string().uuid().optional(),
+  classId: z.string().uuid().optional().default(''),
+  tutorId: z.string().uuid('Invalid tutor ID').optional(),
 });

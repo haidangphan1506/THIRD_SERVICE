@@ -75,6 +75,34 @@ export class AdminRepository {
     return row ?? null;
   }
 
+  /** Student detail also carries `parentId` so the service can enrich it with the parent's info. */
+  async findStudentDetail(id: string) {
+    const [row] = await this.db
+      .select({ ...publicColumns, parentId: users.parentId })
+      .from(users)
+      .where(and(eq(users.id, id), eq(users.role, 'STUDENT')))
+      .limit(1);
+    return row ?? null;
+  }
+
+  async findParentInfo(parentId: string) {
+    const [row] = await this.db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        relationship: users.relationship,
+        userCode: users.userCode,
+        avatar: users.avatar,
+      })
+      .from(users)
+      .where(eq(users.id, parentId))
+      .limit(1);
+    return row ?? null;
+  }
+
   async updateByIdAndRole(id: string, role: ManagedRole, data: Partial<typeof users.$inferInsert>) {
     const [row] = await this.db
       .update(users)

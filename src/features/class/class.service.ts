@@ -10,7 +10,12 @@ import { Inject } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { ClassRepository } from './class.repository';
 import { NotificationService } from '../notification/notification.service';
-import { AddStudentsDto, CreateClassDto, GetClassesQueryDto } from '@packages/entities/class';
+import {
+  AddStudentsDto,
+  CreateClassDto,
+  GetClassesQueryDto,
+  UpdateClassDto,
+} from '@packages/entities/class';
 import { checkUuidValid, generateCode } from '@packages/helpers';
 import { UserService } from '../user/user.service';
 import { ERROR_MESSAGES } from 'src/data/constants';
@@ -72,6 +77,55 @@ export class ClassService {
       throw new BadRequestException(ERROR_MESSAGES.TUTOR_NOT_FOUND);
     }
     return await this.repo.create({ data });
+  }
+
+  async updateClassService({
+    userId,
+    id,
+    data,
+  }: {
+    userId: string;
+    id: string;
+    data: UpdateClassDto;
+  }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException(ERROR_MESSAGES.CLASS_ID_MUST_BE_UUID);
+
+    const classData = await this.repo.getClassByField({ field: 'id', value: id });
+    if (!classData || classData.tutorId !== userId)
+      throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
+
+    if (data.name && data.name !== classData.name) {
+      const nameExtst = await this.repo.getClassByField({ field: 'name', value: data.name });
+      if (nameExtst && nameExtst.id !== id)
+        throw new BadRequestException(ERROR_MESSAGES.CLASS_NAME_EXISTS);
+    }
+
+    if (data.code && data.code !== classData.code) {
+      const codeExtst = await this.repo.getClassByField({ field: 'code', value: data.code });
+      if (codeExtst && codeExtst.id !== id)
+        throw new BadRequestException(ERROR_MESSAGES.CLASS_CODE_EXISTS);
+    }
+
+    const { studentIds, ...classFields } = data;
+
+    if (studentIds) {
+      const uniqueIds = [...new Set(studentIds)];
+      for (const studentId of uniqueIds) {
+        const found = await this.user.getUserByField({ field: 'id', value: studentId });
+        const student = Array.isArray(found) ? found[0] : found;
+        if (!student)
+          throw new BadRequestException(`${ERROR_MESSAGES.STUDENT_NOT_FOUND}: ${studentId}`);
+        if (student.role !== 'STUDENT')
+          throw new BadRequestException(`${ERROR_MESSAGES.USER_NOT_A_STUDENT}: ${studentId}`);
+      }
+      await this.repo.syncStudents({ classId: id, studentIds: uniqueIds });
+    }
+
+    const updated = await this.repo.update({ id, data: classFields });
+    return updated ?? classData;
   }
 
   async getClassesService({ userId, query }: { userId: string; query: GetClassesQueryDto }) {

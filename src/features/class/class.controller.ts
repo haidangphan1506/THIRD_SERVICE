@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -18,6 +18,8 @@ import {
   type CreateClassDto,
   addStudentsSchema,
   type AddStudentsDto,
+  updateClassSchema,
+  type UpdateClassDto,
 } from '@packages/entities/class';
 import { ClassService } from './class.service';
 import { CLASS_SWAGGER_MESSAGES } from 'src/data/swaggers/messages';
@@ -44,6 +46,24 @@ export class ClassController {
     @CurrentUser() user: Record<string, string>,
   ) {
     return this.classService.createClassService({ data: dto, userId: user.id });
+  }
+
+  // todo : update class controller ...
+  @Put(':id')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Update class',
+    description: "Update a class's info and/or reconcile its enrolled students",
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @SwaggerResponse({ status: 200, description: 'Class updated' })
+  update(
+    @Body(new ZodValidationPipe<UpdateClassDto>(updateClassSchema))
+    dto: UpdateClassDto,
+    @Param('id') id: string,
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return this.classService.updateClassService({ userId: user.id, id, data: dto });
   }
 
   // todo : generate a unique class code ...

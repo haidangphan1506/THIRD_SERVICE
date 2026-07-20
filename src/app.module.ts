@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './features/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-import { MailerModule } from './features/email/mailer/mailer.module';
+import { EmailModule } from './features/email/email.module';
 import { RedisModule } from './features/redis/redis.module';
 import { UserModule } from './features/user/user.module';
 import { AdminModule } from './features/admin/admin.module';
@@ -31,7 +31,7 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
       isGlobal: true,
     }),
     DatabaseModule,
-    MailerModule,
+    EmailModule,
     RedisModule,
     UserModule,
     AdminModule,
