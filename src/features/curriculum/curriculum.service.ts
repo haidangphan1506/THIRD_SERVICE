@@ -89,9 +89,6 @@ export class CurriculumService {
       page: query.page,
       limit: query.limit,
       search: query.search,
-      searchableColumns: {},
-      filters: {},
-      filterColumns: {},
     });
   }
 

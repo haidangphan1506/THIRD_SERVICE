@@ -17,14 +17,15 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ApiResponse, CurrentUser } from '@packages/decorators';
 import { StatusCodes } from 'http-status-codes';
 
 import {
-  type GetWalleDtotQueryDto,
+  type GetCurriculumsQueryDto,
   type CreateCurriculumDto,
-  getWalletsQuerySchema,
+  getCurriculumsQuerySchema,
 } from '@packages/entities';
 import { CurriculumService } from './curriculum.service';
 import { ZodValidationPipe } from '@packages/pipes';
@@ -83,11 +84,20 @@ export class CurriculumController {
     summary: 'Get all curriculum ...',
     description: 'Get all data curriculum ...',
   })
+  @ApiQuery({ name: 'page', type: Number, required: false, example: 1 })
+  @ApiQuery({ name: 'limit', type: Number, required: false, example: 10 })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    required: false,
+    example: '',
+    description: 'Search by subject or code',
+  })
   @SwaggerResponse({ status: StatusCodes.OK, description: 'Get all curriculum ...' })
   @ApiResponse({ statusCode: StatusCodes.OK, message: 'Get all curriculum ...' })
   async getAllCurriculumController(
-    @Query(new ZodValidationPipe<GetWalleDtotQueryDto>(getWalletsQuerySchema))
-    query: GetWalleDtotQueryDto,
+    @Query(new ZodValidationPipe<GetCurriculumsQueryDto>(getCurriculumsQuerySchema))
+    query: GetCurriculumsQueryDto,
     @CurrentUser() user: Record<string, string>,
   ) {
     this.logger.log('userid', user.id);

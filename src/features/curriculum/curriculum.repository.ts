@@ -38,22 +38,17 @@ export class CurriculumRepository {
     page = 1,
     limit = 10,
     search,
-    searchableColumns,
-    filters,
-    filterColumns,
   }: {
     page?: number;
     limit?: number;
     search?: string;
-    searchableColumns?: Record<string, any>;
-    filters?: Record<string, any>;
-    filterColumns?: Record<string, any>;
   }) {
     const whereClause = buildListWhereClause({
       search,
-      searchableColumns,
-      filters,
-      filterColumns,
+      searchableColumns: {
+        subject: { column: curriculums.subject },
+        code: { column: curriculums.code },
+      },
     });
 
     const [totalRow] = await this.db
