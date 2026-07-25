@@ -27,9 +27,11 @@ import {
   type CreateLessonBodyDto,
   type UpdateLessonDto,
   type GetLessonsQueryDto,
+  type RemoveLessonFileDto,
   createLessonBodySchema,
   updateLessonSchema,
   getLessonsQuerySchema,
+  removeLessonFileSchema,
 } from '@packages/entities';
 import { LessonService } from './lesson.service';
 import { ZodValidationPipe } from '@packages/pipes';
@@ -38,7 +40,7 @@ import type { MulterFile } from '../uploads/upload.interface';
 
 @ApiTags('Lesson')
 @ApiBearerAuth('access-token')
-@Controller('lesson')
+@Controller('curriculum/lessons')
 export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
@@ -195,6 +197,61 @@ export class LessonController {
       userId: user?.id,
       id,
       data: file,
+    });
+  }
+
+  @Delete(':id/add-theory')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({ summary: 'Remove a theory file from a lesson' })
+  @ApiParam({ name: 'id', description: 'Lesson ID', type: 'string' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', example: 'https://cdn.example.com/theory.pdf' },
+        key: { type: 'string', example: 'uploads/theory/uuid.pdf' },
+      },
+    },
+  })
+  @SwaggerResponse({ status: StatusCodes.OK, description: 'Remove a theory file from a lesson' })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Remove theory file successfully' })
+  async removeTheoryFromLessonController(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe<RemoveLessonFileDto>(removeLessonFileSchema))
+    data: RemoveLessonFileDto,
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return await this.lessonService.removeTheoryFromLessonService({ userId: user?.id, id, data });
+  }
+
+  @Delete(':id/exercises')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({ summary: 'Remove an exercise file from a lesson' })
+  @ApiParam({ name: 'id', description: 'Lesson ID', type: 'string' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', example: 'https://cdn.example.com/exercise.pdf' },
+        key: { type: 'string', example: 'uploads/exercises/uuid.pdf' },
+      },
+    },
+  })
+  @SwaggerResponse({
+    status: StatusCodes.OK,
+    description: 'Remove an exercise file from a lesson',
+  })
+  @ApiResponse({ statusCode: StatusCodes.OK, message: 'Remove exercise file successfully' })
+  async removeExerciseFromLessonController(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe<RemoveLessonFileDto>(removeLessonFileSchema))
+    data: RemoveLessonFileDto,
+    @CurrentUser() user: Record<string, string>,
+  ) {
+    return await this.lessonService.removeExerciseFromLessonService({
+      userId: user?.id,
+      id,
+      data,
     });
   }
 }

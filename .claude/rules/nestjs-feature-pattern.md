@@ -53,7 +53,14 @@ this is now an education / tutoring domain.)
   context.
 - **List query conditions**: `buildListWhereClause` from `@packages/helpers` is the standard
   helper for search+filter list endpoints. For simple queries (≤2 filters), manual `and()`/`eq()`
-  in the repository is acceptable.
+  in the repository is acceptable. The `searchableColumns`/`filterColumns` column config is
+  built *inside the repository* (it needs the Drizzle table object anyway) — the
+  service/controller only pass through `page`/`limit`/`search`/raw filter values from the query
+  DTO, never an empty `{}` placeholder. See `ClassRepository.getClasses` or
+  `CurriculumRepository.findAll` (search matches `subject` + `code`) as the reference. Also:
+  double-check a `GET .../` controller imports its *own* domain's `get{Name}sQuerySchema` /
+  `Get{Name}sQueryDto` — copy-pasting from another feature (e.g. a leftover wallet/category/
+  transaction import) silently drops fields like `search` from validation.
 - **M:N enrollment / linking** (e.g. add students to a class via `class_students`): expose a
   `POST /classes/:id/students` taking `{ studentIds: [...] }` (one route serves both single and
   bulk — a single is just a length-1 array). The service checks parent ownership
