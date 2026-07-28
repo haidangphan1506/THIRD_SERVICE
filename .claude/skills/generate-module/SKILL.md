@@ -36,3 +36,8 @@ by `FooService` (see `generate-service`) must have its module listed in `imports
 
 ## After
 Run `bun run build` (or `bunx tsc --noEmit`) to confirm the module resolves and DI compiles.
+
+## Not for infra modules
+This scaffold is for domain feature modules. A module wrapping an external connection
+(redis, rabbitmq) is `@Global()`, has no repository/controller, and exports its service(s)
+directly — see the "Infra modules" note in `.claude/rules/nestjs-feature-pattern.md`.

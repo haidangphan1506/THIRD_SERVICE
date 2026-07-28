@@ -7,7 +7,8 @@
       "Bash(rtk ls *)",
       "Read(//home/haidangphan/.claude/plugins/cache/understand-anything/understand-anything/2.9.3/packages/core/dist/**)",
       "Bash(npx tsc *)",
-      "Bash(./node_modules/.bin/tsc --noEmit -p .)"
+      "Bash(./node_modules/.bin/tsc --noEmit -p .)",
+      "Bash(rtk grep *)"
     ]
   }
 }

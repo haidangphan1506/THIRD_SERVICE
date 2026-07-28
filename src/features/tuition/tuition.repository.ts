@@ -89,7 +89,7 @@ export class TuitionRepository {
       .offset(offset);
 
     return {
-      data: rows.map((r) => this.serialize(r)),
+      tuitions: rows.map((r) => this.serialize(r)),
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }

@@ -46,6 +46,8 @@ export const getSessionsSchema = z.object({
   search: z.string().optional(),
   status: classSessionStatusEnum.optional(),
   classId: z.string().uuid('Invalid class ID').optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
 });
 
 /**
