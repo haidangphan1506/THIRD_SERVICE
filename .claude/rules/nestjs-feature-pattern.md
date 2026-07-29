@@ -78,3 +78,12 @@ this is now an education / tutoring domain.)
   (`@packages/helpers`), `ZodValidationPipe` (`@packages/pipes`), `@CurrentUser`/`@Public`/
   `@Admin` (`@packages/decorators`). Never re-implement pagination, validation, or UUID checks,
   and do not use the old `@User` decorator.
+- **Infra modules** (`src/features/redis/*`, `src/features/rabbitmq/*`) are a deliberate
+  exception to the layering above — they wrap an external connection, not a domain resource, so
+  there is no repository and normally no controller. Shape: `@Global()` module, one `Service`
+  owning the connection lifecycle (`OnModuleInit`/`OnModuleDestroy`, reads its URL from
+  `ConfigService`, logs via `Logger` not `console.log`), exported so any feature can inject it
+  directly (no need to add it to that feature's `imports`). For pub/sub (`rabbitmq`), split
+  publish/consume into separate `Producer`/`Consumer` classes that take the connection service in
+  their constructor rather than piling methods onto the connection `Service` itself. See
+  `RabbitMQModule` (`RabbitMQService` + `RabbitMQProducer` + `RabbitMQConsumer`) as the reference.

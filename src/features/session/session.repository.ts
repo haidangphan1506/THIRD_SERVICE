@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, count, desc, eq, inArray, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, inArray, lte, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import {
@@ -70,7 +70,7 @@ export class SessionRepository {
 
   // list every session across the classes the user owns (tutor) or is enrolled in (student)
   async getAll({ userId, query }: { userId: string; query: GetSessionsQueryDto }) {
-    const { page = 1, limit = 10, search, status, classId } = query;
+    const { page = 1, limit = 10, search, status, classId, startDate, endDate } = query;
 
     const ownedClassIds = this.db
       .select({ id: classes.id })
@@ -96,7 +96,13 @@ export class SessionRepository {
       inArray(sessions.classId, ownedClassIds),
       inArray(sessions.classId, enrolledClassIds),
     );
-    const whereClause = and(...[searchWhere, accessWhere].filter((c) => c !== undefined));
+    const dateWhere = and(
+      ...(startDate ? [gte(sessions.startAt, startDate)] : []),
+      ...(endDate ? [lte(sessions.startAt, endDate)] : []),
+    );
+    const whereClause = and(
+      ...[searchWhere, accessWhere, dateWhere].filter((c) => c !== undefined),
+    );
 
     const [totalRow] = await this.db.select({ total: count() }).from(sessions).where(whereClause);
     const total = Number(totalRow?.total ?? 0);

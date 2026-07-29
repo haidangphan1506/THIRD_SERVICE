@@ -1,35 +1,38 @@
 import { z } from 'zod';
-import { reportByCategorySchema, reportRangeSchema, reportTrendSchema } from './report.schema';
+import { getLearningClassReportsQuerySchema } from './report.schema';
 
-export type ReportRangeDto = z.infer<typeof reportRangeSchema>;
-export type ReportByCategoryDto = z.infer<typeof reportByCategorySchema>;
-export type ReportTrendDto = z.infer<typeof reportTrendSchema>;
+export type GetLearningClassReportsQueryDto = z.infer<typeof getLearningClassReportsQuerySchema>;
 
-export type ReportSummary = {
-  totalIncome: number;
-  totalExpense: number;
-  net: number;
+export type LearningReportSummary = {
+  activeClasses: number;
+  avgAttendanceRate: number;
+  avgCurriculumProgress: number;
+  submissionRate: number;
 };
 
-export type ReportByCategoryItem = {
-  categoryId: string;
-  name: string;
-  color: string | null;
-  icon: string | null;
-  type: 'INCOME' | 'EXPENSE';
-  total: number;
+export type AttendanceTrendPoint = {
+  month: string;
+  rate: number;
 };
 
-export type ReportTrendItem = {
-  period: string;
-  income: number;
-  expense: number;
+export type ClassReportRow = {
+  classId: string;
+  className: string;
+  tutorName: string;
+  studentCount: number;
+  attendanceRate: number;
+  curriculumProgress: number;
+  assignmentsSubmitted: number;
+  assignmentsTotal: number;
+  averageScore: number | null;
 };
 
-export type ReportByWalletItem = {
-  walletId: string;
-  name: string;
-  income: number;
-  expense: number;
-  net: number;
+export type ClassReportsApiPayload = {
+  data: ClassReportRow[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 };

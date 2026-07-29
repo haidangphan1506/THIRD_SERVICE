@@ -6,6 +6,7 @@ import { AuthModule } from './features/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './features/email/email.module';
 import { RedisModule } from './features/redis/redis.module';
+import { RabbitMQModule } from './features/rabbitmq/rabbitmq.module';
 import { UserModule } from './features/user/user.module';
 import { AdminModule } from './features/admin/admin.module';
 import { ClassModule } from './features/class/class.module';
@@ -24,6 +25,7 @@ import { UploadModule } from './features/uploads/upload.module';
 import { ExerciseModule } from './features/exercise/exercise.module';
 import { AiModule } from './features/ai/ai.module';
 import { DashboardModule } from './features/dashboard/dashboard.module';
+import { ReportModule } from './features/report/report.module';
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
     DatabaseModule,
     EmailModule,
     RedisModule,
+    RabbitMQModule,
     UserModule,
     AdminModule,
     AuthModule,
@@ -49,6 +52,7 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
     ExerciseModule,
     AiModule,
     DashboardModule,
+    ReportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },

@@ -81,6 +81,8 @@ export class SessionController {
     enum: ['SCHEDULED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'POSTPONED'],
   })
   @ApiQuery({ name: 'classId', required: false, type: String, format: 'uuid' })
+  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Filter sessions starting from this date (ISO)' })
+  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Filter sessions ending at this date (ISO)' })
   @SwaggerResponse({
     status: StatusCodes.OK,
     description: SESSION_SWAGGER_MESSAGES.GET_SESSIONS_SUCCESSFULLY,

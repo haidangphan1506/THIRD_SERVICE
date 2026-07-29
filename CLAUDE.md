@@ -213,6 +213,8 @@ Entities live in `src/packages/entities/{domain}/`:
 | `MAIL_PASS`                   | SMTP password                  | Required in production               |
 | `MAIL_FROM`                   | Sender email address           | Required in production               |
 | `PASSWORD_RESET_URL_BASE`     | Frontend reset password URL    | `http://localhost:3000`              |
+| `RABBITMQ_URL`                | RabbitMQ connection URL        | Required                             |
+| `RABBITMQ_EXCHANGE`           | Topic exchange name            | `app.events`                         |
 
 ## Docker Services
 
