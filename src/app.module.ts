@@ -35,7 +35,7 @@ import { ReportModule } from './features/report/report.module';
     DatabaseModule,
     EmailModule,
     RedisModule,
-    RabbitMQModule,
+    // RabbitMQModule,
     UserModule,
     AdminModule,
     AuthModule,

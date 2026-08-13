@@ -21,7 +21,7 @@ export const S3ClientProvider: Provider = {
       endpoint,
       credentials: { accessKeyId, secretAccessKey },
       forcePathStyle: true,
-      requestHandler: { requestTimeout: 10_000 },
+      requestHandler: { requestTimeout: 30_000 },
     });
   },
 };
