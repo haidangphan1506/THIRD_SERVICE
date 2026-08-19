@@ -107,6 +107,21 @@ export const updateManagedUserSchema = z
   })
   .strict();
 
+/**
+ * Update a STUDENT account — superset of `updateManagedUserSchema` covering the
+ * remaining `users` columns relevant to a student profile (address, parent/tutor
+ * links, student code). Kept separate from the tutor update schema so widening it
+ * never leaks student-only fields onto `/admin/tutors/:id`.
+ */
+export const updateManagedStudentSchema = updateManagedUserSchema.extend({
+  userCode: z.string().max(6, { message: 'User code must be at most 6 characters' }).optional(),
+  address: z.string().nullable().optional(),
+  district: z.string().max(30).nullable().optional(),
+  province: z.string().max(30).nullable().optional(),
+  parentId: z.string().uuid({ message: 'parentId must be uuid' }).nullable().optional(),
+  tutorId: z.string().uuid({ message: 'tutorId must be uuid' }).nullable().optional(),
+});
+
 /** Paginated list query for `/admin/tutors` and `/admin/students`. */
 export const listManagedUsersQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),

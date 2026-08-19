@@ -26,11 +26,18 @@ export const updateStudentSchema = z.object({
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
   birthday: z.coerce.date().optional(),
   school: z.string().max(255).optional(),
-  className: z.string().max(255).optional(),
+  address: z.string().max(500).optional(),
+  district: z.string().max(30).optional(),
+  province: z.string().max(30).optional(),
+  // Replaces (not adds to) the student's current class enrollment — '' explicitly un-enrolls.
+  classId: z.union([z.literal(''), z.string().uuid()]).optional(),
   parentName: z.string().min(1).max(255).optional(),
   parentPhone: z.string().max(20).optional(),
   parentEmail: z.string().email('Invalid parent email').optional(),
   parentRelationship: z.enum(['FATHER', 'MOTHER', 'GUARDIAN']).optional(),
+  parentAddress: z.string().max(500).optional(),
+  parentDistrict: z.string().max(30).optional(),
+  parentProvince: z.string().max(30).optional(),
   avatar: z.string().url().optional().nullable(),
 });
 
@@ -40,4 +47,11 @@ export const getStudentsQuerySchema = z.object({
   search: z.string().trim().min(1).optional(),
   classId: z.string().uuid().optional().default(''),
   tutorId: z.string().uuid('Invalid tutor ID').optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  // `z.coerce.boolean()` treats the string "false" as truthy — use an explicit enum instead so
+  // `?isActive=false` from the query string actually filters to inactive students.
+  isActive: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === 'true')),
 });

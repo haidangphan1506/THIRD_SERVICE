@@ -11,6 +11,7 @@ import type {
   CreateManagedUserDto,
   ListManagedUsersQueryDto,
   UpdateManagedUserDto,
+  UpdateManagedStudentDto,
 } from '@packages/entities/admin';
 import { checkUuidValid, generateCode, hashData } from '@packages/helpers';
 import { AdminRepository, type ManagedRole } from './admin.repository';
@@ -62,8 +63,26 @@ export class AdminService {
     return { ...this.mapRow(row), parent };
   }
 
-  updateStudent(id: string, dto: UpdateManagedUserDto) {
-    return this.updateManagedUser(id, 'STUDENT', dto);
+  async updateStudent(id: string, dto: UpdateManagedStudentDto) {
+    if (dto.userCode) {
+      const [existing] = await this.adminRepository.findByUserCode(dto.userCode.trim());
+      if (existing && existing.id !== id) {
+        throw new ConflictException(
+          `${ERROR_MESSAGES.STUDENT_CODE_EXISTS}: ${dto.userCode.trim()}`,
+        );
+      }
+    }
+    if (dto.parentId) {
+      const exists = await this.adminRepository.existsWithRole(dto.parentId, 'PARENT');
+      if (!exists) throw new NotFoundException(ERROR_MESSAGES.PARENT_NOT_FOUND);
+    }
+    if (dto.tutorId) {
+      const exists = await this.adminRepository.existsWithRole(dto.tutorId, 'TUTOR');
+      if (!exists) throw new NotFoundException(ERROR_MESSAGES.TUTOR_NOT_FOUND);
+    }
+
+    await this.updateManagedUser(id, 'STUDENT', dto);
+    return this.getStudent(id);
   }
 
   deleteStudent(id: string) {
@@ -124,7 +143,11 @@ export class AdminService {
     return this.mapRow(row);
   }
 
-  private async updateManagedUser(id: string, role: ManagedRole, dto: UpdateManagedUserDto) {
+  private async updateManagedUser(
+    id: string,
+    role: ManagedRole,
+    dto: UpdateManagedUserDto | UpdateManagedStudentDto,
+  ) {
     this.assertUuid(id);
     await this.getManagedUser(id, role);
 

@@ -42,9 +42,28 @@ this is now an education / tutoring domain.)
   both `/admin/students` and `/admin/tutors` via a single `ManagedRole` ('TUTOR' | 'STUDENT')
   parameter and one `publicColumns` projection — it has no parent-linking concept by default.
   When a student-only field needs to reach the admin surface, add a dedicated repo method (e.g.
-  `findStudentDetail` selecting `parentId`, `findParentInfo` for the linked row) and branch only
-  in the student-specific service method (`getStudent`) — don't widen `publicColumns` or the
-  shared `getManagedUser`/`list`/`update`/`delete` helpers, since that would also affect Tutors.
+  `findStudentDetail` selecting `parentId`/`address`/`district`/`province`/`tutorId`,
+  `findParentInfo` for the linked row) and branch only in the student-specific service method
+  (`getStudent`) — don't widen `publicColumns` or the shared `getManagedUser`/`list`/`update`/
+  `delete` helpers, since that would also affect Tutors. The same split applies to **update**:
+  when the student surface needs more writable fields than the tutor surface, add a dedicated
+  `updateManagedStudentSchema` that `.extend()`s the shared `updateManagedUserSchema` (never
+  widen the shared one — that leaks student-only fields onto `/admin/tutors/:id`), do the extra
+  FK/uniqueness checks (`AdminRepository.existsWithRole`, `findByUserCode`) in the student-only
+  service method (`updateStudent`), then delegate to the shared private `updateManagedUser` for
+  the actual write (its `dto` param is typed as the union of both schemas so it still accepts the
+  wider student payload) and return via `getStudent` for the fully-enriched response. See
+  `AdminService.updateStudent` / `updateManagedStudentSchema` (`admin.schema.ts`) as the reference.
+- **Role-gated self-update field restriction**: when a self-service update route
+  (`@CurrentUser()`-scoped, e.g. `PUT /users`) must forbid one role from changing specific fields
+  while an admin-by-id route (`PUT /users/:id`) stays unrestricted, don't add the check to the
+  shared write method — wrap it in a dedicated service method (e.g.
+  `UserService.updateOwnProfileService({ id, role, data })`) that inspects `data` for the
+  forbidden keys, throws `BadRequestException` with a dedicated `ERROR_MESSAGES` entry on a hit,
+  and otherwise delegates to the general `updateUserService`. Only the self-update controller
+  action calls the wrapper; the by-id action keeps calling the general method directly. See
+  `UserService.updateOwnProfileService` (blocks STUDENT from editing `firstName`/`lastName`) as
+  the reference.
 - **Error messages**: use `ERROR_MESSAGES` constants from `src/data/constants/error.constant.ts`.
   Never hardcode strings in `BadRequestException` / `ConflictException` / etc. For messages with
   dynamic values, compose via template literal: `` `${ERROR_MESSAGES.EMAIL_EXISTS}: ${email}` ``.

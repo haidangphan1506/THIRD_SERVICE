@@ -75,14 +75,35 @@ export class AdminRepository {
     return row ?? null;
   }
 
-  /** Student detail also carries `parentId` so the service can enrich it with the parent's info. */
+  /**
+   * Student detail also carries the columns not in the shared `publicColumns`
+   * projection (address/district/province/parentId/tutorId) so the service can
+   * both enrich it with the parent's info and expose the full student profile.
+   */
   async findStudentDetail(id: string) {
     const [row] = await this.db
-      .select({ ...publicColumns, parentId: users.parentId })
+      .select({
+        ...publicColumns,
+        address: users.address,
+        district: users.district,
+        province: users.province,
+        parentId: users.parentId,
+        tutorId: users.tutorId,
+      })
       .from(users)
       .where(and(eq(users.id, id), eq(users.role, 'STUDENT')))
       .limit(1);
     return row ?? null;
+  }
+
+  /** Existence check for optional cross-entity FKs (e.g. `parentId`, `tutorId`) before a write. */
+  async existsWithRole(id: string, role: JwtUserRole) {
+    const [row] = await this.db
+      .select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.id, id), eq(users.role, role)))
+      .limit(1);
+    return !!row;
   }
 
   async findParentInfo(parentId: string) {

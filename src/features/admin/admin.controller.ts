@@ -26,9 +26,11 @@ import { ZodValidationPipe } from '@packages/pipes';
 import {
   createManagedUserSchema,
   updateManagedUserSchema,
+  updateManagedStudentSchema,
   listManagedUsersQuerySchema,
   type CreateManagedUserDto,
   type UpdateManagedUserDto,
+  type UpdateManagedStudentDto,
   type ListManagedUsersQueryDto,
 } from '@packages/entities/admin';
 import { AdminService } from './admin.service';
@@ -78,6 +80,19 @@ const UPDATE_ACCOUNT_BODY_SCHEMA = {
     description: { type: 'string', maxLength: 5000, nullable: true, example: 'Short bio' },
     avatar: { type: 'string', format: 'uri', nullable: true },
     isActive: { type: 'boolean', example: true },
+  },
+};
+
+const UPDATE_STUDENT_BODY_SCHEMA = {
+  type: 'object',
+  properties: {
+    ...UPDATE_ACCOUNT_BODY_SCHEMA.properties,
+    userCode: { type: 'string', maxLength: 6, example: 'STU001' },
+    address: { type: 'string', nullable: true, example: '123 Le Loi' },
+    district: { type: 'string', maxLength: 30, nullable: true, example: 'Quan 1' },
+    province: { type: 'string', maxLength: 30, nullable: true, example: 'TP HCM' },
+    parentId: { type: 'string', format: 'uuid', nullable: true },
+    tutorId: { type: 'string', format: 'uuid', nullable: true },
   },
 };
 
@@ -206,13 +221,16 @@ export class AdminController {
 
   @Put('students/:id')
   @HttpCode(StatusCodes.OK)
-  @ApiOperation({ summary: 'Update student' })
+  @ApiOperation({
+    summary: 'Update student',
+    description: 'Admin update of a student — every profile field is editable.',
+  })
   @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @ApiBody({ schema: UPDATE_ACCOUNT_BODY_SCHEMA })
+  @ApiBody({ schema: UPDATE_STUDENT_BODY_SCHEMA })
   @SwaggerResponse({ status: 200, description: 'Student updated' })
   updateStudent(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(updateManagedUserSchema)) dto: UpdateManagedUserDto,
+    @Body(new ZodValidationPipe(updateManagedStudentSchema)) dto: UpdateManagedStudentDto,
   ) {
     return this.adminService.updateStudent(id, dto);
   }
