@@ -4,7 +4,7 @@ import { alias } from 'drizzle-orm/pg-core';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { CreateClassDto, GetClassesQueryDto, UpdateClassDto } from '@packages/entities/class';
-import { chapters, classes, classStudents, lessons, users } from 'src/database/schema';
+import { chapters, classes, classStudents, lessons, schedules, users } from 'src/database/schema';
 import { buildListWhereClause } from '@packages/helpers';
 
 @Injectable()
@@ -114,9 +114,6 @@ export class ClassRepository {
       },
     });
 
-    // scope by role: a STUDENT only sees classes they're enrolled in, a PARENT only sees
-    // classes one of their children is enrolled in, everyone else (TUTOR/ADMIN) sees the
-    // classes they own (tutorId).
     let scopeWhere: SQL | undefined;
     if (role === 'STUDENT') {
       const enrolledClassIds = this.db
@@ -157,8 +154,57 @@ export class ClassRepository {
       .where(whereClause)
       .limit(limitNumber)
       .offset(offset);
+
+    const classIds = classesRow.map((c) => c.id);
+    const [studentsRows, schedulesRows] =
+      classIds.length > 0
+        ? await Promise.all([
+            this.db
+              .select({
+                classId: classStudents.classId,
+                id: users.id,
+                firstName: users.firstName,
+                lastName: users.lastName,
+                email: users.email,
+                phone: users.phone,
+                avatar: users.avatar,
+                userCode: users.userCode,
+                gender: users.gender,
+                school: users.school,
+                enrolledAt: classStudents.createdAt,
+              })
+              .from(classStudents)
+              .innerJoin(users, eq(users.id, classStudents.studentId))
+              .where(inArray(classStudents.classId, classIds))
+              .orderBy(classStudents.createdAt),
+            this.db
+              .select()
+              .from(schedules)
+              .where(inArray(schedules.classId, classIds))
+              .orderBy(asc(schedules.dayOfWeek)),
+          ])
+        : [[], []];
+
+    const studentsByClass = new Map<string, (typeof studentsRows)[number][]>();
+    for (const student of studentsRows) {
+      const list = studentsByClass.get(student.classId) ?? [];
+      list.push(student);
+      studentsByClass.set(student.classId, list);
+    }
+
+    const schedulesByClass = new Map<string, (typeof schedulesRows)[number][]>();
+    for (const schedule of schedulesRows) {
+      const list = schedulesByClass.get(schedule.classId) ?? [];
+      list.push(schedule);
+      schedulesByClass.set(schedule.classId, list);
+    }
+
     return {
-      classes: classesRow,
+      classes: classesRow.map((classData) => ({
+        ...classData,
+        students: studentsByClass.get(classData.id) ?? [],
+        schedules: schedulesByClass.get(classData.id) ?? [],
+      })),
       pagination: {
         total,
         page: pageNumber,

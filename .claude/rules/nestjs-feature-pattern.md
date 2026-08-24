@@ -80,6 +80,15 @@ this is now an education / tutoring domain.)
   double-check a `GET .../` controller imports its *own* domain's `get{Name}sQuerySchema` /
   `Get{Name}sQueryDto` — copy-pasting from another feature (e.g. a leftover wallet/category/
   transaction import) silently drops fields like `search` from validation.
+- **Nesting a parent's children into a paginated list row** (e.g. each class row in
+  `GET /classes` carries its `students` and `schedules`): after fetching the page of parent
+  rows, collect their ids, then fetch all children for that whole id set in one query per child
+  type via `inArray(child.parentId, parentIds)` (run the child queries together with
+  `Promise.all`), group each result into a `Map<parentId, child[]>`, and attach
+  `map.get(parent.id) ?? []` when mapping the final response. Never loop the parent rows and
+  query per-row (N+1). Skip the child queries entirely when the id list is empty. See
+  `ClassRepository.getClasses` (students + schedules) as the reference; the single-row
+  equivalent (`ClassRepository.getClass`) just does one join since there's only one parent id.
 - **M:N enrollment / linking** (e.g. add students to a class via `class_students`): expose a
   `POST /classes/:id/students` taking `{ studentIds: [...] }` (one route serves both single and
   bulk — a single is just a length-1 array). The service checks parent ownership
