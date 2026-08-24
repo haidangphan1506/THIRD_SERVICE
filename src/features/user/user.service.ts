@@ -202,6 +202,27 @@ export class UserService {
     return this.userRepo.update(id, data);
   }
 
+  /**
+   * Self-update (`PUT /users`, acting user editing their own profile). A STUDENT may
+   * not change their own `firstName`/`lastName` — only admin (`/admin/students/:id`)
+   * is allowed to rename a student.
+   */
+  async updateOwnProfileService({
+    id,
+    role,
+    data,
+  }: {
+    id: string;
+    role: string;
+    data: UpdateUserDto;
+  }) {
+    if (role === 'STUDENT' && (data.firstName !== undefined || data.lastName !== undefined)) {
+      throw new BadRequestException(ERROR_MESSAGES.STUDENT_CANNOT_UPDATE_NAME);
+    }
+
+    return this.updateUserService({ id, data });
+  }
+
   // TODO: toggle user active status by id
   async updateStatusUserService({ id }: { id: string }) {
     if (!id || !checkUuidValid({ data: id }))

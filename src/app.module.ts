@@ -6,6 +6,7 @@ import { AuthModule } from './features/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './features/email/email.module';
 import { RedisModule } from './features/redis/redis.module';
+// import { RabbitMQModule } from './features/rabbitmq/rabbitmq.module';
 import { UserModule } from './features/user/user.module';
 import { AdminModule } from './features/admin/admin.module';
 import { ClassModule } from './features/class/class.module';

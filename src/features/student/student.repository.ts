@@ -2,9 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { GetStudentsQueryDto } from '@packages/entities/student';
 import { buildListWhereClause } from '@packages/helpers';
 import { and, count, desc, eq, inArray } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from 'src/database/database.module';
-import { classStudents, users } from 'src/database/schema';
+import { classes, classStudents, users } from 'src/database/schema';
 
 @Injectable()
 export class StudentRepository {
@@ -96,7 +97,7 @@ export class StudentRepository {
 
   // todo : get and filter student ...
   async getAllStudents({ query }: { query: GetStudentsQueryDto }) {
-    const { page, limit, search, classId, tutorId } = query;
+    const { page, limit, search, classId, tutorId, gender, isActive } = query;
     const offset = (page - 1) * limit;
 
     const searchWhere = buildListWhereClause({
@@ -106,10 +107,12 @@ export class StudentRepository {
         firstName: { column: users.firstName },
         lastName: { column: users.lastName },
       },
-      filters: { role: 'STUDENT', tutorId },
+      filters: { role: 'STUDENT', tutorId, gender, isActive },
       filterColumns: {
         role: { column: users.role },
         tutorId: { column: users.tutorId },
+        gender: { column: users.gender },
+        isActive: { column: users.isActive },
       },
     });
 
@@ -129,9 +132,48 @@ export class StudentRepository {
     const [totalRow] = await this.db.select({ total: count() }).from(users).where(where);
     const total = Number(totalRow?.total ?? 0);
 
+    // Left-join the linked PARENT user so the list carries full parent contact info too —
+    // `select()` on the bare `users` table (previous behaviour) leaked the password hash and
+    // never included parent data at all.
+    const parents = alias(users, 'parents');
     const students = await this.db
-      .select()
+      .select({
+        id: users.id,
+        email: users.email,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        userCode: users.userCode,
+        phone: users.phone,
+        avatar: users.avatar,
+        gender: users.gender,
+        dateOfBirth: users.dateOfBirth,
+        school: users.school,
+        address: users.address,
+        district: users.district,
+        province: users.province,
+        role: users.role,
+        isActive: users.isActive,
+        parentId: users.parentId,
+        tutorId: users.tutorId,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        parent: {
+          id: parents.id,
+          firstName: parents.firstName,
+          lastName: parents.lastName,
+          email: parents.email,
+          phone: parents.phone,
+          avatar: parents.avatar,
+          relationship: parents.relationship,
+          userCode: parents.userCode,
+          address: parents.address,
+          district: parents.district,
+          province: parents.province,
+        },
+      })
       .from(users)
+      .leftJoin(parents, eq(parents.id, users.parentId))
       .where(where)
       .orderBy(desc(users.createdAt))
       .limit(limit)
@@ -141,6 +183,23 @@ export class StudentRepository {
       students,
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
+  }
+
+  /** Batch-fetch the enrolled class(es) for a page of students — used by the list endpoint so it
+   *  shows real class name/code instead of a bare enrollment count. */
+  async getClassesForStudentIds(studentIds: string[]) {
+    if (studentIds.length === 0) return [];
+
+    return this.db
+      .select({
+        studentId: classStudents.studentId,
+        id: classes.id,
+        name: classes.name,
+        code: classes.code,
+      })
+      .from(classStudents)
+      .innerJoin(classes, eq(classes.id, classStudents.classId))
+      .where(inArray(classStudents.studentId, studentIds));
   }
 
   // todo: get detail user by data field (userCode, id , username, name,...)

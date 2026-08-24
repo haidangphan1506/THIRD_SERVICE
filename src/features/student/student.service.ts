@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGES } from 'src/data/constants';
 import { Inject } from '@nestjs/common';
-import { and, eq, ilike } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { classes, classStudents, studentScores, sessions, users } from '../../database/schema';
@@ -150,7 +150,62 @@ export class StudentService {
   }
 
   async findAll(query: GetStudentsQueryDto) {
-    return this.repo.getAllStudents({ query });
+    const { students, pagination } = await this.repo.getAllStudents({ query });
+
+    const classRows = await this.repo.getClassesForStudentIds(students.map((s) => s.id));
+    const classesByStudentId = new Map<string, { id: string; name: string; code: string }[]>();
+    for (const row of classRows) {
+      const list = classesByStudentId.get(row.studentId) ?? [];
+      list.push({ id: row.id, name: row.name, code: row.code });
+      classesByStudentId.set(row.studentId, list);
+    }
+
+    return {
+      students: students.map((s) => ({
+        id: s.id,
+        email: s.email,
+        username: s.username,
+        firstName: s.firstName,
+        lastName: s.lastName,
+        userCode: s.userCode,
+        phone: s.phone,
+        avatar: s.avatar,
+        gender: s.gender,
+        dateOfBirth:
+          s.dateOfBirth instanceof Date ? s.dateOfBirth.toISOString() : s.dateOfBirth,
+        school: s.school,
+        address: s.address,
+        district: s.district,
+        province: s.province,
+        parentId: s.parentId,
+        parentName: s.parent ? `${s.parent.firstName} ${s.parent.lastName}`.trim() : null,
+        parentPhone: s.parent?.phone ?? null,
+        parentEmail: s.parent?.email ?? null,
+        parentRelationship: s.parent?.relationship ?? null,
+        parent: s.parent
+          ? {
+              id: s.parent.id,
+              firstName: s.parent.firstName,
+              lastName: s.parent.lastName,
+              email: s.parent.email,
+              phone: s.parent.phone,
+              relationship: s.parent.relationship,
+              userCode: s.parent.userCode,
+              avatar: s.parent.avatar,
+              address: s.parent.address,
+              district: s.parent.district,
+              province: s.parent.province,
+            }
+          : null,
+        role: s.role,
+        isActive: s.isActive,
+        classes: classesByStudentId.get(s.id) ?? [],
+        classCount: (classesByStudentId.get(s.id) ?? []).length,
+        createdAt: s.createdAt instanceof Date ? s.createdAt.toISOString() : String(s.createdAt),
+        updatedAt: s.updatedAt instanceof Date ? s.updatedAt.toISOString() : String(s.updatedAt),
+      })),
+      pagination,
+    };
   }
 
   async findById(id: string) {
@@ -163,16 +218,23 @@ export class StudentService {
       .where(eq(studentScores.studentId, id))
       .limit(1);
 
-    const classRows = await this.db
-      .select()
+    const enrolledClasses = await this.db
+      .select({
+        id: classes.id,
+        name: classes.name,
+        code: classes.code,
+        subject: classes.subject,
+        status: classes.status,
+      })
       .from(classStudents)
+      .innerJoin(classes, eq(classes.id, classStudents.classId))
       .where(eq(classStudents.studentId, id));
 
-    const sessionRows = classRows[0]?.classId
+    const sessionRows = enrolledClasses[0]?.id
       ? await this.db
           .select()
           .from(sessions)
-          .where(eq(sessions.classId, classRows[0].classId))
+          .where(eq(sessions.classId, enrolledClasses[0].id))
           .limit(10)
       : [];
 
@@ -191,6 +253,9 @@ export class StudentService {
       dateOfBirth:
         user.dateOfBirth instanceof Date ? user.dateOfBirth.toISOString() : user.dateOfBirth,
       school: user.school,
+      address: user.address,
+      district: user.district,
+      province: user.province,
       parentId: user.parentId,
       parentName: parent ? `${parent.firstName} ${parent.lastName}`.trim() : null,
       parentPhone: parent?.phone ?? null,
@@ -206,13 +271,16 @@ export class StudentService {
             relationship: parent.relationship,
             userCode: parent.userCode,
             avatar: parent.avatar,
+            address: parent.address,
+            district: parent.district,
+            province: parent.province,
           }
         : null,
       role: user.role,
       isActive: user.isActive,
-      classCount: classRows.length,
+      classCount: enrolledClasses.length,
       score: scoreRow?.score ? String(scoreRow.score) : null,
-      classes: classRows,
+      classes: enrolledClasses,
       recentSessions: sessionRows,
       createdAt:
         user.createdAt instanceof Date ? user.createdAt.toISOString() : String(user.createdAt),
@@ -236,6 +304,9 @@ export class StudentService {
     if (dto.gender !== undefined) studentUpdate.gender = dto.gender;
     if (dto.birthday !== undefined) studentUpdate.dateOfBirth = dto.birthday;
     if (dto.school !== undefined) studentUpdate.school = dto.school || null;
+    if (dto.address !== undefined) studentUpdate.address = dto.address || null;
+    if (dto.district !== undefined) studentUpdate.district = dto.district || null;
+    if (dto.province !== undefined) studentUpdate.province = dto.province || null;
     if (dto.avatar !== undefined) studentUpdate.avatar = dto.avatar;
 
     let updated: Omit<typeof student, 'parent'> = student;
@@ -248,7 +319,10 @@ export class StudentService {
       dto.parentName !== undefined ||
       dto.parentPhone !== undefined ||
       dto.parentEmail !== undefined ||
-      dto.parentRelationship !== undefined;
+      dto.parentRelationship !== undefined ||
+      dto.parentAddress !== undefined ||
+      dto.parentDistrict !== undefined ||
+      dto.parentProvince !== undefined;
 
     if (hasParentField) {
       if (student.parentId) {
@@ -262,6 +336,9 @@ export class StudentService {
         if (dto.parentEmail !== undefined) parentUpdate.email = dto.parentEmail;
         if (dto.parentRelationship !== undefined)
           parentUpdate.relationship = dto.parentRelationship;
+        if (dto.parentAddress !== undefined) parentUpdate.address = dto.parentAddress || null;
+        if (dto.parentDistrict !== undefined) parentUpdate.district = dto.parentDistrict || null;
+        if (dto.parentProvince !== undefined) parentUpdate.province = dto.parentProvince || null;
         if (Object.keys(parentUpdate).length > 0) {
           await this.repo.updateParent({ id: student.parentId, data: parentUpdate });
         }
@@ -286,18 +363,38 @@ export class StudentService {
           gender: dto.parentRelationship === 'FATHER' ? 'MALE' : 'FEMALE',
           tutorId: student.tutorId,
         });
-        updated = (await this.repo.update({ id, data: parent })) ?? student;
+        if (dto.parentAddress || dto.parentDistrict || dto.parentProvince) {
+          await this.repo.updateParent({
+            id: parent.id,
+            data: {
+              address: dto.parentAddress || null,
+              district: dto.parentDistrict || null,
+              province: dto.parentProvince || null,
+            },
+          });
+        }
+        // Link the newly created parent to the student — do NOT pass the parent's own
+        // record here, `repo.update` writes onto the student's row (`id`).
+        updated = (await this.repo.update({ id, data: { parentId: parent.id } })) ?? student;
       }
     }
 
-    // ── best-effort class enrollment by name ──
-    if (dto.className?.trim() && student.tutorId) {
-      const [matchedClass] = await this.db
-        .select({ id: classes.id })
-        .from(classes)
-        .where(and(eq(classes.tutorId, student.tutorId), ilike(classes.name, dto.className.trim())))
-        .limit(1);
-      if (matchedClass) {
+    // ── class enrollment ──
+    // `classId` replaces (not adds to) the student's current enrollment — a student is shown
+    // with a single "current class" in the UI, so switching classes must drop the old link.
+    // Empty string explicitly un-enrolls.
+    if (dto.classId !== undefined) {
+      if (dto.classId === '') {
+        await this.db.delete(classStudents).where(eq(classStudents.studentId, id));
+      } else {
+        const [matchedClass] = await this.db
+          .select({ id: classes.id })
+          .from(classes)
+          .where(and(eq(classes.id, dto.classId), eq(classes.tutorId, student.tutorId ?? '')))
+          .limit(1);
+        if (!matchedClass) throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
+
+        await this.db.delete(classStudents).where(eq(classStudents.studentId, id));
         await this.db
           .insert(classStudents)
           .values({ classId: matchedClass.id, studentId: id })

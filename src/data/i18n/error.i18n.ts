@@ -210,6 +210,11 @@ export const ERROR_TRANSLATIONS = {
 
   // Admin
   ADMIN_INVALID_ID: { vi: 'ID không hợp lệ', en: 'Invalid id' },
+  PARENT_NOT_FOUND: { vi: 'Không tìm thấy phụ huynh', en: 'Parent not found' },
+  STUDENT_CANNOT_UPDATE_NAME: {
+    vi: 'Học sinh không được tự thay đổi họ tên',
+    en: 'Students are not allowed to update their own first/last name',
+  },
 
   // Upload
   KEY_QUERY_PARAM_REQUIRED: {

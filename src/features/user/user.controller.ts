@@ -141,7 +141,11 @@ export class UserController {
     @Body(new ZodValidationPipe<UpdateUserDto>(updateUserSchema))
     updateUserDto: UpdateUserDto,
   ) {
-    return await this.userService.updateUserService({ id: user.id, data: updateUserDto });
+    return await this.userService.updateOwnProfileService({
+      id: user.id,
+      role: user.role,
+      data: updateUserDto,
+    });
   }
 
   @Put('/:id')

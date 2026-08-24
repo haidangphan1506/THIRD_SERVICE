@@ -129,6 +129,18 @@ export class StudentController {
     format: 'uuid',
     description: 'Filter to students managed by this tutor',
   })
+  @ApiQuery({
+    name: 'gender',
+    required: false,
+    enum: ['MALE', 'FEMALE', 'OTHER'],
+    description: 'Filter by gender',
+  })
+  @ApiQuery({
+    name: 'isActive',
+    required: false,
+    enum: ['true', 'false'],
+    description: 'Filter by active status',
+  })
   @SwaggerResponse({ status: 200, description: 'Students fetched' })
   async getAllStudents(
     @Query(new ZodValidationPipe<GetStudentsQueryDto>(getStudentsQuerySchema))
@@ -161,6 +173,9 @@ export class StudentController {
         gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'], nullable: true },
         dateOfBirth: { type: 'string', format: 'date-time', nullable: true },
         school: { type: 'string', nullable: true },
+        address: { type: 'string', nullable: true },
+        district: { type: 'string', nullable: true },
+        province: { type: 'string', nullable: true },
         parentId: { type: 'string', format: 'uuid', nullable: true },
         parentName: { type: 'string', nullable: true },
         parentPhone: { type: 'string', nullable: true },
@@ -186,13 +201,26 @@ export class StudentController {
             },
             userCode: { type: 'string', nullable: true },
             avatar: { type: 'string', nullable: true },
+            address: { type: 'string', nullable: true },
+            district: { type: 'string', nullable: true },
+            province: { type: 'string', nullable: true },
           },
         },
         role: { type: 'string' },
         isActive: { type: 'boolean' },
         classCount: { type: 'number' },
         score: { type: 'string', nullable: true },
-        classes: { type: 'array', items: { type: 'object' } },
+        classes: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              name: { type: 'string' },
+              code: { type: 'string' },
+            },
+          },
+        },
         recentSessions: { type: 'array', items: { type: 'object' } },
         createdAt: { type: 'string', format: 'date-time' },
         updatedAt: { type: 'string', format: 'date-time' },
@@ -221,11 +249,15 @@ export class StudentController {
           example: '2008-05-20T00:00:00.000Z',
         },
         school: { type: 'string', maxLength: 255, example: 'THPT Quang Trung' },
-        className: {
+        address: { type: 'string', maxLength: 500, example: '123 Nguyen Trai' },
+        district: { type: 'string', maxLength: 30, example: 'Thanh Xuan' },
+        province: { type: 'string', maxLength: 30, example: 'Ha Noi' },
+        classId: {
           type: 'string',
-          maxLength: 255,
-          example: 'Toan 12A1',
-          description: "Enroll if it matches one of the tutor's class names",
+          format: 'uuid',
+          example: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          description:
+            "Replaces the student's current class enrollment (must belong to the same tutor). Pass an empty string to un-enroll.",
         },
         parentName: { type: 'string', maxLength: 255, example: 'Tran Thi B' },
         parentPhone: { type: 'string', example: '0987654321' },
@@ -235,6 +267,9 @@ export class StudentController {
           enum: ['FATHER', 'MOTHER', 'GUARDIAN'],
           example: 'FATHER',
         },
+        parentAddress: { type: 'string', maxLength: 500, example: '123 Nguyen Trai' },
+        parentDistrict: { type: 'string', maxLength: 30, example: 'Thanh Xuan' },
+        parentProvince: { type: 'string', maxLength: 30, example: 'Ha Noi' },
         avatar: { type: 'string', format: 'url', nullable: true },
       },
     },
