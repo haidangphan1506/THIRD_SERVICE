@@ -77,9 +77,16 @@ export class UploadService implements OnModuleInit {
       }),
     );
 
-    const url = `${this.configService.get<string>('CLOUDFLARE_R2_PUBLIC_URL')}/${key}`;
+    return {
+      url: this.getPublicUrl(key),
+      key,
+      size: processedBuffer.length,
+      mimetype: file.mimetype,
+    };
+  }
 
-    return { url, key, size: processedBuffer.length, mimetype: file.mimetype };
+  getPublicUrl(key: string): string {
+    return `${this.configService.get<string>('CLOUDFLARE_R2_PUBLIC_URL')}/${key}`;
   }
 
   async download(
