@@ -172,6 +172,12 @@ export const ERROR_TRANSLATIONS = {
   // Session
   SESSION_NOT_FOUND: { vi: 'Không tìm thấy buổi học', en: 'Session not found' },
 
+  // Attendance
+  ATTENDANCE_MARK_NOT_ALLOWED: {
+    vi: 'Chỉ gia sư phụ trách mới được điểm danh buổi học này',
+    en: 'Only the assigned tutor can mark attendance for this session',
+  },
+
   // Schedule
   SCHEDULE_NOT_FOUND: { vi: 'Không tìm thấy lịch học', en: 'Schedule not found' },
 

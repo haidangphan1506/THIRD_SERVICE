@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { type CreateCurriculumDto, UpdateCurriculumDto } from '@packages/entities';
 import { chapters, curriculums, lessons } from 'src/database/schema';
 import { buildListWhereClause } from '@packages/helpers';
-import { asc, count, eq } from 'drizzle-orm';
+import { asc, count, eq, getTableColumns, sql } from 'drizzle-orm';
 
 @Injectable()
 export class CurriculumRepository {
@@ -61,14 +61,58 @@ export class CurriculumRepository {
     const offset = (pageNumber - 1) * limitNumber;
 
     const rows = await this.db
-      .select()
+      .select({ ...getTableColumns(curriculums) })
       .from(curriculums)
       .where(whereClause)
       .limit(limitNumber)
       .offset(offset);
 
+    if (rows.length === 0) {
+      return {
+        curriculums: [],
+        pagination: {
+          total,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: Math.ceil(total / limitNumber),
+        },
+      };
+    }
+
+    const curriculumIds = rows.map((r) => r.id);
+
+    const [chapterCounts, lessonCounts] = await Promise.all([
+      this.db
+        .select({
+          curriculumId: chapters.curriculumId,
+          count: count(),
+        })
+        .from(chapters)
+        .where(sql`${chapters.curriculumId} IN ${curriculumIds}`)
+        .groupBy(chapters.curriculumId),
+      this.db
+        .select({
+          curriculumId: lessons.curriculumId,
+          count: count(),
+        })
+        .from(lessons)
+        .where(sql`${lessons.curriculumId} IN ${curriculumIds}`)
+        .groupBy(lessons.curriculumId),
+    ]);
+
+    const chapterCountMap = new Map(chapterCounts.map((r) => [r.curriculumId, Number(r.count)]));
+    const lessonCountMap = new Map(lessonCounts.map((r) => [r.curriculumId, Number(r.count)]));
+
+    const enrichedRows = rows.map((row) => ({
+      ...row,
+      chapterCount: chapterCountMap.get(row.id) ?? 0,
+      lessonCount: lessonCountMap.get(row.id) ?? 0,
+    }));
+
+    const rowsWithCounts = enrichedRows;
+
     return {
-      curriculums: rows,
+      curriculums: rowsWithCounts,
       pagination: {
         total,
         page: pageNumber,
@@ -107,6 +151,8 @@ export class CurriculumRepository {
 
     return {
       ...curriculum,
+      chapterCount: chapterRows.length,
+      lessonCount: lessonRows.length,
       chapters: chaptersWithLessons,
       lessons: lessonRows.filter((l) => !l.chapterId),
     };

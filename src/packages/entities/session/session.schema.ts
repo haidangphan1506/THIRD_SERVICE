@@ -14,6 +14,12 @@ const sessionResourceSchema = z.object({
   key: z.string().min(1, 'Key is required'),
 });
 
+const sessionAgendaItemSchema = z.object({
+  time: z.string().min(1, 'Time is required'),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+});
+
 export const createSessionSchema = z.object({
   classId: z.string().uuid('Invalid class ID'),
   lessonId: z.string().uuid('Invalid lesson ID').optional().nullable(),
@@ -30,6 +36,9 @@ export const createSessionSchema = z.object({
   note: z.string().optional(),
   actualStartAt: z.coerce.date().optional().nullable(),
   actualEndAt: z.coerce.date().optional().nullable(),
+  objectives: z.array(z.string().min(1)).default([]),
+  agenda: z.array(sessionAgendaItemSchema).default([]),
+  exerciseDueAt: z.coerce.date().optional().nullable(),
 });
 
 export const createSessionsSchema = z.object({
@@ -71,4 +80,7 @@ export const updateSessionSchema = z.object({
   note: z.string().optional(),
   actualStartAt: z.coerce.date().optional().nullable(),
   actualEndAt: z.coerce.date().optional().nullable(),
+  objectives: z.array(z.string().min(1)).optional(),
+  agenda: z.array(sessionAgendaItemSchema).optional(),
+  exerciseDueAt: z.coerce.date().optional().nullable(),
 });

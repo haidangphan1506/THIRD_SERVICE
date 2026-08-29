@@ -64,6 +64,29 @@ const SESSION_ITEM_PROPERTIES = {
     nullable: true,
     description: 'Thoi gian ket thuc thuc te',
   },
+  objectives: {
+    type: 'array',
+    description: 'Muc tieu buoi hoc',
+    items: { type: 'string' },
+  },
+  agenda: {
+    type: 'array',
+    description: 'Noi dung buoi hoc theo moc gio',
+    items: {
+      type: 'object',
+      properties: {
+        time: { type: 'string', example: '18:00' },
+        title: { type: 'string' },
+        description: { type: 'string' },
+      },
+    },
+  },
+  exerciseDueAt: {
+    type: 'string',
+    format: 'date-time',
+    nullable: true,
+    description: 'Han nop bai tap ve nha',
+  },
 };
 
 export const SESSION_SWAGGERS_DATA = {

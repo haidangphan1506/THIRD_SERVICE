@@ -23,6 +23,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from './features/uploads/upload.module';
 import { ExerciseModule } from './features/exercise/exercise.module';
+import { AttendanceModule } from './features/attendance/attendance.module';
 import { AiModule } from './features/ai/ai.module';
 import { DashboardModule } from './features/dashboard/dashboard.module';
 import { ReportModule } from './features/report/report.module';
@@ -41,15 +42,16 @@ import { ReportModule } from './features/report/report.module';
     AuthModule,
     ClassModule,
     StudentModule,
+    LessonModule,
     CurriculumModule,
     ChapterModule,
-    LessonModule,
     TuitionModule,
     NotificationModule,
     ScheduleModule,
     SessionModule,
     UploadModule,
     ExerciseModule,
+    AttendanceModule,
     AiModule,
     DashboardModule,
     ReportModule,

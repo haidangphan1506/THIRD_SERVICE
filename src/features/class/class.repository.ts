@@ -1,10 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, count, inArray, notInArray, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, count, gte, inArray, lt, notInArray, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { CreateClassDto, GetClassesQueryDto, UpdateClassDto } from '@packages/entities/class';
-import { chapters, classes, classStudents, lessons, schedules, users } from 'src/database/schema';
+import {
+  chapters,
+  classes,
+  classStudents,
+  lessons,
+  schedules,
+  sessions,
+  users,
+} from 'src/database/schema';
 import { buildListWhereClause } from '@packages/helpers';
 
 @Injectable()
@@ -276,6 +284,70 @@ export class ClassRepository {
       .leftJoin(chapters, eq(chapters.id, lessons.chapterId))
       .where(eq(lessons.curriculumId, curriculumId))
       .orderBy(asc(lessons.order), asc(lessons.createdAt));
+  }
+
+  async isEnrolled({ userId, classId }: { userId: string; classId: string }) {
+    const [row] = await this.db
+      .select({ id: classStudents.id })
+      .from(classStudents)
+      .where(and(eq(classStudents.classId, classId), eq(classStudents.studentId, userId)))
+      .limit(1);
+    return !!row;
+  }
+
+  // a parent can reach a class when one of their children (users.parentId = userId) is enrolled
+  async isParentOfEnrolled({ userId, classId }: { userId: string; classId: string }) {
+    const [row] = await this.db
+      .select({ id: classStudents.id })
+      .from(classStudents)
+      .innerJoin(users, eq(users.id, classStudents.studentId))
+      .where(and(eq(classStudents.classId, classId), eq(users.parentId, userId)))
+      .limit(1);
+    return !!row;
+  }
+
+  async getSchedulesByClass({ classId }: { classId: string }) {
+    return this.db
+      .select()
+      .from(schedules)
+      .where(eq(schedules.classId, classId))
+      .orderBy(asc(schedules.dayOfWeek));
+  }
+
+  // the session to surface on the "watch" overview: the one currently ongoing, else the
+  // soonest upcoming one, else (nothing left to look forward to) the most recently past one.
+  async getRecentSessionByClass({ classId }: { classId: string }) {
+    const now = new Date();
+
+    const [ongoing] = await this.db
+      .select()
+      .from(sessions)
+      .where(and(eq(sessions.classId, classId), eq(sessions.status, 'ONGOING')))
+      .orderBy(asc(sessions.startAt))
+      .limit(1);
+    if (ongoing) return ongoing;
+
+    const [upcoming] = await this.db
+      .select()
+      .from(sessions)
+      .where(
+        and(
+          eq(sessions.classId, classId),
+          gte(sessions.startAt, now),
+          inArray(sessions.status, ['SCHEDULED', 'POSTPONED']),
+        ),
+      )
+      .orderBy(asc(sessions.startAt))
+      .limit(1);
+    if (upcoming) return upcoming;
+
+    const [past] = await this.db
+      .select()
+      .from(sessions)
+      .where(and(eq(sessions.classId, classId), lt(sessions.startAt, now)))
+      .orderBy(desc(sessions.startAt))
+      .limit(1);
+    return past ?? null;
   }
 
   async getAllStudent({ id }: { id: string }) {
