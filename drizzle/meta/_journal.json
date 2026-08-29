@@ -15,6 +15,13 @@
       "when": 1784044868687,
       "tag": "0001_daffy_garia",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788014270889,
+      "tag": "0002_majestic_bromley",
+      "breakpoints": true
     }
   ]
 }

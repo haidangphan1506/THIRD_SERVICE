@@ -387,10 +387,14 @@ export class StudentService {
       if (dto.classId === '') {
         await this.db.delete(classStudents).where(eq(classStudents.studentId, id));
       } else {
+        // A student with no tutorId can't own/match any class — bail out before querying
+        // instead of coercing to '', which Postgres rejects as an invalid uuid.
+        if (!student.tutorId) throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
+
         const [matchedClass] = await this.db
           .select({ id: classes.id })
           .from(classes)
-          .where(and(eq(classes.id, dto.classId), eq(classes.tutorId, student.tutorId ?? '')))
+          .where(and(eq(classes.id, dto.classId), eq(classes.tutorId, student.tutorId)))
           .limit(1);
         if (!matchedClass) throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
 

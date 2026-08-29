@@ -427,6 +427,30 @@ export const aiMessages = pgTable(
   (table) => [index('ai_messages_user_id_created_at_idx').on(table.userId, table.createdAt)],
 );
 
+// ── Attendance ────────────────────────────────────────────
+export const attendances = pgTable(
+  'attendances',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    sessionId: uuid('session_id')
+      .notNull()
+      .references(() => sessions.id, { onDelete: 'cascade' }),
+    studentId: uuid('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    present: boolean('present').notNull().default(false),
+    note: text('note'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('attendances_session_student_unique').on(table.sessionId, table.studentId),
+  ],
+);
+
 // ── Exercises ─────────────────────────────────────────────
 export const exercise = pgTable('exercises', {
   id: uuid('id').defaultRandom().primaryKey(),

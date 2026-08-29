@@ -18,7 +18,7 @@
 | ---- | --------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | 200  | OK                    | Successful operation                                                                                             |
 | 201  | Created               | Resource created                                                                                                 |
-| 302  | Redirect              | Google OAuth flow                                                                                                |
+| 302  | Redirect              | Google/Facebook OAuth flow                                                                                         |
 | 400  | Bad Request           | Invalid UUID, duplicate email/username, entity not found, invalid field, invalid input                           |
 | 401  | Unauthorized          | Missing/invalid/expired JWT, user not found in DB                                                                |
 | 403  | Forbidden             | User lacks required role (e.g. ADMIN)                                                                            |
@@ -75,6 +75,9 @@
 | GET  | `/auth/google`          | Public | success              | —                              | Redirect 302 → Google OAuth                                                                                                                                                                                                                                                                                                                                          | —                                     |        |
 | GET  | `/auth/google/callback` | Public | success              | —                              | Redirect 302 → frontend `?accessToken=...&refreshToken=...`                                                                                                                                                                                                                                                                                                          | —                                     |        |
 | GET  | `/auth/google/callback` | Public | 400                  | —                              | `"Google account has no public email"`                                                                                                                                                                                                                                                                                                                               | —                                     |        |
+| GET  | `/auth/facebook`          | Public | success              | —                              | Redirect 302 → Facebook OAuth                                                                                                                                                                                                                                                                                                                                        | —                                     |        |
+| GET  | `/auth/facebook/callback` | Public | success              | —                              | Redirect 302 → frontend `?accessToken=...&refreshToken=...`                                                                                                                                                                                                                                                                                                          | —                                     |        |
+| GET  | `/auth/facebook/callback` | Public | 400                  | —                              | `"Facebook account has no public email"`                                                                                                                                                                                                                                                                                                                             | —                                     |        |
 
 
 ---
@@ -365,31 +368,35 @@
 
 ---
 
-## 11. Lesson — `/lesson`
+## 11. Lesson — `/curriculum/lessons`
 
 
-| M      | Path                     | Auth | Scenario                     | Payload                                                                            | Response                                                                                                                  | Roles | Status |
-| ------ | ------------------------ | ---- | ---------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----- | ------ |
-| POST   | `/lesson`                | JWT  | success                      | Query: `curriculumId, chapterId?`; Body: `{ name, content?, order?, lessonType? }` | Created lesson                                                                                                            | All   |        |
-| POST   | `/lesson`                | JWT  | 400                          | Query/Body                                                                         | `"curriculumId must be a valid UUID"` • `"chapterId must be a valid UUID"`                                                | All   |        |
-| POST   | `/lesson`                | JWT  | 422: title                   | missing • &gt; 255                                                                 | `"Title is required"` • `"Title too long"`                                                                                | All   |        |
-| POST   | `/lesson`                | JWT  | 422: theoryUrls/exerciseUrls | invalid format                                                                     | `"File name is required"` • `"Invalid URL"` • `"File key is required"` per item                                           | All   |        |
-| POST   | `/lesson`                | JWT  | 422: order                   | invalid int                                                                        | Zod default                                                                                                               | All   |        |
-| GET    | `/lesson`                | JWT  | success                      | Query: `curriculumId (required), chapterId?, page, limit`                          | Paginated lessons                                                                                                         | All   |        |
-| GET    | `/lesson`                | JWT  | 400                          | Query                                                                              | `"curriculumId must be a valid UUID"` • `"chapterId must be a valid UUID"`                                                | All   |        |
-| GET    | `/lesson`                | JWT  | 422: curriculumId            | missing                                                                            | `"Invalid curriculum ID"`                                                                                                 | All   |        |
-| GET    | `/lesson`                | JWT  | 422: page/limit              | out of range                                                                       | Same as users                                                                                                             | All   |        |
-| GET    | `/lesson/:id`            | JWT  | success                      | —                                                                                  | Lesson detail                                                                                                             | All   |        |
-| GET    | `/lesson/:id`            | JWT  | 400/404                      | —                                                                                  | `"Invalid lesson id"` • `"Lesson not found"`                                                                              | All   |        |
-| PUT    | `/lesson/:id`            | JWT  | success                      | `{ name?, content?, order?, lessonType? }`                                         | Updated lesson                                                                                                            | All   |        |
-| PUT    | `/lesson/:id`            | JWT  | 400/404                      | Body                                                                               | `"Invalid lesson id"` • `"Lesson not found"`                                                                              | All   |        |
-| PUT    | `/lesson/:id`            | JWT  | 422                          | Body invalid                                                                       | Same field rules as `POST /lesson` (all optional)                                                                         | All   |        |
-| DELETE | `/lesson/:id`            | JWT  | success                      | —                                                                                  | Deletion result                                                                                                           | All   |        |
-| DELETE | `/lesson/:id`            | JWT  | 400/404                      | —                                                                                  | `"Invalid lesson id"` • `"Lesson not found"`                                                                              | All   |        |
-| PUT    | `/lesson/:id/add-theory` | JWT  | success                      | Multipart: `file`                                                                  | Updated lesson with theory file                                                                                           | All   |        |
-| PUT    | `/lesson/:id/add-theory` | JWT  | 400                          | Multipart                                                                          | `"userId must be uuid"` • `"Invalid lesson id"` • `"User not found"` • `"Lesson not found"` • `"Upload theory failed"`    | All   |        |
-| PUT    | `/lesson/:id/exercises`  | JWT  | success                      | Multipart: `file`                                                                  | Updated lesson with exercise file                                                                                         | All   |        |
-| PUT    | `/lesson/:id/exercises`  | JWT  | 400                          | Multipart                                                                          | `"userId must be uuid"` • `"Invalid lesson id"` • `"User not found"` • `"Lesson not found"` • `"Upload exercises failed"` | All   |        |
+| M      | Path                                        | Auth | Scenario                     | Payload                                                                            | Response                                                                                                                  | Roles | Status |
+| ------ | ------------------------------------------- | ---- | ---------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----- | ------ |
+| POST   | `/curriculum/lessons`                       | JWT  | success                      | Query: `curriculumId, chapterId?`; Body: `{ name, content?, order?, lessonType? }` | Created lesson                                                                                                            | All   |        |
+| POST   | `/curriculum/lessons`                       | JWT  | 400                          | Query/Body                                                                         | `"curriculumId must be a valid UUID"` • `"chapterId must be a valid UUID"`                                                | All   |        |
+| POST   | `/curriculum/lessons`                       | JWT  | 422: title                   | missing • &gt; 255                                                                 | `"Title is required"` • `"Title too long"`                                                                                | All   |        |
+| POST   | `/curriculum/lessons`                       | JWT  | 422: theoryUrls/exerciseUrls | invalid format                                                                     | `"File name is required"` • `"Invalid URL"` • `"File key is required"` per item                                           | All   |        |
+| POST   | `/curriculum/lessons`                       | JWT  | 422: order                   | invalid int                                                                        | Zod default                                                                                                               | All   |        |
+| GET    | `/curriculum/lessons`                       | JWT  | success                      | Query: `curriculumId (required), chapterId?, page, limit`                          | Paginated lessons                                                                                                         | All   |        |
+| GET    | `/curriculum/lessons`                       | JWT  | 400                          | Query                                                                              | `"curriculumId must be a valid UUID"` • `"chapterId must be a valid UUID"`                                                | All   |        |
+| GET    | `/curriculum/lessons`                       | JWT  | 422: curriculumId            | missing                                                                            | `"Invalid curriculum ID"`                                                                                                 | All   |        |
+| GET    | `/curriculum/lessons`                       | JWT  | 422: page/limit              | out of range                                                                       | Same as users                                                                                                             | All   |        |
+| GET    | `/curriculum/lessons/:id`                   | JWT  | success                      | —                                                                                  | Lesson detail                                                                                                             | All   |        |
+| GET    | `/curriculum/lessons/:id`                   | JWT  | 400/404                      | —                                                                                  | `"Invalid lesson id"` • `"Lesson not found"`                                                                              | All   |        |
+| PUT    | `/curriculum/lessons/:id`                   | JWT  | success                      | `{ name?, content?, order?, lessonType? }`                                         | Updated lesson                                                                                                            | All   |        |
+| PUT    | `/curriculum/lessons/:id`                   | JWT  | 400/404                      | Body                                                                               | `"Invalid lesson id"` • `"Lesson not found"`                                                                              | All   |        |
+| PUT    | `/curriculum/lessons/:id`                   | JWT  | 422                          | Body invalid                                                                       | Same field rules as `POST /curriculum/lessons` (all optional)                                                             | All   |        |
+| DELETE | `/curriculum/lessons/:id`                   | JWT  | success                      | —                                                                                  | Deletion result                                                                                                           | All   |        |
+| DELETE | `/curriculum/lessons/:id`                   | JWT  | 400/404                      | —                                                                                  | `"Invalid lesson id"` • `"Lesson not found"`                                                                              | All   |        |
+| PUT    | `/curriculum/lessons/:id/add-theory`        | JWT  | success                      | Multipart: `file`                                                                  | Updated lesson with theory file                                                                                           | All   |        |
+| PUT    | `/curriculum/lessons/:id/add-theory`        | JWT  | 400                          | Multipart                                                                          | `"userId must be uuid"` • `"Invalid lesson id"` • `"User not found"` • `"Lesson not found"` • `"Upload theory failed"`    | All   |        |
+| PUT    | `/curriculum/lessons/:id/exercises`         | JWT  | success                      | Multipart: `file`                                                                  | Updated lesson with exercise file                                                                                         | All   |        |
+| PUT    | `/curriculum/lessons/:id/exercises`         | JWT  | 400                          | Multipart                                                                          | `"userId must be uuid"` • `"Invalid lesson id"` • `"User not found"` • `"Lesson not found"` • `"Upload exercises failed"` | All   |        |
+| DELETE | `/curriculum/lessons/:id/add-theory`        | JWT  | success                      | `{ url?, key? }`                                                                   | Updated lesson with theory file removed                                                                                   | All   |        |
+| DELETE | `/curriculum/lessons/:id/add-theory`        | JWT  | 400/404                      | Body                                                                               | `"userId must be uuid"` • `"Invalid lesson id"` • `"User not found"` • `"Lesson not found"`                               | All   |        |
+| DELETE | `/curriculum/lessons/:id/exercises`         | JWT  | success                      | `{ url?, key? }`                                                                   | Updated lesson with exercise file removed                                                                                 | All   |        |
+| DELETE | `/curriculum/lessons/:id/exercises`         | JWT  | 400/404                      | Body                                                                               | `"userId must be uuid"` • `"Invalid lesson id"` • `"User not found"` • `"Lesson not found"`                               | All   |        |
 
 
 ---
@@ -499,18 +506,7 @@
 
 ---
 
-## 17. Cloudinary — `/cloudinary`
-
-
-| M      | Path                          | Auth   | Scenario | Payload           | Response                 | Roles | Status |
-| ------ | ----------------------------- | ------ | -------- | ----------------- | ------------------------ | ----- | ------ |
-| POST   | `/cloudinary/image`           | Public | success  | Multipart: `file` | `{ url, publicId, ... }` | —     |        |
-| DELETE | `/cloudinary/image/:publicId` | JWT    | success  | —                 | Deletion confirmation    | All   |        |
-
-
----
-
-## 18. Upload (Cloudflare R2) — `/upload`
+## 17. Upload (Cloudflare R2) — `/upload`
 
 
 | M      | Path               | Auth   | Scenario | Payload                       | Response                                                   | Roles | Status |
@@ -538,31 +534,75 @@
 
 ---
 
+## 19. Reports (Learning) — `/reports/learning`
+
+
+| M    | Path                                | Auth | Scenario  | Payload                      | Response                                                                 | Roles | Status |
+| ---- | ----------------------------------- | ---- | --------- | ---------------------------- | ------------------------------------------------------------------------ | ----- | ------ |
+| GET  | `/reports/learning/summary`         | JWT  | success   | —                            | `{ activeClasses, avgAttendanceRate, avgCurriculumProgress, submissionRate }` | ADMIN |        |
+| GET  | `/reports/learning/attendance-trend`| JWT  | success   | —                            | `[{ month, rate }]` (6 months)                                           | ADMIN |        |
+| GET  | `/reports/learning/classes`         | JWT  | success   | Query: `page, limit, search?`| `{ data: ClassReportRow[], pagination }`                                 | ADMIN |        |
+| GET  | `/reports/learning/classes`         | JWT  | 422       | Query invalid                | Same page/limit rules as users                                           | ADMIN |        |
+
+
+---
+
+## 20. Email — `/emails`
+
+
+| M   | Path     | Auth   | Scenario | Payload | Response                  | Roles | Status |
+| --- | -------- | ------ | -------- | ------- | ------------------------- | ----- | ------ |
+| GET | `/emails`| Public | success  | —       | Test email sent response  | —     |        |
+
+
+---
+
+## 21. Attendance — `/attendances`
+
+
+| M   | Path                            | Auth | Scenario    | Payload                                        | Response                                                                            | Roles | Status |
+| --- | ------------------------------- | ---- | ----------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ | ----- | ------ |
+| GET | `/attendances/session/:sessionId` | JWT  | success    | —                                               | Class roster merged with each student's attendance (`AttendanceRecordDto[]`)         | All   |        |
+| GET | `/attendances/session/:sessionId` | JWT  | 404        | —                                               | `"Session not found"` (no access: not owner/enrolled/parent)                        | All   |        |
+| PUT | `/attendances`                     | JWT  | success    | `{ sessionId, studentId, present, note? }`      | Upserted attendance row (created or updated)                                        | All   |        |
+| PUT | `/attendances`                     | JWT  | 403        | Body                                            | `"Only the assigned tutor can mark attendance for this session"` (non-owner tutor)  | All   |        |
+| PUT | `/attendances`                     | JWT  | 404        | Body                                            | `"Session not found"` • `"Student not found"` (studentId not enrolled in the class) | All   |        |
+| PUT | `/attendances`                     | JWT  | 422        | `sessionId`/`studentId` not uuid, `present` not boolean, `note` &gt; 500 chars | Zod default                                        | All   |        |
+
+Notes: one row per `(sessionId, studentId)` (DB unique index `attendances_session_student_unique`,
+upserted via `onConflictDoUpdate`). Only the class's tutor (owner of the session's class) may write;
+read access follows the same rule as `GET /sessions/:id` (owner, enrolled student, or their parent).
+
+
+---
+
 ## Summary
 
 
-| #         | Controller             | Base Path        | Routes  | Public | Role-restricted |
-| --------- | ---------------------- | ---------------- | ------- | ------ | --------------- |
-| 1         | AppController          | `/`              | 1       | 0      | 0               |
-| 2         | AuthController         | `/auth`          | 8       | 7      | 0               |
-| 3         | UserController         | `/users`         | 13      | 0      | 3 (ADMIN,TUTOR) |
-| 4         | AdminController        | `/admin`         | 10      | 0      | 10 (ADMIN)      |
-| 5         | ClassController        | `/classes`       | 8       | 0      | 0               |
-| 6         | StudentController      | `/students`      | 6       | 0      | 0               |
-| 7         | SessionController      | `/sessions`      | 7       | 0      | 0               |
-| 8         | ScheduleController     | `/schedules`     | 7       | 0      | 0               |
-| 9         | CurriculumController   | `/curriculum`    | 6       | 0      | 0               |
-| 10        | ChapterController      | `/chapter`       | 5       | 0      | 0               |
-| 11        | LessonController       | `/lesson`        | 7       | 0      | 0               |
-| 12        | ExerciseController     | `/exercises`     | 5       | 0      | 0               |
-| 13        | TuitionController      | `/tuitions`      | 6       | 0      | 0               |
-| 14        | NotificationController | `/notifications` | 6       | 0      | 0               |
-| 15        | DashboardController    | `/dashboard`     | 1       | 0      | 0               |
-| 16        | RedisController        | `/redis`         | 1       | 0      | 0               |
-| 17        | CloudinaryController   | `/cloudinary`    | 2       | 1      | 0               |
-| 18        | UploadController       | `/upload`        | 4       | 4      | 0               |
-| 19        | AiController           | `/ai-chat`       | 3       | 0      | 0               |
-| **Total** |                        |                  | **105** | **12** | **13**          |
+| #         | Controller             | Base Path          | Routes  | Public | Role-restricted |
+| --------- | ---------------------- | ------------------ | ------- | ------ | --------------- |
+| 1         | AppController          | `/`                | 1       | 0      | 0               |
+| 2         | AuthController         | `/auth`            | 10      | 9      | 0               |
+| 3         | UserController         | `/users`           | 13      | 0      | 3 (ADMIN,TUTOR) |
+| 4         | AdminController        | `/admin`           | 10      | 0      | 10 (ADMIN)      |
+| 5         | ClassController        | `/classes`         | 9       | 0      | 0               |
+| 6         | StudentController      | `/students`        | 6       | 0      | 0               |
+| 7         | SessionController      | `/sessions`        | 7       | 0      | 0               |
+| 8         | ScheduleController     | `/schedules`       | 7       | 0      | 0               |
+| 9         | CurriculumController   | `/curriculum`      | 6       | 0      | 0               |
+| 10        | ChapterController      | `/chapter`         | 5       | 0      | 0               |
+| 11        | LessonController       | `/curriculum/lessons` | 9    | 0      | 0               |
+| 12        | ExerciseController     | `/exercises`       | 5       | 0      | 0               |
+| 13        | TuitionController      | `/tuitions`        | 6       | 0      | 0               |
+| 14        | NotificationController | `/notifications`   | 6       | 0      | 0               |
+| 15        | DashboardController    | `/dashboard`       | 1       | 0      | 0               |
+| 16        | RedisController        | `/redis`           | 1       | 0      | 0               |
+| 17        | UploadController       | `/upload`          | 4       | 4      | 0               |
+| 18        | AiController           | `/ai-chat`         | 3       | 0      | 0               |
+| 19        | ReportController       | `/reports/learning`| 3       | 0      | 3 (ADMIN)       |
+| 20        | EmailController        | `/emails`          | 1       | 1      | 0               |
+| 21        | AttendanceController   | `/attendances`     | 2       | 0      | 0               |
+| **Total** |                        |                    | **115** | **14** | **16**          |
 
 
 ---
@@ -574,6 +614,7 @@
 | ----------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------- |
 | lastName field shows "First name" in error msgs | `user.schema.ts`, `admin.schema.ts` | `lastName` min/max messages say `"First name must be at least 2 characters"` instead of "Last name" |
 | subjects field uses "Province" label            | `user.schema.ts`                    | `subjects.max(30)` message says `"Province must be at most 30 characters"`                          |
+| gradesId validation shows "Class Id" label      | `user.schema.ts`                    | `gradesId` validation message says `"Class Id must be uuid"` instead of "Grades Id"                 |
 | `GET /curriculum` uses wallet schema            | `curriculum.controller.ts:89`       | Uses `getWalletsQuerySchema` instead of `getCurriculumsQuerySchema`                                 |
 | `POST /curriculum` has no Zod validation        | `curriculum.controller.ts`          | No `ZodValidationPipe` applied to `@Body()`                                                         |
 | `PUT /curriculum/:id` has no Zod validation     | `curriculum.controller.ts`          | No `ZodValidationPipe` applied to `@Body()`                                                         |
