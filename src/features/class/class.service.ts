@@ -277,6 +277,41 @@ export class ClassService {
     return { class: classSummary, lessons, theoryCount, exerciseCount };
   }
 
+  // aggregated overview for the STUDENT/PARENT "watch" page: class + recent session + weekly
+  // schedule + roster in one call. Access: class owner (tutor), an enrolled student, or a
+  // parent of an enrolled student — same rule as SessionService.getSessionService.
+  async getClassWatchService({ userId, id }: { userId: string; id: string }) {
+    if (!userId || !checkUuidValid({ data: userId }))
+      throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);
+    if (!id || !checkUuidValid({ data: id }))
+      throw new BadRequestException(ERROR_MESSAGES.CLASS_ID_MUST_BE_UUID);
+
+    const classData = await this.repo.getClassByField({ field: 'id', value: id });
+    if (!classData) throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
+
+    const isOwner = classData.tutorId === userId;
+    const canAccess =
+      isOwner ||
+      (await this.repo.isEnrolled({ userId, classId: id })) ||
+      (await this.repo.isParentOfEnrolled({ userId, classId: id }));
+    if (!canAccess) throw new NotFoundException(ERROR_MESSAGES.CLASS_NOT_FOUND);
+
+    const [students, schedules, recentSessionRow] = await Promise.all([
+      this.repo.getAllStudent({ id }),
+      this.repo.getSchedulesByClass({ classId: id }),
+      this.repo.getRecentSessionByClass({ classId: id }),
+    ]);
+
+    // hide bài tập (exerciseUrls) from non-owners until the session has ended — mirrors
+    // SessionService.gateExercises.
+    const recentSession =
+      recentSessionRow && !isOwner && recentSessionRow.status !== 'COMPLETED'
+        ? { ...recentSessionRow, exerciseUrls: [] }
+        : recentSessionRow;
+
+    return { class: classData, recentSession: recentSession ?? null, schedules, students };
+  }
+
   async getAllStudentsService({ userId, id }: { userId: string; id: string }) {
     if (!userId || (userId && !checkUuidValid({ data: userId })))
       throw new BadRequestException(ERROR_MESSAGES.USER_ID_MUST_BE_UUID);

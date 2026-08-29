@@ -261,7 +261,7 @@
 
 | M      | Path                       | Auth | Scenario           | Payload                                                                  | Response                                                                                     | Roles     | Status      |
 | ------ | -------------------------- | ---- | ------------------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | --------- | ----------- |
-| POST   | `/sessions`                | JWT  | success            | `{ classId, title?, date, startTime, endTime, description?, location? }` | Created session                                                                              | All       |             |
+| POST   | `/sessions`                | JWT  | success            | `{ classId, title?, date, startTime, endTime, description?, location?, objectives?, agenda?, exerciseDueAt? }` | Created session                                                                              | All       |             |
 | POST   | `/sessions`                | JWT  | 400/404            | Body                                                                     | `"Class Id must be uuid"` • `"Class not found"` • `"Lesson not found"` • `"Tutor not found"` | All       |             |
 | POST   | `/sessions`                | JWT  | 422: classId       | not uuid                                                                 | `"Invalid class ID"`                                                                         | All       |             |
 | POST   | `/sessions`                | JWT  | 422: sessionNumber | missing • &lt; 1                                                         | `"Session number must be >= 1"`                                                              | All       |             |
@@ -281,11 +281,15 @@
 | GET    | `/sessions/class/:classId` | JWT  | 400/404            | —                                                                        | UUID errors • `"Class not found"`                                                            | All       |             |
 | GET    | `/sessions/:id`            | JWT  | success            | —                                                                        | Session detail                                                                               | All       |             |
 | GET    | `/sessions/:id`            | JWT  | 400/404            | —                                                                        | UUID errors • `"Session not found"`                                                          | All       |             |
-| PUT    | `/sessions/:id`            | JWT  | success            | `{ title?, date?, startTime?, endTime?, status?, ... }`                  | Updated session                                                                              | All       |             |
+| PUT    | `/sessions/:id`            | JWT  | success            | `{ title?, date?, startTime?, endTime?, status?, objectives?, agenda?, exerciseDueAt?, ... }` | Updated session                                                                              | All       |             |
 | PUT    | `/sessions/:id`            | JWT  | 400/404            | Body                                                                     | UUID errors • `"Session not found"`                                                          | All       |             |
 | PUT    | `/sessions/:id`            | JWT  | 422                | Body invalid                                                             | Same field rules as `POST /sessions` (all optional)                                          | All       |             |
 | DELETE | `/sessions/:id`            | JWT  | success            | —                                                                        | Deletion result                                                                              | All       |             |
 | DELETE | `/sessions/:id`            | JWT  | 400/404            | —                                                                        | UUID errors • `"Session not found"`                                                          | All       |             |
+
+Notes: `objectives: string[]` (checklist "Mục tiêu buổi học"), `agenda: { time, title, description? }[]`
+(timestamped "Nội dung buổi học"), `exerciseDueAt: string | null` (ISO date-time, "Hạn nộp bài tập về
+nhà") — all optional, default `[]`/`null`, not yet rendered by any FE page as of 2026-08-29.
 
 
 ---

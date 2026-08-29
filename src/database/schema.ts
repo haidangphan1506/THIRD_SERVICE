@@ -274,6 +274,14 @@ export const sessions = pgTable('class_sessions', {
     withTimezone: true,
     mode: 'date',
   }),
+  objectives: jsonb('objectives').$type<string[]>().default([]),
+  agenda: jsonb('agenda')
+    .$type<{ time: string; title: string; description?: string }[]>()
+    .default([]),
+  exerciseDueAt: timestamp('exercise_due_at', {
+    withTimezone: true,
+    mode: 'date',
+  }),
   createdAt: timestamp('created_at', {
     withTimezone: true,
     mode: 'date',

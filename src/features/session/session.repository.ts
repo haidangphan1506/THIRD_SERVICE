@@ -37,6 +37,9 @@ export class SessionRepository {
         note: data.note,
         actualStartAt: data.actualStartAt,
         actualEndAt: data.actualEndAt,
+        objectives: data.objectives,
+        agenda: data.agenda,
+        exerciseDueAt: data.exerciseDueAt,
       })
       .returning();
     return session;
@@ -62,6 +65,9 @@ export class SessionRepository {
           note: item.note,
           actualStartAt: item.actualStartAt,
           actualEndAt: item.actualEndAt,
+          objectives: item.objectives,
+          agenda: item.agenda,
+          exerciseDueAt: item.exerciseDueAt,
         })),
       )
       .returning();
@@ -225,6 +231,9 @@ export class SessionRepository {
         note: data.note,
         actualStartAt: data.actualStartAt,
         actualEndAt: data.actualEndAt,
+        objectives: data.objectives,
+        agenda: data.agenda,
+        exerciseDueAt: data.exerciseDueAt,
         updatedAt: new Date(),
       })
       .where(eq(sessions.id, id))

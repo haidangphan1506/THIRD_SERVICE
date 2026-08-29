@@ -174,6 +174,21 @@ export class ClassController {
     return this.classService.getClassMaterialsService({ userId: user?.id, id });
   }
 
+  // todo : get class "watch" overview (class + recent session + schedules + students) for
+  // the STUDENT/PARENT read-only page ...
+  @Get('/:id/watches')
+  @HttpCode(StatusCodes.OK)
+  @ApiOperation({
+    summary: 'Get class watch overview',
+    description:
+      'Aggregated class overview (class + recent session + weekly schedule + roster) for the STUDENT/PARENT read-only page',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @SwaggerResponse({ status: StatusCodes.OK, description: 'Class watch overview retrieved' })
+  getClassWatchController(@CurrentUser() user: Record<string, string>, @Param('id') id: string) {
+    return this.classService.getClassWatchService({ userId: user?.id, id });
+  }
+
   // todo : delete class ...
   @Delete(':id')
   @HttpCode(StatusCodes.OK)
