@@ -29,6 +29,13 @@
       "when": 1788016673141,
       "tag": "0003_elite_sandman",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788100427189,
+      "tag": "0004_dark_karnak",
+      "breakpoints": true
     }
   ]
 }

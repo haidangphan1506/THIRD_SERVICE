@@ -481,3 +481,62 @@ export const exercise = pgTable('exercises', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+// ── Chat / Messaging ─────────────────────────────────────────────────
+export const conversationTypeEnum = pgEnum('conversation_type', [
+  'DIRECT',
+  'GROUP',
+  'CLASS',
+]);
+
+export const messageStatusEnum = pgEnum('message_status', ['SENT', 'DELIVERED', 'READ']);
+
+export const conversations = pgTable('conversations', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  type: conversationTypeEnum('type').notNull().default('DIRECT'),
+  name: varchar('name', { length: 255 }),
+  classId: uuid('class_id').references(() => classes.id, { onDelete: 'set null' }),
+  createdBy: uuid('created_by')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  lastMessageAt: timestamp('last_message_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const conversationParticipants = pgTable(
+  'conversation_participants',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    lastReadAt: timestamp('last_read_at'),
+    joinedAt: timestamp('joined_at').defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('conversation_participants_unique').on(table.conversationId, table.userId),
+  ],
+);
+
+export const messages = pgTable(
+  'messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    senderId: uuid('sender_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    status: messageStatusEnum('status').default('SENT').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('messages_conversation_id_created_at_idx').on(table.conversationId, table.createdAt),
+  ],
+);
