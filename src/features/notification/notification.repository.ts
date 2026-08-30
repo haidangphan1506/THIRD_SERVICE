@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, or, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { notifications } from '../../database/schema';
@@ -37,24 +37,44 @@ export class NotificationRepository {
   }
 
   async findAll(userId: string, query: GetNotificationsQueryDto) {
-    const { type, isRead } = query;
+    const { page, limit, search, type, isRead } = query;
+    const offset = (page - 1) * limit;
+
     const conditions: SQL[] = [
       or(eq(notifications.userId, userId), eq(notifications.senderId, userId))!,
     ];
 
+    if (search) {
+      conditions.push(ilike(notifications.title, `%${search}%`));
+    }
     if (type) conditions.push(eq(notifications.type, type));
     if (isRead !== undefined) conditions.push(eq(notifications.isRead, isRead));
+
+    const where = and(...conditions);
+
+    const [totalRow] = await this.db.select({ total: count() }).from(notifications).where(where);
+    const total = Number(totalRow?.total ?? 0);
 
     const rows = await this.db
       .select()
       .from(notifications)
-      .where(and(...conditions))
-      .orderBy(desc(notifications.createdAt));
+      .where(where)
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-    return rows.map((r) => ({
-      ...r,
-      createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
-    }));
+    return {
+      data: rows.map((r) => ({
+        ...r,
+        createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
+      })),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findById(id: string) {

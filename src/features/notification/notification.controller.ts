@@ -61,6 +61,9 @@ export class NotificationController {
   @Get()
   @HttpCode(StatusCodes.OK)
   @ApiOperation({ summary: 'Get all notifications for the current user' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by title' })
   @ApiQuery({ name: 'type', required: false, enum: ['SYSTEM', 'TUITION', 'STUDENT', 'TUTOR'] })
   @ApiQuery({ name: 'isRead', required: false, type: Boolean })
   @SwaggerResponse({ status: 200, description: 'Notifications fetched' })
@@ -69,8 +72,6 @@ export class NotificationController {
     @Query(new ZodValidationPipe<GetNotificationsQueryDto>(getNotificationsQuerySchema))
     query: GetNotificationsQueryDto,
   ) {
-    console.log(user.id);
-
     return this.notificationService.findAll(user.id, query);
   }
 
