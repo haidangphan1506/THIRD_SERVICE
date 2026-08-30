@@ -114,8 +114,8 @@ export class DashboardService {
       };
     });
 
-    const notifications = await this.notificationService.findAll(userId, {});
-    const recentNotifications = Array.isArray(notifications) ? notifications.slice(0, 5) : [];
+    const notifications = await this.notificationService.findAll(userId, { page: 1, limit: 5 });
+    const recentNotifications = Array.isArray(notifications) ? notifications : [];
 
     return {
       role,
