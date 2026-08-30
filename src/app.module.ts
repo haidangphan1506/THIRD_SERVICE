@@ -27,6 +27,7 @@ import { AttendanceModule } from './features/attendance/attendance.module';
 import { AiModule } from './features/ai/ai.module';
 import { DashboardModule } from './features/dashboard/dashboard.module';
 import { ReportModule } from './features/report/report.module';
+import { ChatModule } from './features/chat/chat.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { ReportModule } from './features/report/report.module';
     AiModule,
     DashboardModule,
     ReportModule,
+    ChatModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
