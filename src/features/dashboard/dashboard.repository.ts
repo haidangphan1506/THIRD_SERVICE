@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, countDistinct, eq, gte, inArray, lte, sql } from 'drizzle-orm';
+import { and, countDistinct, eq, gte, gt, inArray, lte, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
 import { classStudents, classes, sessions, tuitions } from '../../database/schema';
@@ -19,6 +19,9 @@ export interface MonthlyRow {
   month: number; // 1..12
   revenue: number;
   sessions: number;
+  newStudents: number;
+  newClasses: number;
+  cumulativeRevenue: number;
 }
 
 @Injectable()
@@ -114,6 +117,120 @@ export class DashboardRepository {
       format: r.format,
       location: r.location,
     }));
+  }
+
+  /**
+   * Session counts for today split by already-completed vs still pending.
+   * "Pending" means the session is not yet finished (SCHEDULED / ONGOING).
+   */
+  async getSessionsToday(
+    classIds: string[],
+    from: Date,
+    to: Date,
+  ): Promise<{ completed: number; pending: number }> {
+    if (classIds.length === 0) return { completed: 0, pending: 0 };
+    const [row] = await this.db
+      .select({
+        completed: sql<number>`count(*) filter (where ${sessions.status} = 'COMPLETED')::int`,
+        pending: sql<number>`count(*) filter (where ${sessions.status} != 'COMPLETED' and ${sessions.status} != 'CANCELLED')::int`,
+      })
+      .from(sessions)
+      .where(
+        and(
+          inArray(sessions.classId, classIds),
+          gte(sessions.startAt, from),
+          lte(sessions.startAt, to),
+        ),
+      );
+    return {
+      completed: Number(row?.completed ?? 0),
+      pending: Number(row?.pending ?? 0),
+    };
+  }
+
+  /** Next `limit` upcoming sessions (start >= now, not finished), with class info. */
+  async getUpcomingSchedule(
+    classIds: string[],
+    after: Date,
+    limit: number,
+  ): Promise<TodayScheduleRow[]> {
+    if (classIds.length === 0) return [];
+    const rows = await this.db
+      .select({
+        id: sessions.id,
+        startAt: sessions.startAt,
+        endAt: sessions.endAt,
+        title: sessions.title,
+        location: sessions.location,
+        className: classes.name,
+        subject: classes.subject,
+        format: classes.format,
+      })
+      .from(sessions)
+      .innerJoin(classes, eq(classes.id, sessions.classId))
+      .where(
+        and(
+          inArray(sessions.classId, classIds),
+          gt(sessions.startAt, after),
+          sql`${sessions.status} != 'COMPLETED'`,
+          sql`${sessions.status} != 'CANCELLED'`,
+        ),
+      )
+      .orderBy(sessions.startAt)
+      .limit(limit);
+
+    return rows.map((r) => ({
+      id: r.id,
+      startAt: r.startAt instanceof Date ? r.startAt.toISOString() : String(r.startAt),
+      endAt: r.endAt instanceof Date ? r.endAt.toISOString() : String(r.endAt),
+      title: r.title,
+      className: r.className,
+      subject: r.subject,
+      format: r.format,
+      location: r.location,
+    }));
+  }
+
+  /** Per-month newly enrolled students (class_students.createdAt) for a year. */
+  async getNewStudentsByMonth(classIds: string[], year: number): Promise<Map<number, number>> {
+    const map = new Map<number, number>();
+    if (classIds.length === 0) return map;
+    const rows = await this.db
+      .select({
+        month: sql<number>`extract(month from ${classStudents.createdAt})::int`,
+        total: sql<number>`count(distinct ${classStudents.studentId})::int`,
+      })
+      .from(classStudents)
+      .where(
+        and(
+          inArray(classStudents.classId, classIds),
+          sql`extract(year from ${classStudents.createdAt}) = ${year}`,
+        ),
+      )
+      .groupBy(sql`extract(month from ${classStudents.createdAt})`);
+    for (const r of rows) map.set(Number(r.month), Number(r.total));
+    return map;
+  }
+
+  /** Per-month newly created classes for a year. */
+  async getNewClassesByMonth(classIds: string[], year: number): Promise<Map<number, number>> {
+    const map = new Map<number, number>();
+    if (classIds.length === 0) return map;
+    const rows = await this.db
+      .select({
+        month: sql<number>`extract(month from ${classes.createdAt})::int`,
+        total: sql<number>`count(*)::int`,
+      })
+      .from(classes)
+      .where(
+        and(
+          inArray(classes.id, classIds),
+          sql`extract(year from ${classes.createdAt}) = ${year}`,
+        ),
+      )
+      .groupBy(sql`extract(month from ${classes.createdAt})`);
+    for (const r of rows) map.set(Number(r.month), Number(r.total));
+    return map;
   }
 
   /** Tuition revenue (PAID) within [from, to] for the given classes. */

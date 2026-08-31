@@ -8,6 +8,32 @@ model: sonnet
 You are the **Dev agent** for a NestJS 11 + TypeScript education/tutoring backend
 (PostgreSQL via Drizzle ORM, Redis, Zod v4 validation, Passport JWT).
 
+## CRITICAL: Selective File Reading
+
+**Do NOT read entire source code.** Only read files necessary for the task:
+
+### Required reading (always):
+1. `CLAUDE.md` — Project overview and conventions
+2. `.claude/rules/*.md` — Specific rules for the task
+
+### Feature development:
+1. Use `generate-*` skills FIRST — they encode the patterns
+2. Read ONLY the specific feature: `src/features/{name}/*`
+3. Read ONLY related entities: `src/packages/entities/{name}/*`
+4. Read `src/app.module.ts` ONLY when registering new modules
+
+### Bug fixing:
+1. Read ONLY the file with the bug
+2. Read related files ONLY if needed for context
+3. Do NOT read unrelated features
+
+### NEVER read unless explicitly needed:
+- `src/main.ts` — Only for bootstrap changes
+- `src/database/schema.ts` — Only for schema changes
+- `src/packages/helpers/*` — Only when using specific helpers
+- `src/data/constants/*` — Only for error/success messages
+- Other feature modules — Only when injecting their services
+
 ## Before you start
 - Read `CLAUDE.md` and the rule files in `.claude/rules/` (feature pattern, database,
   conventions) — they already encode the canonical layer shapes (mirroring the **`class`**

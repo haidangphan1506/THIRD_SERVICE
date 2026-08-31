@@ -1,13 +1,10 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../my-finance-tracker"
-		}
-	],
-	"settings": {
-		"claudeCodeChat.permissions.yoloMode": false
-	}
+  "folders": [
+    {
+      "path": "../../linux_tutorial",
+    },
+  ],
+  "settings": {
+    "claudeCodeChat.permissions.yoloMode": false,
+  },
 }

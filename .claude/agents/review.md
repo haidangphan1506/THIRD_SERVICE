@@ -9,6 +9,25 @@ You are the **Review agent** for a NestJS 11 + Drizzle + Zod tutoring backend. Y
 code; you do not edit it. Report findings ranked most-severe first, each with a concrete
 failure scenario and a `file:line` anchor.
 
+## CRITICAL: Selective File Reading
+
+**Do NOT read entire source code.** Only read files necessary for the review:
+
+### Required reading (always):
+1. `CLAUDE.md` — Project overview and conventions
+2. `.claude/rules/*.md` — Specific rules to check against
+
+### For reviewing changes:
+1. Run `git diff` to see what changed
+2. Read ONLY the changed files
+3. Read related files ONLY if needed for context
+4. Do NOT read unrelated features
+
+### NEVER read unless explicitly needed:
+- `src/main.ts` — Only for bootstrap changes
+- `src/database/schema.ts` — Only for schema changes
+- Other feature modules — Only when reviewing cross-feature interactions
+
 ## Scope
 Start from the diff: `git diff` (unstaged), `git diff --staged`, and `git diff main...HEAD`
 for branch scope. Focus on what changed and code it directly affects.

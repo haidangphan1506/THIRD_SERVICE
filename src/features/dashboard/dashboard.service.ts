@@ -16,11 +16,14 @@ export interface DashboardOverview {
     studentsCount: number;
     sessionsThisWeek: number;
     sessionsCompletedThisWeek: number;
+    sessionsTodayCompleted: number;
+    sessionsTodayPending: number;
     revenueThisMonth: number;
     overdueTuitionCount: number;
     unpaidTuitionAmount: number;
   };
   todaySchedule: TodayScheduleRow[];
+  upcomingSchedule: TodayScheduleRow[];
   monthly: MonthlyRow[];
   recentNotifications: unknown[];
 }
@@ -80,17 +83,25 @@ export class DashboardService {
     const [
       studentsCount,
       sessionStats,
+      todaySessions,
       todaySchedule,
+      upcomingSchedule,
       revenueThisMonth,
       monthlyRevenue,
       monthlySessions,
+      monthlyStudents,
+      monthlyClasses,
     ] = await Promise.all([
       isStudent ? Promise.resolve(0) : this.repo.countStudents(classIds),
       this.repo.getSessionStats(classIds, weekStart, weekEnd),
+      this.repo.getSessionsToday(classIds, dayStart, dayEnd),
       this.repo.getSchedule(classIds, dayStart, dayEnd),
+      this.repo.getUpcomingSchedule(classIds, now, 5),
       isStudent ? Promise.resolve(0) : this.repo.getRevenue(classIds, monthStart, monthEnd),
       this.repo.getMonthlyRevenue(classIds, year),
       this.repo.getMonthlySessions(classIds, year),
+      this.repo.getNewStudentsByMonth(classIds, year),
+      this.repo.getNewClassesByMonth(classIds, year),
     ]);
 
     const overdue = await this.repo.getTuitionSum(
@@ -105,12 +116,18 @@ export class DashboardService {
     );
     const unpaidTuitionAmount = isStudent ? unpaid.total + overdue.total : unpaid.total;
 
+    let cumulativeRevenue = 0;
     const monthly: MonthlyRow[] = Array.from({ length: 12 }, (_, i) => {
       const m = i + 1;
+      const revenue = monthlyRevenue.get(m) ?? 0;
+      cumulativeRevenue += revenue;
       return {
         month: m,
-        revenue: monthlyRevenue.get(m) ?? 0,
+        revenue,
         sessions: monthlySessions.get(m) ?? 0,
+        newStudents: monthlyStudents.get(m) ?? 0,
+        newClasses: monthlyClasses.get(m) ?? 0,
+        cumulativeRevenue,
       };
     });
 
@@ -124,11 +141,14 @@ export class DashboardService {
         studentsCount,
         sessionsThisWeek: sessionStats.total,
         sessionsCompletedThisWeek: sessionStats.completed,
+        sessionsTodayCompleted: todaySessions.completed,
+        sessionsTodayPending: todaySessions.pending,
         revenueThisMonth,
         overdueTuitionCount: overdue.count,
         unpaidTuitionAmount,
       },
       todaySchedule,
+      upcomingSchedule,
       monthly,
       recentNotifications,
     };

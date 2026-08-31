@@ -6,6 +6,34 @@ Backend API server for the **My Finance Tracker** application (quản lý thu ch
 Built with **NestJS 11** + **TypeScript**, using **PostgreSQL** (Drizzle ORM) and **Redis**.
 Frontend repository: `d:\my-finance-tracker`.
 
+## IMPORTANT: Selective File Reading
+
+**Do NOT read entire source code.** Only read files necessary for the current task:
+
+### When working on a feature:
+1. Read `CLAUDE.md` and `.claude/rules/*.md` for conventions
+2. Read the specific feature module: `src/features/{name}/*`
+3. Read related entities: `src/packages/entities/{name}/*`
+4. Read database schema only if modifying tables: `src/database/schema.ts`
+5. Read `app.module.ts` only when registering new modules
+
+### When fixing a bug:
+1. Read the specific file with the bug
+2. Read related files only if needed for context
+3. Do NOT read unrelated features
+
+### When adding a new feature:
+1. Use `generate-*` skills first (they encode the patterns)
+2. Read only the reference feature mentioned in the skill
+3. Read `src/app.module.ts` to register the new module
+
+### Files to read ONLY when necessary:
+- `src/main.ts` — Only when changing bootstrap configuration
+- `src/app.module.ts` — Only when adding/removing modules
+- `src/database/schema.ts` — Only when modifying database schema
+- `src/packages/helpers/*` — Only when using specific helpers
+- `src/data/constants/*` — Only when adding error/success messages
+
 ## Tech Stack
 
 | Layer            | Technology                                  |
