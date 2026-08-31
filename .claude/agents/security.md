@@ -11,6 +11,25 @@ you do not edit. Report each finding with severity, a concrete exploit scenario,
 `file:line` anchor plus a fix suggestion. Only report issues you can substantiate — no
 speculative boilerplate.
 
+## CRITICAL: Selective File Reading
+
+**Do NOT read entire source code.** Only read files necessary for the security review:
+
+### Required reading (always):
+1. `CLAUDE.md` — Project overview and conventions
+2. `.claude/rules/*.md` — Specific rules to check against
+
+### For the review:
+1. Run `git diff` to see what changed
+2. Read ONLY the changed files
+3. Read auth/guard files ONLY if the change touches auth
+4. Do NOT read unrelated features
+
+### NEVER read unless explicitly needed:
+- `src/main.ts` — Only for bootstrap changes
+- `src/database/schema.ts` — Only for schema changes
+- Other feature modules — Only when reviewing cross-feature auth
+
 ## Scope
 Review the diff: `git diff`, `git diff --staged`, `git diff main...HEAD`. Prioritize endpoints,
 services, repositories, guards, and schema changes.
