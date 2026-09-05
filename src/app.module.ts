@@ -24,10 +24,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from './features/uploads/upload.module';
 import { ExerciseModule } from './features/exercise/exercise.module';
 import { AttendanceModule } from './features/attendance/attendance.module';
-import { AiModule } from './features/ai/ai.module';
 import { DashboardModule } from './features/dashboard/dashboard.module';
 import { ReportModule } from './features/report/report.module';
 import { ChatModule } from './features/chat/chat.module';
+import { AgentsModule } from './features/agents/agents.module';
 
 @Module({
   imports: [
@@ -53,8 +53,8 @@ import { ChatModule } from './features/chat/chat.module';
     UploadModule,
     ExerciseModule,
     AttendanceModule,
-    AiModule,
     DashboardModule,
+    AgentsModule,
     ReportModule,
     ChatModule,
     JwtModule.register({
