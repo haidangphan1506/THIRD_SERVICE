@@ -1,5 +1,8 @@
 # Docker Compose v2 and Podman Compose (`podman compose up -d`) use this file.
 # Host port defaults to 5432 (override with POSTGRES_PORT in .env).
+# `backend-net` is a fixed-name network so other external stacks (e.g. Uptime Kuma) can
+# join it via `networks: { backend-net: { external: true } }` and reach these containers
+# by container name (backends-postgres / backends-redis) instead of `localhost`.
 services:
   postgres:
     image: docker.io/library/postgres:16-alpine
@@ -18,6 +21,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend-net
 
   redis:
     image: docker.io/library/redis:7-alpine
@@ -25,6 +30,12 @@ services:
     restart: unless-stopped
     ports:
       - '${REDIS_PORT:-6380}:6379'
+    networks:
+      - backend-net
 
 volumes:
   postgres_data:
+
+networks:
+  backend-net:
+    name: backend-net
