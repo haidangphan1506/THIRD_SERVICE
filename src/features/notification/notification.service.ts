@@ -5,16 +5,12 @@ import type {
   GetNotificationsQueryDto,
 } from '@packages/entities/notification';
 import { NotificationRepository } from './notification.repository';
-import { UserService } from '../user/user.service';
 import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
-  constructor(
-    private readonly repo: NotificationRepository,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly repo: NotificationRepository) {}
 
   /** Internal fire-and-forget — skips validation, called from other services. */
   async createInternal(dto: CreateNotificationDto): Promise<void> {
@@ -28,23 +24,8 @@ export class NotificationService {
   }
 
   async createNotificationService(dto: CreateNotificationDto) {
-    const existUser =
-      dto.userId &&
-      (await this.userService.getUserByField({
-        field: 'id',
-        value: dto.userId,
-      }));
-
-    console.log('userId:', dto.senderId);
-
     if (!dto.senderId || (dto.senderId && !checkUuidValid({ data: dto.senderId }))) {
       throw new BadRequestException(ERROR_MESSAGES.USER_ID_NOT_VALID);
-    }
-
-    this.logger.log('exist user : ', existUser);
-
-    if (Array.isArray(existUser) && existUser.length === 0) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     if (dto.classId && !checkUuidValid({ data: dto.classId })) {
