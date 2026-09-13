@@ -1,11 +1,14 @@
 ---
 name: generate-service
-description: Scaffold the service layer (src/features/{name}/{name}.service.ts) — business logic with Logger, UUID validation, owner/existence checks, NotFound/BadRequest/Conflict handling, delegating to the repository. Use when asked to create/add a service or business-logic layer for a feature in this NestJS tutoring backend.
+description: Scaffold the service layer (src/features/{name}/{name}.service.ts) — business logic with Logger, UUID validation, existence checks, NotFound/BadRequest handling, delegating to the repository. Use when asked to create/add a service or business-logic layer for a Postgres-backed feature in this NestJS infra/utility backend.
 ---
 
 # Generate Service
 
-Create `src/features/foo/foo.service.ts`, mirroring `class.service.ts`.
+Create `src/features/foo/foo.service.ts`, mirroring `notification.service.ts` — the only
+repository-backed service in this repo. (For a thin external-API wrapper with no DB table, see
+`email.service.ts`/`upload.service.ts` instead — plain methods taking TS object params, no
+repository, no `checkUuidValid` FK dance.)
 
 ## Prerequisites
 - `FooRepository` exists (see `generate-repository`).
@@ -13,81 +16,39 @@ Create `src/features/foo/foo.service.ts`, mirroring `class.service.ts`.
 
 ## Shape
 ```ts
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { DRIZZLE } from '../../database/database.module';
-import { CreateFooDto, GetFoosQueryDto } from '@packages/entities/foo';
-import { checkUuidValid, generateCode } from '@packages/helpers';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ERROR_MESSAGES } from 'src/data/constants';
+import type { CreateFooDto, GetFoosQueryDto } from '@packages/entities/foo';
 import { FooRepository } from './foo.repository';
-import { UserService } from '../user/user.service';
+import { checkUuidValid } from '@packages/helpers';
 
 @Injectable()
 export class FooService {
   private readonly logger = new Logger(FooService.name);
-  constructor(
-    private readonly repo: FooRepository,
-    @Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>,
-    private readonly user: UserService, // + other feature services it depends on
-  ) {}
-  // createFooService, getFoosService, getFooService, delFooService
+  constructor(private readonly repo: FooRepository) {}
+  // create, findAll, findById, delete, + any state-transition methods
 }
 ```
 
-## Methods (mirror class.service.ts — note the `...Service` suffix)
-- `createFooService({ userId, data })` — validate `userId` is a UUID (`checkUuidValid`),
-  confirm the user exists via `this.user.getUserByField({ field: 'id', value: userId })`,
-  duplicate-check unique fields via `this.repo.getFooByField({ field, value })`, validate any
-  FK ids (e.g. `tutorId`) the same way, then `this.repo.create({ data })`.
-- `getFoosService({ userId, query })` — validate `userId`, confirm user exists, then
-  `this.repo.getFoos({ userId, query })`.
-- `getFooService({ userId, id })` — validate `userId`, confirm user exists, then
-  `this.repo.getFoo({ id })`.
-- `delFooService({ userId, id })` — validate both UUIDs, confirm user + row exist, enforce
-  ownership (`row.tutorId !== userId` → `NotFoundException`), then `this.repo.delFoo({ id })`.
-- If the domain needs a unique human code, add `generateNewCodeService()` — loop
-  `generateCode()` (from `@packages/helpers`) with a MAX_RETRIES cap, `ConflictException` on
-  exhaustion (see `class.service.ts`).
-
-## Child resources owned through a parent (see `schedule.service.ts`)
-When the feature is a child of `class` (e.g. `schedule`, `session`) and has no `tutorId` of its
-own, authorize **through the parent class** instead of re-checking the user table:
-- Inject the parent's service (`private readonly classService: ClassService`) and import
-  `ClassModule` in the feature module.
-- Add a private guard that loads the parent and enforces ownership, reused by every method:
-  ```ts
-  private async assertClassOwner({ userId, classId }: { userId: string; classId: string }) {
-    if (!classId || !checkUuidValid({ data: classId }))
-      throw new BadRequestException('Class Id must be uuid ...');
-    const classData = await this.classService.getClassService({ userId, id: classId });
-    if (!classData || (Array.isArray(classData) && classData.length === 0))
-      throw new NotFoundException('Class not found ...');
-    if (classData.tutorId !== userId) throw new NotFoundException('Class not found ...');
-    return classData;
-  }
-  ```
-- For get/update/delete by the child's own id, first load the child row, then call
-  `assertClassOwner({ userId, classId: row.classId })` (see `loadOwnedSchedule`). Return
-  `NotFoundException` (not `Forbidden`) on an ownership miss so records aren't enumerable.
-- List by parent instead of a global paginated list: `get{Children}ByParentService({ userId,
-  parentId })` → guard, then `repo.getByParent({ parentId })`.
-
-## Bulk create (see `createSchedulesService`)
-For a `{ parentId, items: [...] }` bulk schema, add `create{Children}Service({ userId, data })`
-that runs the parent-owner guard once, then delegates to a single `repo.createMany({ parentId,
-items })` (one multi-row insert — do NOT loop single inserts).
+## Methods (mirror notification.service.ts)
+- **Create**: validate any FK-shaped ids present in the DTO with `checkUuidValid({ data: id })`
+  and throw `BadRequestException(ERROR_MESSAGES.X_NOT_VALID)` on a miss — there is **no
+  ownership check** pattern here (no `row.tutorId !== userId`); this repo's resources aren't
+  owned by a single actor the way `tutor-service`'s are. Then `this.repo.create(dto)`.
+- **findAll(userId, query)**: pass straight through to `this.repo.findAll(userId, query)` — the
+  repository builds the where-clause, not the service.
+- **findById(id)**: `this.repo.findById(id)`, throw `NotFoundException(ERROR_MESSAGES.X_NOT_FOUND)`
+  if null.
+- **delete(id)**: check existence first (reuse `findById`'s not-found throw), then
+  `this.repo.delete(id)`, return `{ id }`.
+- Optional: an **internal fire-and-forget variant** (see `createInternal`) for a future
+  same-process caller that shouldn't hit the validation/exception path — swallow and log errors
+  instead of throwing. Only add this if something will actually call it; don't add it
+  speculatively.
 
 ## Rules
-- Validate every UUID param with `checkUuidValid({ data: id })` before hitting the DB.
-- `BadRequestException` for bad input, `NotFoundException` when a row is missing / not owned,
-  `ConflictException` for unresolvable uniqueness collisions.
-- Inject sibling feature services (`UserService`, `NotificationService`, …) rather than
-  re-querying their tables directly; import their modules in `foo.module.ts`.
-- Keep Drizzle table access in the repository; the injected `db` is only for cross-table
-  transactions when needed.
+- Validate every UUID-shaped field with `checkUuidValid({ data: id })` before hitting the DB.
+- `BadRequestException` for bad input, `NotFoundException` when a row is missing. There's no
+  `ConflictException` pattern here yet (no unique-code generation in this repo) — add one only
+  if your feature actually has a uniqueness constraint to enforce.
+- Keep all Drizzle access in the repository — the service never imports `drizzle-orm` directly.

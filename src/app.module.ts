@@ -6,7 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './features/email/email.module';
 import { RedisModule } from './features/redis/redis.module';
 import { RabbitMQModule } from './features/rabbitmq/rabbitmq.module';
-// import { NotificationModule } from './features/notification/notification.module';
+import { NotificationModule } from './features/notification/notification.module';
 import { JwtAuthGuard, LanguageGuard, TokenBucketGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -21,7 +21,7 @@ import { UploadModule } from './features/uploads/upload.module';
     EmailModule,
     RedisModule,
     RabbitMQModule,
-    // NotificationModule,
+    NotificationModule,
     UploadModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,

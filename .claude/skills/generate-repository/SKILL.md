@@ -1,66 +1,61 @@
 ---
 name: generate-repository
-description: Scaffold the repository layer (src/features/{name}/{name}.repository.ts) — Drizzle DB access with DRIZZLE injection, CRUD + paginated list using buildListWhereClause. Use when asked to create/add a repository or data-access layer for a feature in this NestJS tutoring backend.
+description: Scaffold the repository layer (src/features/{name}/{name}.repository.ts) — Drizzle DB access with DRIZZLE injection, CRUD + paginated list using inline and()/eq()/ilike() conditions. Use when asked to create/add a repository or data-access layer for a Postgres-backed feature in this NestJS infra/utility backend.
 ---
 
 # Generate Repository
 
-Create `src/features/foo/foo.repository.ts`, mirroring `class.repository.ts`.
+Create `src/features/foo/foo.repository.ts`, mirroring `notification.repository.ts` — the only
+repository in this repo.
 
 ## Prerequisites
-- The Drizzle table (e.g. `foos`) exists in `src/database/schema.ts`.
+- The Drizzle table (e.g. `foos`) exists in `src/database/schema.ts`. Don't confuse this with
+  the large set of vestigial (unused) education-domain tables already in that file — see
+  `.claude/rules/database.md`.
 - The DTOs exist under `@packages/entities/foo` (see `generate-entity`).
 
 ## Shape
 ```ts
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../../database/database.module';
-import { CreateFooDto, GetFoosQueryDto } from '@packages/entities/foo';
-import { foos } from 'src/database/schema';
-import { buildListWhereClause } from '@packages/helpers';
+import { foos } from '../../database/schema';
+import type { CreateFooDto, GetFoosQueryDto } from '@packages/entities/foo';
 
 @Injectable()
 export class FooRepository {
   constructor(@Inject(DRIZZLE) private readonly db: ReturnType<typeof drizzle>) {}
-  // getFooByField, create, getFoos, getFoo, delFoo (+ update if needed)
+  // create, findAll, findById, update-ish state-transition methods, delete
 }
 ```
 
-## Methods (copy exact shapes from class.repository.ts)
-- `getFooByField({ field, value })` → look up a single row via a `fieldMaps` object
-  (`{ id: foos.id, name: foos.name, code: foos.code }`), return the first row (used by the
-  service for duplicate / existence checks).
-- `create({ data })` → `.insert(foos).values({...}).returning()`, return first row. Map each
-  DTO field explicitly; `.toString()` numeric/`numeric`-column values (see `tuition`).
-- `getFoos({ userId, query })` → build the where with `buildListWhereClause({ search,
-  searchableColumns, filters, filterColumns })` (the object-shaped signature — see below),
-  AND in ownership/relation conditions, count total, then paged `.select().limit().offset()`.
-  Return `{ foos: rows, pagination: { total, page, limit, totalPages } }` — the list key is
-  named after the resource (e.g. `classes`), NOT `data`.
-- `getFoo({ id })` → `.where(eq(foos.id, id)).limit(1)`, return the row or `[]`.
-- `delFoo({ id })` → `.delete(...).returning()`, return a boolean (`!!row`).
+## Methods (copy exact shapes from notification.repository.ts)
 
-## buildListWhereClause signature (object-shaped, from @packages/helpers)
-```ts
-const searchWhere = buildListWhereClause({
-  search,
-  searchableColumns: { name: { column: foos.name }, code: { column: foos.code } },
-  filters: { status, subject },
-  filterColumns: { status: { column: foos.status }, subject: { column: foos.subject } },
-});
-const whereClause = and(...[searchWhere, eq(foos.tutorId, userId)].filter((c) => c !== undefined));
-```
-
-## Child-resource variants (see `schedule.repository.ts`)
-A child of `class` (e.g. `schedule`) has no owner column of its own, so it skips
-`buildListWhereClause` and lists by parent instead:
-- `createMany({ parentId, items })` → one `.insert(foos).values(items.map(...)).returning()`
-  multi-row insert (never a loop of single inserts).
-- `getByParent({ parentId })` → `.where(eq(foos.parentId, parentId)).orderBy(...)`, return all rows.
-- `getById({ id })`, `update({ id, data })`, `del({ id })` as usual.
+- `create(data)` → `.insert(foos).values({...}).returning()`, return the first row (`[row] =
+  await ...`). Map each DTO field explicitly, using `?? undefined` for optional fields Drizzle
+  should omit rather than insert as `null` unless `null` is actually wanted.
+- `findAll(userId, query)` → build conditions as a plain `SQL[]` array (NOT
+  `buildListWhereClause` — that helper isn't used in this repo):
+  ```ts
+  const conditions: SQL[] = [or(eq(foos.userId, userId), eq(foos.senderId, userId))!];
+  if (search) conditions.push(ilike(foos.title, `%${search}%`));
+  if (type) conditions.push(eq(foos.type, type));
+  const where = and(...conditions);
+  ```
+  Then one `count()` query for the total, one paged `.select().from(foos).where(where)
+  .orderBy(desc(foos.createdAt)).limit(limit).offset(offset)` query. Return
+  `{ data: rows, pagination: { total, page, limit, totalPages } }` — the key is **`data`**, not
+  the resource name (this repo's own convention — differs from `tutor-service`/`user`).
+- `findById(id)` → `.select().from(foos).where(eq(foos.id, id))`, return the row or `null`
+  (destructure `const [row] = ...; return row ?? null;`).
+- `delete(id)` → `.delete(foos).where(eq(foos.id, id)).returning()`, return a boolean (`!!row`).
+- Any state-transition update (like `markAsRead`) → `.update(foos).set({...}).where(eq(foos.id,
+  id)).returning()`, return the row or `null`.
 
 ## Rules
-- Never inline SQL string building — reuse `buildListWhereClause` from `@packages/helpers`.
-- Map camelCase DTO fields to columns explicitly on insert; stringify `numeric` columns.
+- Build conditions as an explicit `SQL[]` and `and(...conditions)` — don't reach for
+  `buildListWhereClause`, it's unused in this repo (see `.claude/rules/conventions.md`).
+- Map camelCase DTO fields to columns explicitly on insert.
+- No parent/child ownership joins here — there's no `class`/`schedule`-style hierarchy in this
+  repo's own tables.

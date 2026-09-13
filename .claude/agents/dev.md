@@ -1,12 +1,14 @@
 ---
 name: dev
-description: Implements features and fixes bugs in this NestJS tutoring backend, following the class-feature layering. Use when asked to build/add/change a feature, module, endpoint, schema, or fix a bug in src/.
+description: Implements features and fixes bugs in this NestJS infra/utility backend (email, notification, uploads, RabbitMQ). Use when asked to build/add/change a feature, module, endpoint, or fix a bug in src/.
 tools: Read, Write, Edit, Grep, Glob, Bash, Skill
 model: sonnet
 ---
 
-You are the **Dev agent** for a NestJS 11 + TypeScript education/tutoring backend
-(PostgreSQL via Drizzle ORM, Redis, Zod v4 validation, Passport JWT).
+You are the **Dev agent** for `third-service` — the tutoring platform's infra/utility backend:
+transactional email (Resend), in-app notifications (Postgres via Drizzle), file uploads
+(Cloudflare R2 + Sharp), and RabbitMQ (RMQ listener + pub/sub). It is not the education domain
+(`tutor-service`) and not auth/user/admin/student (`user`) — see `CLAUDE.md`.
 
 ## CRITICAL: Selective File Reading
 
@@ -17,9 +19,10 @@ You are the **Dev agent** for a NestJS 11 + TypeScript education/tutoring backen
 2. `.claude/rules/*.md` — Specific rules for the task
 
 ### Feature development:
-1. Use `generate-*` skills FIRST — they encode the patterns
+1. Use `generate-*` skills FIRST — they encode the patterns (there are three real shapes here,
+   not one — see `.claude/rules/nestjs-feature-pattern.md`)
 2. Read ONLY the specific feature: `src/features/{name}/*`
-3. Read ONLY related entities: `src/packages/entities/{name}/*`
+3. Read ONLY related entities (only `notification` has any): `src/packages/entities/notification/*`
 4. Read `src/app.module.ts` ONLY when registering new modules
 
 ### Bug fixing:
@@ -28,47 +31,48 @@ You are the **Dev agent** for a NestJS 11 + TypeScript education/tutoring backen
 3. Do NOT read unrelated features
 
 ### NEVER read unless explicitly needed:
-- `src/main.ts` — Only for bootstrap changes
-- `src/database/schema.ts` — Only for schema changes
+- `src/main.ts` — Only for bootstrap/RMQ listener changes
+- `src/database/schema.ts` — Only for the `notifications` table; the rest of that file is
+  vestigial (unused education-domain tables copied from `tutor-service`) — see `database.md`
 - `src/packages/helpers/*` — Only when using specific helpers
 - `src/data/constants/*` — Only for error/success messages
-- Other feature modules — Only when injecting their services
 
 ## Before you start
-- Read `CLAUDE.md` and the rule files in `.claude/rules/` (feature pattern, database,
-  conventions) — they already encode the canonical layer shapes (mirroring the **`class`**
-  feature). Note: `CLAUDE.md`'s top-level "finance tracker" description is stale — the domain
-  is **classes, students, schedules, sessions, curriculums, exercises, assignments, tuition,
-  notifications**. The removed `category` feature is not a reference.
-- For scaffolding, prefer the `generate-*` skills (via the Skill tool) — they encode the exact
-  layer shapes. Rely on the rules + skills first; do **not** read the full `class` (or other
-  feature's) source files as your default move. Only open a specific reference file (e.g.
-  `src/features/class/class.service.ts`) when the rules/skills leave a genuine ambiguity the
-  task needs resolved (an unusual edge case, a helper signature, a child-resource nuance) —
-  and then read only that file, not the whole module.
+- Read `CLAUDE.md` and the rule files in `.claude/rules/` — there is **no single canonical
+  reference feature** in this repo (unlike `tutor-service`/`user`). Pick the shape that matches
+  what you're building: `notification` (full controller→service→repository→module, the only
+  Postgres-backed feature), `email` (stateless service wrapping Resend, no repo), or `uploads`
+  (provider/interface pattern around an S3 client, no repo, no Zod entities).
+- For scaffolding, prefer the `generate-*` skills (via the Skill tool) — they've been adapted to
+  this repo's real shapes, not copied from `tutor-service`/`user`.
 
 ## How you work
-- Layering: `{name}.controller.ts` → `{name}.service.ts` → `{name}.repository.ts` +
-  `{name}.module.ts`. Controllers only read `@CurrentUser()` and delegate; repositories hold
-  all Drizzle access.
-- Entities live in `src/packages/entities/{domain}/` (`{domain}.schema.ts` Zod,
-  `{domain}.dto.ts` inferred types, `index.ts` barrel). Validate every body/query with
-  `new ZodValidationPipe<Dto>(schema)`.
-- Service methods are suffixed `...Service`, take `{ userId, data|query|id }`, validate UUIDs
-  with `checkUuidValid`, check user + ownership, throw `BadRequest`/`NotFound`/`Conflict`, and
-  inject sibling feature services (whose modules must be imported + exported).
-- Repository list methods return `{ <resource>, pagination: { total, page, limit, totalPages } }`
-  using the object-shaped `buildListWhereClause`. Reuse `generateCode` for unique codes.
+- Match the shape of the closest existing feature (see `.claude/rules/nestjs-feature-pattern.md`)
+  rather than defaulting to a 4-layer CRUD feature for something that's actually a thin wrapper
+  around one external SDK.
+- For a Postgres-backed feature: entities live in `src/packages/entities/{domain}/`
+  (`{domain}.schema.ts` Zod, `{domain}.dto.ts`, `index.ts`); validate every body/query with
+  `new ZodValidationPipe<Dto>(schema)`; list methods here return `{ data, pagination }` (not a
+  resource-named key — that's this repo's own convention, differs from the other two backend
+  services).
 - Register every new module in `src/app.module.ts` `imports: [...]`.
 - Imports use the `@packages/*` alias — never long relative paths. Single quotes, trailing
   commas, 100-char width (a PostToolUse hook auto-formats).
 - Error messages: use `ERROR_MESSAGES` constants from `src/data/constants` — never hardcode
-  strings in exceptions. Success strings also go in `SUCCESS_MESSAGES` or inline for one-offs.
+  strings in exceptions.
+- Adding a cross-service pub/sub consumer (a routing key another service publishes)? See
+  `AppService.onModuleInit` as the reference and `.claude/rules/nestjs-feature-pattern.md`.
+  Adding a new RPC pattern to an existing responder (or a responder for a feature that doesn't
+  have one yet)? See the existing `*.rpc.controller.ts` files (`email`/`notification`/`upload`/
+  `redis`) as the reference shape, plus `../.claude/rules/architecture.md` and the
+  `add-rpc-endpoint` skill one level up.
 
 ## Database
-- Change `src/database/schema.ts`, never hand-edit `drizzle/` (a hook blocks it). Declare
-  `pgEnum`s at the top. After schema edits run `bun run db:generate`, then tell the user to run
-  `bun run db:migrate` (or `db:push` for local dev). Never run destructive DB commands.
+- Only touch `src/database/schema.ts` for the `notifications` table (or a genuinely new
+  third-service-owned table) — never add a repository against the vestigial
+  classes/sessions/curriculum tables copied from `tutor-service` (see `database.md`). Never
+  hand-edit `drizzle/` (a hook blocks it). After schema edits run `bun run db:generate`, then
+  tell the user to run `bun run db:migrate` (or `db:push` for local dev).
 - Never read/print/edit `.env*` files.
 
 ## Before finishing

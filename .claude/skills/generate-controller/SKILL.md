@@ -1,20 +1,22 @@
 ---
 name: generate-controller
-description: Scaffold the controller layer (src/features/{name}/{name}.controller.ts) — CRUD routes with ZodValidationPipe, CurrentUser, and Swagger decorators driven by data/message files, plural route path. Use when asked to create/add a controller, routes, or REST endpoints for a feature in this NestJS tutoring backend.
+description: Scaffold the controller layer (src/features/{name}/{name}.controller.ts) — CRUD routes with ZodValidationPipe, CurrentUser, and Swagger decorators, plural route path. Use when asked to create/add a controller, routes, or REST endpoints for a Postgres-backed feature in this NestJS infra/utility backend.
 ---
 
 # Generate Controller
 
-Create `src/features/foo/foo.controller.ts`, mirroring `class.controller.ts`.
+Create `src/features/foo/foo.controller.ts`, mirroring `notification.controller.ts` — the only
+full CRUD controller in this repo. (If the feature you're building is actually a thin wrapper
+around one external API/SDK with no DB table, this skill doesn't apply — see `email.controller.ts`
+or `upload.controller.ts` instead, and `.claude/rules/nestjs-feature-pattern.md`.)
 
 ## Prerequisites
 - `FooService` exists (see `generate-service`).
 - DTOs + schemas exist under `@packages/entities/foo`.
-- Swagger data/messages exist (see the Swagger section) under `src/data/swaggers/`.
 
 ## Shape
 ```ts
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   ApiTags, ApiOperation, ApiBody, ApiResponse as SwaggerResponse,
   ApiBearerAuth, ApiParam, ApiQuery,
@@ -23,50 +25,45 @@ import { StatusCodes } from 'http-status-codes';
 import { ZodValidationPipe } from '@packages/pipes';
 import { CurrentUser } from '@packages/decorators';
 import { createFooSchema, type CreateFooDto, getFoosQuerySchema, type GetFoosQueryDto } from '@packages/entities/foo';
+import { type JwtGuardUser } from '@packages/guards/jwt-auth.guard';
 import { FooService } from './foo.service';
-import { FOO_SWAGGER_MESSAGES } from 'src/data/swaggers/messages';
-import { FOO_SWAGGERS_DATA } from 'src/data/swaggers/data/foo.swagger';
 
 @ApiTags('Foos')
 @ApiBearerAuth('access-token')
 @Controller('foos') // plural route
 export class FooController {
   constructor(private readonly fooService: FooService) {}
-  // POST / , GET / , GET /:id , DELETE /:id
+  // POST / , GET / , GET /:id , DELETE /:id (+ any PATCH sub-actions, e.g. notification's read-state routes)
 }
 ```
 
-## Routes (mirror class.controller.ts)
+## Routes (mirror notification.controller.ts)
 - `@Post()` `@HttpCode(StatusCodes.CREATED)` → body via
-  `new ZodValidationPipe<CreateFooDto>(createFooSchema)` + `@CurrentUser() user`; call
-  `this.fooService.createFooService({ data: dto, userId: user.id })`.
+  `new ZodValidationPipe<CreateFooDto>(createFooSchema)` + `@CurrentUser() user: JwtGuardUser`;
+  call the service's create method, spreading in whatever actor field it needs (`notification`
+  passes `senderId: user.id`, not `userId` — match your domain's actual FK name).
 - `@Get('')` `@HttpCode(StatusCodes.OK)` → query via
-  `new ZodValidationPipe<GetFoosQueryDto>(getFoosQuerySchema)` + `@CurrentUser() user`;
-  `this.fooService.getFoosService({ userId: user?.id, query })`.
-- `@Get('/:id')` → `@CurrentUser() user`, `@Param('id') id`,
-  `this.fooService.getFooService({ userId: user?.id, id })`.
-- `@Delete(':id')` → same params, `this.fooService.delFooService({ userId: user?.id, id })`.
+  `new ZodValidationPipe<GetFoosQueryDto>(getFoosQuerySchema)` + `@CurrentUser() user`.
+- `@Get('/:id')` → `@Param('id') id`.
+- `@Delete(':id')` → `@Param('id') id`.
+- Extra `@Patch(...)` sub-action routes are fine for state transitions (see
+  `PATCH /notifications/:id/read` and `PATCH /notifications/read-all`) — declare a specific
+  literal sub-path (`read-all`) before a `:id` route so it isn't shadowed.
 
-Get the current user with `@CurrentUser() user: Record<string, string>` (from
-`@packages/decorators`) and read `user.id` — do NOT use the old `@User` decorator.
+Get the current user with `@CurrentUser() user: JwtGuardUser` (from `@packages/decorators`) —
+do NOT use the old `@User` decorator.
 
-For a **child resource** owned via a parent (e.g. `schedule`), the routes differ: add
-`@Post('bulk')` (bulk create), `@Get('class/:classId')` (list by parent) instead of a global
-paginated `@Get()`, and `@Patch(':id')` for partial update. Declare the specific
-`bulk` / `class/:classId` routes before `:id`. See `schedule.controller.ts`.
+There is no parent/child resource pattern in this repo (no `class`/`schedule`-style ownership
+hierarchy) — every route here is guarded globally, not scoped through a parent resource.
 
-## Swagger (data-driven)
-Swagger content lives in dedicated files, not inline strings:
-- Messages: `src/data/swaggers/messages/foo.msg.ts` (re-export from `messages/index.ts`),
-  used as `FOO_SWAGGER_MESSAGES.GET_FOOS_SUCCESSFULLY`.
-- Request/response shapes: `src/data/swaggers/data/foo.swagger.ts` exporting
-  `FOO_SWAGGERS_DATA` with `CREATE_FOO_SCHEMA` (`@ApiBody({ schema: ... })`),
-  `GET_FOOS_SCHEMA` (array of `@ApiQuery(...)` objects), and `GET_DETAIL_FOO` / detail params.
-Decorate each route with `@ApiOperation`, `@ApiBody`/`@ApiQuery`/`@ApiParam`, and
-`@ApiResponse as SwaggerResponse` referencing those constants.
+## Swagger
+This repo inlines Swagger content directly on the controller (`@ApiOperation`,
+`@ApiBody({ schema: {...} })`, `@ApiQuery(...)`, `@ApiResponse as SwaggerResponse`) rather than
+pulling from `src/data/swaggers/*` data files — match `notification.controller.ts`'s inline
+style, don't introduce the separate-file pattern used in `tutor-service`/`user` unless asked to.
 
 ## Rules
-- Controllers hold no business logic — delegate everything to the service, passing `user.id`.
+- Controllers hold no business logic — delegate everything to the service.
 - Import `ZodValidationPipe` from `@packages/pipes`, DTOs/schemas from `@packages/entities/foo`.
-- Routes are protected by the global `JwtAuthGuard`. Add `@Public()` from `@packages/decorators`
-  only for intentionally open endpoints, `@Admin()` for admin-only ones.
+- Routes are protected by the global `JwtAuthGuard` (+ `LanguageGuard`, `TokenBucketGuard`). Add
+  `@Public()` from `@packages/decorators` only for intentionally open endpoints.
