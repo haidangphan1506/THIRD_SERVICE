@@ -1,6 +1,5 @@
-import { Controller, UseFilters } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { RpcExceptionFilter } from '@packages/filters';
 import { UploadService } from './upload.service';
 import type { MulterFile, UploadResponse } from './upload.interface';
 
@@ -20,7 +19,6 @@ interface UploadRpcFile {
  * sends files as `{ buffer: { type: 'Buffer', data } }` (multer/RMQ JSON) and the download
  * handler reads the S3 stream into a Buffer before returning it.
  */
-@UseFilters(RpcExceptionFilter)
 @Controller()
 export class UploadRpcController {
   constructor(private readonly uploadService: UploadService) {}

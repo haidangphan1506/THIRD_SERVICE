@@ -5,22 +5,22 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './features/email/email.module';
 import { RedisModule } from './features/redis/redis.module';
-import { RabbitMQModule } from './features/rabbitmq/rabbitmq.module';
 import { NotificationModule } from './features/notification/notification.module';
 import { JwtAuthGuard, LanguageGuard, TokenBucketGuard } from '@packages/guards';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from './features/uploads/upload.module';
+import { KafkaModule } from './features/kafka/kafka.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    KafkaModule,
     DatabaseModule,
     EmailModule,
     RedisModule,
-    RabbitMQModule,
     NotificationModule,
     UploadModule,
     JwtModule.register({

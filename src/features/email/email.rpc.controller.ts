@@ -1,14 +1,12 @@
-import { Controller, UseFilters } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
-import { RpcExceptionFilter } from '@packages/filters';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { EmailService } from './email.service';
 
 /**
- * Message-pattern mirror of `EmailController` — reached only by the gateway's `THIRD_SERVICE`
- * `ClientProxy` over RabbitMQ (RMQ transport, `third_queue`). Delegates to the same, unmodified
- * `EmailService` the HTTP controller uses; no business logic lives here.
+ * Message-pattern mirror of `EmailController` — reached by the gateway's/`user`'s Kafka
+ * `KafkaProducer` (RMQ `third_queue` too, if a caller still uses that transport). Delegates to
+ * the same, unmodified `EmailService` the HTTP controller uses; no business logic lives here.
  */
-@UseFilters(RpcExceptionFilter)
 @Controller()
 export class EmailRpcController {
   constructor(private readonly emailService: EmailService) {}
@@ -16,5 +14,12 @@ export class EmailRpcController {
   @MessagePattern('email.test')
   testSendEmail() {
     return this.emailService.testSendEmailService();
+  }
+
+  @MessagePattern('email.sendForgotPasswordMail')
+  sendForgotPasswordMail(
+    @Payload() payload: { to: string; resetToken: string; displayName: string },
+  ) {
+    return this.emailService.sendForgotPasswordMail(payload);
   }
 }

@@ -1,7 +1,6 @@
-import { Controller, UseFilters } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import type { CreateNotificationDto, GetNotificationsQueryDto } from '@packages/entities/notification';
-import { RpcExceptionFilter } from '@packages/filters';
 import { NotificationService } from './notification.service';
 
 /**
@@ -9,7 +8,6 @@ import { NotificationService } from './notification.service';
  * `THIRD_SERVICE` `ClientProxy` over RabbitMQ (RMQ transport, `third_queue`). Delegates to the
  * same, unmodified `NotificationService` the HTTP controller uses; no business logic lives here.
  */
-@UseFilters(RpcExceptionFilter)
 @Controller()
 export class NotificationRpcController {
   constructor(private readonly notificationService: NotificationService) {}
