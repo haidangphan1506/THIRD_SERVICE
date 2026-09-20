@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { RedisService } from './redis.service';
 
@@ -9,6 +9,7 @@ import { RedisService } from './redis.service';
  */
 @Controller()
 export class RedisRpcController {
+  private readonly logger = new Logger(RedisRpcController.name)
   constructor(private readonly redisService: RedisService) {}
 
   @MessagePattern('redis.get')
@@ -16,9 +17,10 @@ export class RedisRpcController {
     return this.redisService.get(payload.key);
   }
 
-  @MessagePattern('redis.set')
+  @EventPattern('redis.set')
   set(@Payload() payload: { key: string; value: string; ttlSeconds?: number }) {
-    return this.redisService.set(payload.key, payload.value, payload.ttlSeconds);
+    const data =  this.redisService.set(payload.key, payload.value, payload.ttlSeconds);
+    this.logger.log('data can set in redis', data)
   }
 
   @EventPattern('redis.del')

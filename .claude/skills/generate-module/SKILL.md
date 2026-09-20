@@ -39,7 +39,7 @@ Run `bun run build` (or `bunx tsc --noEmit`) to confirm the module resolves and 
 
 ## Not for infra modules
 This scaffold is for domain feature modules. A module wrapping an external connection (`redis`,
-`rabbitmq`) is `@Global()`, has no repository/controller, and exports its service(s) directly —
+`kafka`) is `@Global()`, has no repository/controller, and exports its service(s) directly —
 see the "Infra modules" section in `.claude/rules/nestjs-feature-pattern.md`. Same for `uploads`
 (has a `.provider.ts` instead of a repository) — its module still follows the shape above minus
 `FooRepository`, plus the provider in `providers: [...]`.
