@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
-import { KafkaContext, RmqContext } from '@nestjs/microservices';
+import { KafkaContext } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { randomUUID } from 'node:crypto';
 import {
@@ -18,37 +18,22 @@ function readHeader(headers: Record<string, unknown> | undefined, key: string): 
 }
 
 /**
- * Extracts `{pattern, headers}` from either transport this service runs — `KafkaContext` keeps
- * headers directly on the message (`getMessage().headers`), `RmqContext`'s underlying amqplib
- * message keeps them nested under `.properties.headers` instead. Falls back to RMQ's shape when
- * the Kafka-style read comes up empty, since `context.switchToRpc().getContext()` doesn't
- * identify which transport it came from without checking its own shape.
+ * Extracts `{pattern, headers}` from the Kafka context. `KafkaContext` keeps headers directly
+ * on the message (`getMessage().headers`).
  */
 function readRpcMetadata(context: ExecutionContext): {
   pattern: string;
   headers: Record<string, unknown> | undefined;
 } {
-  const rpcContext = context.switchToRpc().getContext<KafkaContext | RmqContext>();
-  if (typeof (rpcContext as KafkaContext)?.getTopic === 'function') {
-    const kafkaContext = rpcContext as KafkaContext;
-    const message = kafkaContext.getMessage() as { headers?: Record<string, unknown> } | undefined;
-    if (message?.headers) {
-      return { pattern: kafkaContext.getTopic(), headers: message.headers };
-    }
-  }
-  const rmqContext = rpcContext as RmqContext;
-  const rmqMessage = rmqContext?.getMessage?.() as
-    { properties?: { headers?: Record<string, unknown> } } | undefined;
-  return {
-    pattern: rmqContext?.getPattern?.() ?? context.getHandler().name,
-    headers: rmqMessage?.properties?.headers,
-  };
+  const kafkaContext = context.switchToRpc().getContext<KafkaContext>();
+  const message = kafkaContext.getMessage() as { headers?: Record<string, unknown> } | undefined;
+  return { pattern: kafkaContext.getTopic(), headers: message?.headers };
 }
 
 /**
  * Registered as a *microservice-scoped* global interceptor in `main.ts`
- * (`kafkaMicroservice.useGlobalInterceptors(...)` / `rmqMicroservice.useGlobalInterceptors(...)`)
- * — every `@MessagePattern`/`@EventPattern` handler on either transport runs inside the
+ * (`kafkaMicroservice.useGlobalInterceptors(...)`)
+ * — every `@MessagePattern`/`@EventPattern` handler runs inside the
  * `RequestContext` this opens. Reads the caller's `correlationId` (kept unchanged for the whole
  * distributed flow) and `traceId` (becomes this hop's `parentTraceId`) off the message headers
  * `KafkaProducer.send()`/`.emit()` attach on the sending side (see `[[kafka-rpc-plumbing]]`

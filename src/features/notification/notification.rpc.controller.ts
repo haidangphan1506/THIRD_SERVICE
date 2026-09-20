@@ -5,8 +5,8 @@ import { NotificationService } from './notification.service';
 
 /**
  * Message-pattern mirror of `NotificationController` — reached only by the gateway's
- * `THIRD_SERVICE` `ClientProxy` over RabbitMQ (RMQ transport, `third_queue`). Delegates to the
- * same, unmodified `NotificationService` the HTTP controller uses; no business logic lives here.
+ * `THIRD_SERVICE` `ClientProxy` over Kafka. Delegates to the same, unmodified
+ * `NotificationService` the HTTP controller uses; no business logic lives here.
  */
 @Controller()
 export class NotificationRpcController {

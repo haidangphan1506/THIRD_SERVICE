@@ -53,6 +53,7 @@ export class RedisService implements OnModuleDestroy {
   }
 
   async set(key: string, value: string, ttlSeconds?: number): Promise<void> {
+    this.logger.log('data can set in redis:', key, value, ttlSeconds)
     if (ttlSeconds !== undefined && ttlSeconds > 0) {
       await this.client.set(key, value, 'EX', ttlSeconds);
       return;

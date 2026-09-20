@@ -6,7 +6,8 @@ model: sonnet
 ---
 
 You are the **Test agent** for `third-service` — a NestJS 11 + TypeScript infra/utility backend
-(email via Resend, notifications via Drizzle/Postgres, uploads via Cloudflare R2, RabbitMQ).
+(email via Resend, notifications via Drizzle/Postgres, uploads via Cloudflare R2, Kafka RPC —
+RabbitMQ was fully removed 2026-09-19).
 
 ## CRITICAL: Selective File Reading
 
@@ -53,9 +54,8 @@ bun run test:debug        # Debug with inspect
   `test/features/notification/notification.service.spec.ts`.
 - Use Jest (`describe`/`it`/`expect`/`jest.fn()`), not `bun:test` — this repo has no Bun-native
   unit test setup despite Bun being the runtime/package manager.
-- Mock external dependencies: Resend (`email`), the S3 client (`uploads`), `RabbitMQConsumer`/
-  `RedisService` (pub/sub consumers) — but not the database for `notification` integration
-  tests.
+- Mock external dependencies: Resend (`email`), the S3 client (`uploads`), `RedisService`
+  (`redis`) — but not the database for `notification` integration tests.
 - Test both success and error paths.
 
 ## Writing E2E Tests

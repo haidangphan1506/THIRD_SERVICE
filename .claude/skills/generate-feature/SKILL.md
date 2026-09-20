@@ -6,7 +6,8 @@ description: Scaffold a complete NestJS feature module (entity schema/dto, contr
 # Generate NestJS Feature
 
 Scaffold a full feature module for `third-service` (this backend's infra/utility features:
-email, notification, uploads, plus the RabbitMQ/Redis infra modules).
+email, notification, uploads, plus the Kafka/Redis infra modules — RabbitMQ was fully removed
+2026-09-19).
 
 **Before running the full layer-skill chain below, check whether a full 4-layer feature is even
 the right shape.** This repo has three real shapes — see `.claude/rules/nestjs-feature-pattern.md`:
