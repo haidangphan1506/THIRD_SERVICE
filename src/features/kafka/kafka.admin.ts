@@ -19,10 +19,22 @@ export async function ensureKafkaTopics(topics: string[]): Promise<void> {
     return;
   }
 
-  const kafka = new Kafka({
-    clientId: `${process.env.KAFKA_CLIENT_ID ?? 'third-service'}-admin`,
-    brokers: (process.env.KAFKA_BROKERS ?? 'localhost:9092').split(','),
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const kafkaConfig: any = {
+    clientId: `${process.env.KAFKA_CLIENT_ID ?? 'third-prod-client'}-admin`,
+    brokers: (process.env.KAFKA_BROKERS ?? 'kafka:9092').split(','),
+    ssl: process.env.KAFKA_SSL === 'true',
+  };
+
+  if (process.env.KAFKA_SASL_ENABLED === 'true') {
+    kafkaConfig.sasl = {
+      mechanism: process.env.KAFKA_SASL_MECHANISM ?? 'plain',
+      username: process.env.KAFKA_SASL_USERNAME ?? '',
+      password: process.env.KAFKA_SASL_PASSWORD ?? '',
+    };
+  }
+
+  const kafka = new Kafka(kafkaConfig);
   const admin = kafka.admin();
   await admin.connect();
   try {

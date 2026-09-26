@@ -2,6 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from
 import { Response } from 'express';
 import { DEFAULT_LANGUAGE, type RequestWithLanguage } from '@packages/guards/language.guard';
 import { ERROR_TRANSLATIONS, translateMessage } from '../../data/i18n';
+import { getRequestContext } from '@packages/context/request-context';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -17,6 +18,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // handle response from exception
     const exceptionResponse = exception.getResponse?.() ?? null;
+
+    // Which downstream service actually threw, if the RPC error payload carried one through
+    const serviceName = (exceptionResponse as { serviceName?: string } | null)?.serviceName;
 
     let message = 'Internal server error';
 
@@ -62,6 +66,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       path: request.url,
       ...(status >= 500 && process.env.NODE_ENV !== 'production' && { trace: exception.stack }),
       timestamp: new Date().toISOString(),
+      correlationId: getRequestContext()?.correlationId,
+      ...(serviceName && { serviceName }),
     });
   }
 }
