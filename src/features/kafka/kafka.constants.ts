@@ -31,6 +31,7 @@ export const KAFKA_SERVER_TOPICS: string[] = [
   'upload.download',
   'upload.upload',
   'upload.uploadMultiple',
+  'health.redis',
 ];
 
 /**
